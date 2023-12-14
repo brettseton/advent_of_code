@@ -1,52 +1,137 @@
-use std::io::{self, BufRead};
 use std::io::Write;
+use std::io::{self, BufRead};
 
 fn main() {
-  day1(&mut io::stdin().lock(), &mut io::stdout());
+    day1(&mut io::stdin().lock(), &mut io::stdout());
 }
 
-fn day1(input: &mut impl BufRead,
-    output: &mut impl Write,) {
-  let mut line = String::new();
-  let mut sum = 0;
-  loop {
-    match input.read_line(&mut line) {
-      Ok(0) => break, // EOF
-      Ok(_) => {
-        let c1 = line.chars().find(|ch| ch.is_digit(10));
-        let c2 = line.chars().rev().find(|ch| ch.is_digit(10));
-        
-        let d1 = match c1 {
-            Some(c)=> c.to_digit(10).unwrap(),
-            None => 0
-        };
-
-        let d2 = match c2 {
-            Some(c)=> c.to_digit(10).unwrap(),
-            None => 0
-        };
-
-        sum += d1*10 + d2;
-        line.clear();
-      },
-      Err(e) => {
-        println!("Error: {}", e);
-        break;
-      },
+fn check_pattern(iter: &mut std::iter::Peekable<std::str::Chars>, pattern: &str, value: u32) -> Option<u32> {
+    let mut iter_clone = iter.clone();
+    for expected_char in pattern.chars() {
+        if let Some(ch) = iter_clone.next() {
+            if ch != expected_char {
+                return None;
+            }
+        } else {
+            return None;
+        }
     }
-  }
-  write!(output, "{}", sum).expect("Unable to write");
+
+    iter_clone.next(); // Consume the last character of the pattern
+    return Some(value);
+}
+
+fn check_pattern_rev(iter: &mut std::iter::Peekable<std::iter::Rev<std::str::Chars>>, pattern: &str, value: u32) -> Option<u32> {
+    let mut iter_clone = iter.clone();
+    for expected_char in pattern.chars() {
+        if let Some(ch) = iter_clone.next() {
+            if ch != expected_char {
+                return None;
+            }
+        } else {
+            return None;
+        }
+    }
+
+    iter_clone.next(); // Consume the last character of the pattern
+    return Some(value);
+}
+
+fn get_number_from_string(line: &String) -> u32 {
+    let mut d1 = 0;
+    let mut chars = line.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if let Some(value) = match ch {
+            'o' => check_pattern(&mut chars, "ne", 1),
+            't' => check_pattern(&mut chars, "wo", 2).or_else(|| check_pattern(&mut chars, "hree", 3)),
+            'f' => check_pattern(&mut chars, "our", 4).or_else(|| check_pattern(&mut chars, "ive", 5)),
+            's' => check_pattern(&mut chars, "ix", 6).or_else(|| check_pattern(&mut chars, "even", 7)),
+            'e' => check_pattern(&mut chars, "ight", 8),
+            'n' => check_pattern(&mut chars, "ine", 9),
+            _ => None,
+        } {
+            d1 = value;
+            break;
+        }
+
+        if ch.is_digit(10) {
+            d1 = ch.to_digit(10).expect("couldn't get number");
+            break;
+        }
+    }
+
+    let mut d2 = 0;
+    let mut chars_rev = line.chars().rev().peekable();
+
+    while let Some(ch) = chars_rev.next() {
+        if let Some(value) = match ch {
+            'e' => check_pattern_rev(&mut chars_rev, "no", 1).or_else(|| check_pattern_rev(&mut chars_rev, "erht", 3)).or_else(|| check_pattern_rev(&mut chars_rev, "vif", 5)).or_else(|| check_pattern_rev(&mut chars_rev, "nin", 9)),
+            'o' => check_pattern_rev(&mut chars_rev, "wt", 2),
+            'r' => check_pattern_rev(&mut chars_rev, "uof", 4),
+            'x' => check_pattern_rev(&mut chars_rev, "is", 6),
+            'n' => check_pattern_rev(&mut chars_rev, "eves", 7),
+            't' => check_pattern_rev(&mut chars_rev, "hgie", 8),
+            _ => None,
+        } {
+            d2 = value;
+            break;
+        }
+
+        if ch.is_digit(10) {
+            d2 = ch.to_digit(10).expect("couldn't get number");
+            break;
+        }
+    }
+
+    return d1 * 10 + d2;
+}
+
+fn day1(input: &mut impl BufRead, output: &mut impl Write) {
+    let mut line = String::new();
+    let mut sum = 0;
+    loop {
+        match input.read_line(&mut line) {
+            Ok(0) => break, // EOF
+            Ok(_) => {
+                sum += get_number_from_string(&line);
+                line.clear();
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+                break;
+            }
+        }
+    }
+    write!(output, "{}", sum).expect("Unable to write");
 }
 
 #[test]
 fn puzzle1() {
     let mut output: Vec<u8> = Vec::new();
-    day1(&mut "1abc2\npqr3stu8vwx\na1b2c3d4e5f\ntreb7uchet".as_bytes(), &mut output);
-    assert_eq!(&output, b"142");
+    day1(
+        &mut "two1nine
+    eightwothree
+    abcone2threexyz
+    xtwone3four
+    4nineeightseven2
+    zoneight234
+    7pqrstsixteen"
+            .as_bytes(),
+        &mut output,
+    );
+    assert_eq!(&output, b"281");
 }
 
 #[test]
 fn puzzle2() {
+    let mut output: Vec<u8> = Vec::new();
+    day1(&mut "tone1nine".as_bytes(), &mut output);
+    assert_eq!(&output, b"19");
+}
+
+#[test]
+fn puzzle3() {
     let mut output: Vec<u8> = Vec::new();
     day1(&mut "9cbncbxclbvkmfzdnldc
     jjn1drdffhs
@@ -1048,5 +1133,5 @@ fn puzzle2() {
     nineonebmfdxxfqvvkrblrd9
     5six6cvmqttbsxkzg
     42seven13four4".as_bytes(), &mut output);
-    assert_eq!(&output, b"54953");
+    assert_eq!(&output, b"53868");
 }
