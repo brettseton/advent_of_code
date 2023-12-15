@@ -5,7 +5,7 @@ fn main() {
     day1(&mut io::stdin().lock(), &mut io::stdout());
 }
 
-fn check_pattern(iter: &mut std::iter::Peekable<std::str::Chars>, pattern: &str, value: u32) -> Option<u32> {
+fn check_pattern(mut iter: impl Iterator<Item = usize>, pattern: &str, value: u32) -> Option<u32> {
     let mut iter_clone = iter.clone();
     for expected_char in pattern.chars() {
         if let Some(ch) = iter_clone.next() {
