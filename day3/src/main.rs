@@ -16,12 +16,14 @@ fn main() {
     println!("part 2 test 2 answer: {}", ans);
 }
 
+// Gets the parts from a schematic and sums them
 fn part1(file_path: &str) -> u32 {
     let input = fs::read_to_string(file_path).expect("Unable to read the input file");
     let schematic = Schematic::new(&input);
     return schematic.parts.iter().map(|x| x.value).sum();
 }
 
+// Gets the gears from a schematic, multiplies the parts in each gear together and sums the results
 fn part2(file_path: &str) -> u32 {
     let input = fs::read_to_string(file_path).expect("Unable to read the input file");
     let schematic = Schematic::new(&input);
