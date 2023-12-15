@@ -1,7 +1,5 @@
 use std::collections::HashSet;
-use std::fs::{self, File};
-use std::io::{self, BufRead};
-use std::path::Path;
+use std::fs;
 use std::str::FromStr;
 
 fn main() {
@@ -86,7 +84,6 @@ impl FromStr for Schematic {
 }
 
 fn get_numbers(line: &str, line_number: usize) -> Vec<Number> {
-    let mut numbers = Vec::new();
     let mut numbers_vec = Vec::new();
     let mut current_number = String::new();
 
@@ -95,7 +92,6 @@ fn get_numbers(line: &str, line_number: usize) -> Vec<Number> {
             current_number.push(ch.1);
         } else if !current_number.is_empty() {
             if let Ok(number) = current_number.parse::<u32>() {
-                numbers.push(number);
                 numbers_vec.push(Number {
                     start_index: ch.0 - current_number.len(),
                     end_index: ch.0 - 1,
@@ -108,7 +104,6 @@ fn get_numbers(line: &str, line_number: usize) -> Vec<Number> {
     }
 
     if let Ok(number) = current_number.parse::<u32>() {
-        numbers.push(number);
         numbers_vec.push(Number {
             start_index: line.len() - current_number.len(),
             end_index: line.len() - 1,
@@ -130,6 +125,7 @@ fn get_gears(
 
     let line = str.lines().nth(line_index).expect("no line");
 
+    // search nearest neighbor of each '*' and only add each number once
     for p_gear in potential_gears {
         let mut numbers = HashSet::new();
 
@@ -147,13 +143,6 @@ fn get_gears(
                 for x in start_x..=end_x {
                     if let Some(ch) = prev.chars().nth(x) {
                         if ch.is_digit(10) {
-                            let num = parts
-                                .iter()
-                                .find(|p| {
-                                    p.line_number == y && x >= p.start_index && x <= p.end_index
-                                })
-                                .expect("what happened?")
-                                .clone();
                             numbers.insert(
                                 parts
                                     .iter()
@@ -320,5 +309,5 @@ fn part2_test1() {
 #[test]
 fn part2_test2() {
     let result = part2("C:/git/advent_of_code/day3/input/test2.txt");
-    assert_eq!(result, 2286);
+    assert_eq!(result, 69527306);
 }
