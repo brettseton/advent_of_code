@@ -146,5 +146,5 @@ fn part2_test1() {
 #[test]
 fn part2_test2() {
     let result = part2("C:/git/advent_of_code/day2_1/input/test2.txt");
-    assert_eq!(result, 2286);
+    assert_eq!(result, 77021);
 }
