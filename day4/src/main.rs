@@ -105,10 +105,9 @@ impl FromStr for ScratchCard {
         .cloned()
         .collect();
 
-        let points = if overlap.len() > 0 {
-            2_usize.pow((overlap.len() - 1) as u32)
-        } else {
-            0
+        let points = match overlap.len() {
+            0 => 0,
+            len => 2_usize.pow((len - 1) as u32)
         };
 
         return Ok(ScratchCard { id, winning_numbers, numbers, overlap_count: overlap.len(), points});
