@@ -27,7 +27,7 @@ fn part2(file_path: &str) -> usize {
     let almanac = Almanac::new(&input);
     let seed_destinations = almanac.get_seed_range_destinations();
 
-    let min = seed_destinations.iter().flatten().map(|b| b.start).min().unwrap_or(0);
+    let min = seed_destinations.iter().map(|b| b.start).min().unwrap_or(0);
     return min;
 }
 
@@ -55,7 +55,7 @@ impl Almanac {
         return destinations;
     }
 
-    pub fn get_seed_range_destinations(&self) -> Vec<Vec<SeedRange>> {
+    pub fn get_seed_range_destinations(&self) -> Vec<SeedRange> {
         let mut destinations = Vec::new();
         for chunks in self.seeds.chunks(2) {
             let seed_start = chunks[0];
@@ -64,7 +64,7 @@ impl Almanac {
             for map in self.maps.iter() {
                 seed_ranges = map.get_map_destination_ranges(seed_ranges);
             }
-            destinations.push(seed_ranges);
+            destinations.extend(seed_ranges.into_iter());
         }
         return destinations;
     }
