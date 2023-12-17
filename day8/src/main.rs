@@ -61,13 +61,13 @@ fn part1_test1() {
 #[test]
 fn part1_test2() {
     let result = part1("C:/git/advent_of_code/day8/input/test2.txt");
-    assert_eq!(result, 249390788);
+    assert_eq!(result, 0);
 }
 
 #[test]
 fn part2_test1() {
     let result = part1("C:/git/advent_of_code/day8/input/test3.txt");
-    assert_eq!(result, 5905);
+    assert_eq!(result, 0);
 }
 
 #[test]
