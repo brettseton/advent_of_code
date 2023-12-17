@@ -50,18 +50,13 @@ impl Oasis {
 
     pub fn get_prediction(report: &Vec<i32>) -> i32 {
         let pyramid: Vec<Vec<i32>> = Oasis::get_pyramid(report);
-
         let sum: i32 = pyramid.iter().map(|x| x.last().expect("has elements")).sum();
         return report.last().expect("has elements") + sum;
     }
 
     pub fn get_left_prediction(report: &Vec<i32>) -> i32 {
         let pyramid: Vec<Vec<i32>> = Oasis::get_pyramid(report);
-
-        let mut sum = 0;
-        for line in pyramid.iter().rev() {
-            sum = line.first().expect("has element") - sum;
-        }
+        let sum = pyramid.iter().rev().fold(0, |acc, e| e.first().expect("has element") - acc );
         return report.first().expect("has elements") - sum;
     }
 
