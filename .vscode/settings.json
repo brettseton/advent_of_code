@@ -8,5 +8,6 @@
         ".\\day5\\Cargo.toml",
         ".\\day6\\Cargo.toml",
         ".\\day7\\Cargo.toml",
+        ".\\day8\\Cargo.toml",
     ]
 }
