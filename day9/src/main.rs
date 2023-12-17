@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use std::{fs};
+use std::fs;
 
 fn main() {
     let ans = part1("C:/git/advent_of_code/day9/input/test1.txt");
@@ -49,7 +49,7 @@ impl Oasis {
     }
 
     pub fn get_prediction(report: &Vec<i32>) -> i32 {
-        let mut pyramid: Vec<Vec<i32>> = Oasis::get_pyramid(report);
+        let pyramid: Vec<Vec<i32>> = Oasis::get_pyramid(report);
 
         let sum: i32 = pyramid.iter().map(|x| x.last().expect("has elements")).sum();
         return report.last().expect("has elements") + sum;
