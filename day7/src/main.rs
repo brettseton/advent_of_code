@@ -236,7 +236,8 @@ impl JHand {
             char_counts.entry(c).and_modify(|count| *count += 1).or_insert(1);
         }
 
-        //
+        // Give the jokers to the highest current count
+        // and remove it from the set
         if let Some(&joker_count) = char_counts.get(&'J') {
             if char_counts.len() > 1 {
                 let (largest_key, _largest_value) = char_counts
