@@ -51,19 +51,34 @@ impl GalaxyMap {
     }
 
     pub fn get_galaxy_distances_after_expansion(&self, expansion_size: usize) -> Vec<usize> {
-        return self.galaxies.iter().enumerate().flat_map(|(i, galaxy1)| {
-            self.galaxies.iter().skip(i + 1).map(move |galaxy2| {
-                let max_x = galaxy1.x.max(galaxy2.x);
-                let min_x = galaxy1.x.min(galaxy2.x);
-                let max_y = galaxy1.y.max(galaxy2.y);
-                let min_y = galaxy1.y.min(galaxy2.y);
-    
-                let expanded_col_count = self.expanded_cols.iter().filter(|&&p| p > min_x && p < max_x).count();
-                let expanded_row_count = self.expanded_rows.iter().filter(|&&p| p > min_y && p < max_y).count();
-    
-                return (max_x - min_x + max_y - min_y) + expanded_col_count * (expansion_size - 1) + expanded_row_count * (expansion_size - 1);
+        return self
+            .galaxies
+            .iter()
+            .enumerate()
+            .flat_map(|(i, galaxy1)| {
+                self.galaxies.iter().skip(i + 1).map(move |galaxy2| {
+                    let max_x = galaxy1.x.max(galaxy2.x);
+                    let min_x = galaxy1.x.min(galaxy2.x);
+                    let max_y = galaxy1.y.max(galaxy2.y);
+                    let min_y = galaxy1.y.min(galaxy2.y);
+
+                    let expanded_col_count = self
+                        .expanded_cols
+                        .iter()
+                        .filter(|&&p| p > min_x && p < max_x)
+                        .count();
+                    let expanded_row_count = self
+                        .expanded_rows
+                        .iter()
+                        .filter(|&&p| p > min_y && p < max_y)
+                        .count();
+
+                    return (max_x - min_x + max_y - min_y)
+                        + expanded_col_count * (expansion_size - 1)
+                        + expanded_row_count * (expansion_size - 1);
+                })
             })
-        }).collect();
+            .collect();
     }
 }
 
@@ -81,10 +96,15 @@ impl FromStr for GalaxyMap {
         let galaxies: Vec<Point> = map
             .iter()
             .enumerate()
-            .filter(|(_i, &x)| x == '#')
-            .map(|(i, _x)| Point {
-                x: i % map_width,
-                y: i / map_width,
+            .filter_map(|(i, &ch)| {
+                if ch == '#' {
+                    return Some(Point {
+                        x: i % map_width,
+                        y: i / map_width,
+                    });
+                } else {
+                    return None;
+                }
             })
             .collect();
 
@@ -97,8 +117,8 @@ impl FromStr for GalaxyMap {
             .collect();
 
         let expanded_cols: Vec<usize> = (0..map_width)
-            .filter(|&col_index| {
-                (0..map_height).all(|row_index| map[col_index + row_index * map_width] == '.')
+            .filter(|&x| {
+                (0..map_height).all(|y| map[x + y * map_width] == '.')
             })
             .collect();
 
