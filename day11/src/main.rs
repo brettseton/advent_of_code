@@ -19,7 +19,6 @@ fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("Unable to read the input file");
     let galaxy_map = GalaxyMap::new(&input);
     let distances = galaxy_map.get_galaxy_distances_after_expansion(2);
-
     return distances.iter().sum();
 }
 
@@ -27,7 +26,6 @@ fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("Unable to read the input file");
     let galaxy_map = GalaxyMap::new(&input);
     let distances = galaxy_map.get_galaxy_distances_after_expansion(1_000_000);
-
     return distances.iter().sum();
 }
 
@@ -53,31 +51,19 @@ impl GalaxyMap {
     }
 
     pub fn get_galaxy_distances_after_expansion(&self, expansion_size: usize) -> Vec<usize> {
-        let mut distances = Vec::new();
-        for i in 0..self.galaxies.len() {
-            for j in (i + 1)..self.galaxies.len() {
-                let max_x = self.galaxies[i].x.max(self.galaxies[j].x);
-                let min_x = self.galaxies[i].x.min(self.galaxies[j].x);
-
-                let max_y = self.galaxies[i].y.max(self.galaxies[j].y);
-                let min_y = self.galaxies[i].y.min(self.galaxies[j].y);
-                let mut distance = max_x - min_x + max_y - min_y;
-                distance += self
-                    .expanded_cols
-                    .iter()
-                    .filter(|&&p| p > min_x && p < max_x)
-                    .count()
-                    * (expansion_size - 1);
-                distance += self
-                    .expanded_rows
-                    .iter()
-                    .filter(|&&p| p > min_y && p < max_y)
-                    .count()
-                    * (expansion_size - 1);
-                distances.push(distance);
-            }
-        }
-        return distances;
+        return self.galaxies.iter().enumerate().flat_map(|(i, galaxy1)| {
+            self.galaxies.iter().skip(i + 1).map(move |galaxy2| {
+                let max_x = galaxy1.x.max(galaxy2.x);
+                let min_x = galaxy1.x.min(galaxy2.x);
+                let max_y = galaxy1.y.max(galaxy2.y);
+                let min_y = galaxy1.y.min(galaxy2.y);
+    
+                let expanded_col_count = self.expanded_cols.iter().filter(|&&p| p > min_x && p < max_x).count();
+                let expanded_row_count = self.expanded_rows.iter().filter(|&&p| p > min_y && p < max_y).count();
+    
+                return (max_x - min_x + max_y - min_y) + expanded_col_count * (expansion_size - 1) + expanded_row_count * (expansion_size - 1);
+            })
+        }).collect();
     }
 }
 
