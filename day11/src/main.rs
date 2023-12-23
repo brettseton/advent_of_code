@@ -56,7 +56,7 @@ impl GalaxyMap {
             .iter()
             .enumerate()
             .flat_map(|(i, galaxy1)| {
-                self.galaxies.iter().skip(i + 1).map(move |galaxy2| {
+                self.galaxies.iter().skip(i + 1).map(|galaxy2| {
                     let max_x = galaxy1.x.max(galaxy2.x);
                     let min_x = galaxy1.x.min(galaxy2.x);
                     let max_y = galaxy1.y.max(galaxy2.y);
@@ -65,12 +65,12 @@ impl GalaxyMap {
                     let expanded_col_count = self
                         .expanded_cols
                         .iter()
-                        .filter(|&&p| p > min_x && p < max_x)
+                        .filter(|&&x| x > min_x && x < max_x)
                         .count();
                     let expanded_row_count = self
                         .expanded_rows
                         .iter()
-                        .filter(|&&p| p > min_y && p < max_y)
+                        .filter(|&&y| y > min_y && y < max_y)
                         .count();
 
                     return (max_x - min_x + max_y - min_y)
