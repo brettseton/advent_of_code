@@ -14,5 +14,6 @@
         ".\\day10\\Cargo.toml",
         ".\\day11\\Cargo.toml",
         ".\\day12\\Cargo.toml",
+        ".\\day13\\Cargo.toml",
     ]
 }
