@@ -36,36 +36,28 @@ impl Sequence {
     }
 
     fn get_hashes(&self) -> usize {
-        self.calcs.iter()
-            .map(|calc| Sequence::get_hash(calc))
-            .sum()
+        self.calcs.iter().map(|calc| Sequence::get_hash(calc)).sum()
     }
 
     fn get_hash(s: &str) -> usize {
-       let mut sum = 0;
+        let mut sum = 0;
 
-       for c in s.chars() {
-           sum += c as usize;
-           sum *= 17;
-           sum = sum % 256;
-       }
+        for c in s.chars() {
+            sum = (sum + c as usize) * 17 % 256;
+        }
 
-       return sum;
+        return sum;
     }
 }
-
 
 #[derive(Debug)]
 struct SequenceError;
 
 impl FromStr for Sequence {
     type Err = SequenceError;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let calcs = s
-        .split(',')
-        .map(String::from)
-        .collect::<Vec<String>>();
+        let calcs = s.split(',').map(String::from).collect::<Vec<String>>();
         return Ok(Sequence { calcs });
     }
 }
