@@ -93,8 +93,8 @@ impl ConditionRecord {
     }
 
     pub fn get_arrangement_count(
-        springs: &String,
-        sizes: &Vec<usize>,
+        springs: &str,
+        sizes: &[usize],
         start_index: usize,
         size_index: usize,
         lookup: &mut Vec<Vec<Option<usize>>>,
@@ -138,50 +138,22 @@ impl ConditionRecord {
                         lookup,
                     );
                     // '#' option
-                    if let Some(&size) = sizes.iter().nth(size_index) {
-                        if let Some(spring) = springs.get(start_index..start_index + size) {
-                            if !spring.contains('.') {
-                                if let Some(next) = springs.chars().nth(start_index + size) {
-                                    if next != '#' {
-                                        let next_index = start_index + size + 1;
-
-                                        count += ConditionRecord::get_arrangement_count(
-                                            springs,
-                                            sizes,
-                                            next_index,
-                                            size_index + 1,
-                                            lookup,
-                                        )
-                                    }
-                                } else {
-                                    count += if sizes.len() == size_index + 1 { 1 } else { 0 };
-                                }
-                            }
-                        }
-                    }
+                    count += ConditionRecord::count_hash(
+                        springs,
+                        sizes,
+                        start_index,
+                        size_index,
+                        lookup,
+                    );
                 }
                 '#' => {
-                    if let Some(&size) = sizes.iter().nth(size_index) {
-                        if let Some(spring) = springs.get(start_index..start_index + size) {
-                            if !spring.contains('.') {
-                                if let Some(next) = springs.chars().nth(start_index + size) {
-                                    if next != '#' {
-                                        let next_index = start_index + size + 1;
-
-                                        count = ConditionRecord::get_arrangement_count(
-                                            springs,
-                                            sizes,
-                                            next_index,
-                                            size_index + 1,
-                                            lookup,
-                                        )
-                                    }
-                                } else {
-                                    count = if sizes.len() == size_index + 1 { 1 } else { 0 };
-                                }
-                            }
-                        }
-                    }
+                    count = ConditionRecord::count_hash(
+                        springs,
+                        sizes,
+                        start_index,
+                        size_index,
+                        lookup,
+                    );
                 }
                 default => panic!("invalid character '{}'", default),
             };
@@ -189,6 +161,36 @@ impl ConditionRecord {
 
         lookup[start_index][size_index] = Some(count);
         return count;
+    }
+
+    fn count_hash(
+        springs: &str,
+        sizes: &[usize],
+        start_index: usize,
+        size_index: usize,
+        lookup: &mut Vec<Vec<Option<usize>>>,
+    ) -> usize {
+        if let Some(&size) = sizes.get(size_index) {
+            if let Some(spring) = springs.get(start_index..start_index + size) {
+                if !spring.contains('.') {
+                    if let Some(next_char) = springs.chars().nth(start_index + size) {
+                        if next_char != '#' {
+                            return ConditionRecord::get_arrangement_count(
+                                springs,
+                                sizes,
+                                start_index + size + 1,
+                                size_index + 1,
+                                lookup,
+                            );
+                        }
+                    } else {
+                        return if sizes.len() == size_index + 1 { 1 } else { 0 };
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 }
 
