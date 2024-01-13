@@ -1,16 +1,16 @@
 use std::{fs, str::FromStr};
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day12/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 : {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day12/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 : {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day12/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 : {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day12/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 : {}", ans);
 }
 
@@ -42,7 +42,7 @@ impl ConditionReport {
     }
 
     pub fn get_arrangements(&self) -> usize {
-        return self.rows.iter().map(|x| x.get_arrangements()).sum();
+        return self.rows.iter().map(|x| x.get_arrangements(false)).sum();
     }
 }
 
@@ -81,7 +81,12 @@ impl ConditionRecord {
         };
     }
 
-    pub fn get_arrangements(&self) -> usize {
+    pub fn get_arrangements(&self, use_dynamic_solution: bool) -> usize {
+
+        if use_dynamic_solution {
+            return ConditionRecord::get_arrangement_count_dp(&self.springs, &self.sizes);
+        }
+
         let mut lookup = vec![vec![None; self.sizes.len()]; self.springs.len()];
         return ConditionRecord::get_arrangement_count(
             &self.springs,
@@ -192,6 +197,66 @@ impl ConditionRecord {
 
         return 0;
     }
+
+    /// Solves a dynamic programming problem to count the number of arrangements of springs.
+    ///
+    /// The function takes a string `spring` representing a field of springs and an array `sizes`
+    /// containing the sizes of contiguous groups of damaged springs. It calculates the total number
+    /// of valid arrangements where contiguous groups of damaged springs of specified sizes are allowed.
+    ///
+    /// # Arguments
+    ///
+    /// * `spring` - A string representing the field of springs.
+    /// * `sizes` - An array of sizes for contiguous groups of damaged springs.
+    ///
+    /// # Returns
+    ///
+    /// The total number of valid arrangements based on the specified sizes of damaged springs.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let result = get_arrangement_count_dp(".??.###", &[2, 3]);
+    /// assert_eq!(result, 1);
+    /// ```
+    fn get_arrangement_count_dp(spring: &str, sizes: &[usize]) -> usize {
+        //Prepend a '.' and trim any '.' from the end 
+        let spring = format!(".{}", spring.trim_end_matches('.')).chars().collect::<Vec<_>>();
+    
+        let mut arrangement_count:Vec<usize> = vec![0; spring.len() + 1];
+        arrangement_count[0] = 1;
+    
+        for (i, _) in spring.iter().take_while(|&&c| c != '#').enumerate() {
+            arrangement_count[i + 1] = 1;
+        }
+    
+        for &size in sizes {
+            let mut new_arrangement_count = vec![0; spring.len() + 1];
+            let mut group_length = 0;
+    
+            for (i, &c) in spring.iter().enumerate() {
+                // reset the group length or increase
+                if c == '.' {
+                    group_length = 0;
+                } else {
+                    group_length += 1;
+                }
+    
+                if c != '#' {
+                    new_arrangement_count[i + 1] += new_arrangement_count[i];
+                }
+    
+                if group_length >= size && spring[i - size] != '#' {
+                    new_arrangement_count[i + 1] += arrangement_count[i - size];
+                }
+            }
+    
+            arrangement_count = new_arrangement_count;
+        }
+    
+        return *arrangement_count.last().unwrap();
+    }
+
 }
 
 #[derive(Debug)]
