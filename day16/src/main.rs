@@ -16,14 +16,14 @@ fn main() {
 
 fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
-    let mut contraption = Contraption::new(&input);
-    return contraption.get_num_energized();
+    let contraption = Contraption::new(&input);
+    return contraption.get_num_energized(Beam { x: 0, y: 0, traveling: Direction::East });
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let contraption = Contraption::new(&input);
-    return contraption.get_box_score();
+    return contraption.get_max_energized();
 }
 
 enum Direction {
@@ -48,7 +48,6 @@ struct Contraption {
     grid: Vec<Vec<char>>,
     width: usize,
     height: usize,
-    visited_map: Vec<Vec<Vec<bool>>>,
 }
 
 struct Beam {
@@ -62,14 +61,25 @@ impl Contraption {
         return Contraption::from_str(str).expect("");
     }
 
-    fn get_num_energized(&mut self) -> usize {
-        let mut queue = vec![Beam { x: 0, y: 0, traveling: Direction::East }];
+    fn get_max_energized(&self) -> usize {
+        let max_down = (0..self.width).map(|x| self.get_num_energized(Beam {x,    y: 0, traveling: Direction::South})).max().unwrap();
+        let max_up   = (0..self.width).map(|x| self.get_num_energized(Beam {x,    y: self.height - 1, traveling: Direction::North})).max().unwrap();
+        let max_right= (0..self.height).map(|y| self.get_num_energized(Beam {x: 0,y: y, traveling: Direction::East})).max().unwrap();
+        let max_left= (0..self.height).map(|y| self.get_num_energized(Beam {x: self.width - 1,y: y, traveling: Direction::West})).max().unwrap();
+
+        let max = *[max_down, max_up, max_right, max_left].iter().max().unwrap();
+        return max;
+    }
+
+    fn get_num_energized(&self, start_beam: Beam) -> usize {
+        let mut queue = vec![start_beam];
+        let mut visited_map: Vec<Vec<Vec<bool>>> = vec![vec![vec![false; 4]; self.width]; self.height];
 
         while let Some(beam) = queue.pop() {
-            if self.visited_map[beam.y][beam.x][beam.traveling.to_usize()] {
+            if visited_map[beam.y][beam.x][beam.traveling.to_usize()] {
                 continue;
             } else {
-                self.visited_map[beam.y][beam.x][beam.traveling.to_usize()] = true;
+                visited_map[beam.y][beam.x][beam.traveling.to_usize()] = true;
             }
 
             let beams = self.get_connected_beams(&beam);
@@ -82,12 +92,8 @@ impl Contraption {
             }
         }
         
-        let energized: usize = self.visited_map.iter().map(|x| x.iter().filter(|y| y.iter().any( |&v| v)).count()).sum();
+        let energized: usize = visited_map.iter().map(|x| x.iter().filter(|y| y.iter().any( |&v| v)).count()).sum();
         return energized;
-    }
-
-    fn get_box_score(&self) -> usize {
-        return 0;
     }
 
     pub fn get_connected_beams(&self, beam: &Beam) -> Vec<Option<Beam>> {
@@ -168,7 +174,6 @@ impl FromStr for Contraption {
             grid,
             width,
             height,
-            visited_map: vec![vec![vec![false; 4]; width]; height],
         });
     }
 }
@@ -188,11 +193,11 @@ pub fn part1_test2() {
 #[test]
 pub fn part2_test1() {
     let ans = part2("input/test1.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 51);
 }
 
 #[test]
 pub fn part2_test2() {
     let ans = part2("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 8674);
 }
