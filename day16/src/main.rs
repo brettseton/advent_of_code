@@ -1,0 +1,198 @@
+use std::{fs, str::FromStr};
+
+fn main() {
+    let ans = part1("input/test1.txt");
+    println!("part 1 test 1 : {}", ans);
+
+    let ans = part1("input/test2.txt");
+    println!("part 1 test 2 : {}", ans);
+
+    let ans = part2("input/test1.txt");
+    println!("part 2 test 1 : {}", ans);
+
+    let ans = part2("input/test2.txt");
+    println!("part 2 test 2 : {}", ans);
+}
+
+fn part1(file_path: &str) -> usize {
+    let input = fs::read_to_string(file_path).expect("file input");
+    let mut contraption = Contraption::new(&input);
+    return contraption.get_num_energized();
+}
+
+fn part2(file_path: &str) -> usize {
+    let input = fs::read_to_string(file_path).expect("file input");
+    let contraption = Contraption::new(&input);
+    return contraption.get_box_score();
+}
+
+enum Direction {
+    North,
+    East,
+    South,
+    West,
+}
+
+impl Direction {
+    pub fn to_usize(&self) -> usize {
+        match self {
+            Self::North => 0,
+            Self::East  => 1,
+            Self::South => 2,
+            Self::West  => 3,
+        }
+    }
+}
+
+struct Contraption {
+    grid: Vec<Vec<char>>,
+    width: usize,
+    height: usize,
+    visited_map: Vec<Vec<Vec<bool>>>,
+}
+
+struct Beam {
+    x: usize,
+    y: usize,
+    traveling: Direction,
+}
+
+impl Contraption {
+    pub fn new(str: &str) -> Contraption {
+        return Contraption::from_str(str).expect("");
+    }
+
+    fn get_num_energized(&mut self) -> usize {
+        let mut queue = vec![Beam { x: 0, y: 0, traveling: Direction::East }];
+
+        while let Some(beam) = queue.pop() {
+            if self.visited_map[beam.y][beam.x][beam.traveling.to_usize()] {
+                continue;
+            } else {
+                self.visited_map[beam.y][beam.x][beam.traveling.to_usize()] = true;
+            }
+
+            let beams = self.get_connected_beams(&beam);
+
+            for beam in beams {
+                match beam {
+                    Some(b) => queue.push(b),
+                    None => (),
+                }
+            }
+        }
+        
+        let energized: usize = self.visited_map.iter().map(|x| x.iter().filter(|y| y.iter().any( |&v| v)).count()).sum();
+        return energized;
+    }
+
+    fn get_box_score(&self) -> usize {
+        return 0;
+    }
+
+    pub fn get_connected_beams(&self, beam: &Beam) -> Vec<Option<Beam>> {
+        match self.grid[beam.y][beam.x] {
+            '.' => {
+                return match beam.traveling {
+                    Direction::North => vec![self.get_beam(beam.x,  0, beam.y, -1, Direction::North)],
+                    Direction::South => vec![self.get_beam(beam.x,  0, beam.y,  1, Direction::South)],
+                    Direction::East  => vec![self.get_beam(beam.x,  1, beam.y,  0, Direction::East )],
+                    Direction::West  => vec![self.get_beam(beam.x, -1, beam.y,  0, Direction::West )],
+                };
+            },
+            '\\' => {
+                return match beam.traveling {
+                    Direction::North => vec![self.get_beam(beam.x, -1,beam.y,  0,Direction::West )],
+                    Direction::South => vec![self.get_beam(beam.x,  1,beam.y,  0,Direction::East )],
+                    Direction::East  => vec![self.get_beam(beam.x,  0,beam.y,  1,Direction::South)],
+                    Direction::West  => vec![self.get_beam(beam.x,  0,beam.y, -1,Direction::North)],
+                };
+            }
+            ,
+            '/' => {
+                return match beam.traveling {
+                    Direction::North => vec![self.get_beam(beam.x,  1,beam.y,  0,Direction::East)],
+                    Direction::South => vec![self.get_beam(beam.x, -1,beam.y,  0,Direction::West )],
+                    Direction::East  => vec![self.get_beam(beam.x,  0,beam.y, -1,Direction::North)],
+                    Direction::West  => vec![self.get_beam(beam.x,  0,beam.y,  1,Direction::South)],
+                };
+            }
+            '|' => {
+                return match beam.traveling {
+                    Direction::North => vec![self.get_beam(beam.x,  0,beam.y, -1,Direction::North)],
+                    Direction::South => vec![self.get_beam(beam.x,  0,beam.y,  1,Direction::South)],
+                    Direction::East  => vec![self.get_beam(beam.x,  0,beam.y, -1,Direction::North), self.get_beam(beam.x, 0,beam.y, 1,Direction::South)],
+                    Direction::West  => vec![self.get_beam(beam.x,  0,beam.y, -1,Direction::North), self.get_beam(beam.x, 0,beam.y, 1,Direction::South)],
+                };
+            },
+            '-' => {
+                return match beam.traveling {
+                    Direction::North => vec![self.get_beam(beam.x,  1,beam.y,  0, Direction::East), self.get_beam(beam.x, -1,beam.y, 0,Direction::West)],
+                    Direction::South => vec![self.get_beam(beam.x,  1,beam.y,  0, Direction::East), self.get_beam(beam.x, -1,beam.y, 0,Direction::West)],
+                    Direction::East  => vec![self.get_beam(beam.x,  1,beam.y,  0, Direction::East)],
+                    Direction::West  => vec![self.get_beam(beam.x, -1,beam.y,  0, Direction::West)],
+                };
+            },
+            _ => panic!("unexpected character"),
+        }
+    }
+
+    pub fn get_beam(&self, x: usize, dx: isize, y: usize, dy: isize, traveling: Direction) -> Option<Beam> {
+
+        let new_x = x.checked_add_signed(dx);
+        let new_y = y.checked_add_signed(dy);
+        if new_x.is_some_and(|x| x <self.width)
+          && new_y.is_some_and(|y| y <self.height) {
+            return Some(Beam { x: new_x.unwrap(), y: new_y.unwrap(), traveling});
+          }
+
+        return None;
+    }
+
+}
+
+#[derive(Debug)]
+struct ContraptionError;
+
+impl FromStr for Contraption {
+    type Err = ContraptionError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let width = s.lines().nth(0).unwrap().len();
+        let height = s.lines().count();
+        let grid = s
+            .lines()
+            .map(|s| s.chars().collect::<Vec<char>>())
+            .collect::<Vec<Vec<char>>>();
+        return Ok(Contraption {
+            grid,
+            width,
+            height,
+            visited_map: vec![vec![vec![false; 4]; width]; height],
+        });
+    }
+}
+
+#[test]
+pub fn part1_test1() {
+    let ans = part1("input/test1.txt");
+    assert_eq!(ans, 46);
+}
+
+#[test]
+pub fn part1_test2() {
+    let ans = part1("input/test2.txt");
+    assert_eq!(ans, 8539);
+}
+
+#[test]
+pub fn part2_test1() {
+    let ans = part2("input/test1.txt");
+    assert_eq!(ans, 0);
+}
+
+#[test]
+pub fn part2_test2() {
+    let ans = part2("input/test2.txt");
+    assert_eq!(ans, 0);
+}
