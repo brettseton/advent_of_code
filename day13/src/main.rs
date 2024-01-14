@@ -67,6 +67,12 @@ impl AshRockMap {
     }
 
     pub fn get_mirror_location(&self, allowed_differences: usize) -> usize {
+        
+        // Horizontal mirror
+        if let Some(match_index) = AshRockMap::get_mirror_location_from_lines(&self.map, allowed_differences){
+            return match_index * 100;
+        }
+        
         let map_width = self.map.iter().nth(0).unwrap().len();
         let map_height = self.map.len();
         let vertical_map: Vec<String> = (0..map_width)
@@ -81,12 +87,6 @@ impl AshRockMap {
         if let Some(match_index) = AshRockMap::get_mirror_location_from_lines(&vertical_map, allowed_differences){
             return match_index;
         }
-
-        // Horizontal mirror
-        if let Some(match_index) = AshRockMap::get_mirror_location_from_lines(&self.map, allowed_differences){
-            return match_index * 100;
-        }
-
         
         return 0;
     }
