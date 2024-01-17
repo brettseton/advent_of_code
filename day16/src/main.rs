@@ -62,10 +62,10 @@ impl Contraption {
     }
 
     fn get_max_energized(&self) -> usize {
-        let max_down = (0..self.width).map(|x| self.get_num_energized(Beam {x,    y: 0, traveling: Direction::South})).max().unwrap();
-        let max_up   = (0..self.width).map(|x| self.get_num_energized(Beam {x,    y: self.height - 1, traveling: Direction::North})).max().unwrap();
-        let max_right= (0..self.height).map(|y| self.get_num_energized(Beam {x: 0,y: y, traveling: Direction::East})).max().unwrap();
-        let max_left= (0..self.height).map(|y| self.get_num_energized(Beam {x: self.width - 1,y: y, traveling: Direction::West})).max().unwrap();
+        let max_down = (0..self.width).map(|x|  self.get_num_energized(Beam {                x, y:               0, traveling: Direction::South})).max().unwrap();
+        let max_up   = (0..self.width).map(|x|  self.get_num_energized(Beam {                x, y: self.height - 1, traveling: Direction::North})).max().unwrap();
+        let max_right= (0..self.height).map(|y| self.get_num_energized(Beam {x:              0, y:               y, traveling: Direction::East})).max().unwrap();
+        let max_left = (0..self.height).map(|y| self.get_num_energized(Beam {x: self.width - 1, y:               y, traveling: Direction::West})).max().unwrap();
 
         let max = *[max_down, max_up, max_right, max_left].iter().max().unwrap();
         return max;
