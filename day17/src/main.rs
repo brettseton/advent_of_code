@@ -18,17 +18,22 @@ fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let heat_map = Grid::new(&input);
     return heat_map.get_path(vec![
-        Beam{ x: 0, y: 0, traveling: Direction::East,  current_cost: 0, num_step: 0 },
-        Beam{ x: 0, y: 0, traveling: Direction::South, current_cost: 0, num_step: 0 },
-        Beam{ x: 0, y: 0, traveling: Direction::North, current_cost: 0, num_step: 0 },
-        Beam{ x: 0, y: 0, traveling: Direction::West,  current_cost: 0, num_step: 0 },
-        ]);
+        State{ x: 0, y: 0, traveling: Direction::East,  current_cost: 0, num_step: 0 },
+        State{ x: 0, y: 0, traveling: Direction::South, current_cost: 0, num_step: 0 },
+        State{ x: 0, y: 0, traveling: Direction::North, current_cost: 0, num_step: 0 },
+        State{ x: 0, y: 0, traveling: Direction::West,  current_cost: 0, num_step: 0 },
+        ], 0, 3);
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let heat_map = Grid::new(&input);
-    return heat_map.get_path(vec![]);
+    return heat_map.get_path(vec![
+        State{ x: 0, y: 0, traveling: Direction::East,  current_cost: 0, num_step: 0 },
+        State{ x: 0, y: 0, traveling: Direction::South, current_cost: 0, num_step: 0 },
+        State{ x: 0, y: 0, traveling: Direction::North, current_cost: 0, num_step: 0 },
+        State{ x: 0, y: 0, traveling: Direction::West,  current_cost: 0, num_step: 0 },
+        ], 4, 10);
 }
 
 #[derive(PartialEq, Eq, Clone)]
@@ -48,13 +53,19 @@ impl Direction {
             Self::West  => 3,
         }
     }
+
+    pub fn get_delta(&self) -> (isize, isize) {
+        match self {
+            Self::North => (0, -1),
+            Self::East  => (1,  0),
+            Self::South => (0,  1),
+            Self::West  => (-1, 0),
+        }
+    }
 }
 
 impl Ord for Direction {
     fn cmp(&self, other: &Self) -> Ordering {
-        // Notice that the we flip the ordering on costs.
-        // In case of a tie we compare positions - this step is necessary
-        // to make implementations of `PartialEq` and `Ord` consistent.
         self.to_usize().cmp(&other.to_usize())
     }
 }
@@ -67,16 +78,15 @@ impl PartialOrd for Direction {
 
 
 #[derive(Clone, Eq, PartialEq)]
-struct Beam {
+struct State {
     x: usize,
     y: usize,
     traveling: Direction,
     current_cost: usize,
-    //history: Vec<Direction>,
     num_step:usize
 }
 
-impl Ord for Beam {
+impl Ord for State {
     fn cmp(&self, other: &Self) -> Ordering {
         // Notice that the we flip the ordering on costs.
         // In case of a tie we compare positions - this step is necessary
@@ -87,7 +97,7 @@ impl Ord for Beam {
     }
 }
 
-impl PartialOrd for Beam {
+impl PartialOrd for State {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -105,28 +115,27 @@ impl Grid {
         return Grid::from_str(str).expect("");
     }
 
-    fn get_path(&self, start_beams: Vec<Beam>) -> usize {
-        //let mut queue = start_beams;
+    fn get_path(&self, start_states: Vec<State>, min_steps: usize, max_steps: usize) -> usize {
         let mut heap = BinaryHeap::new();
-        for start_beam in start_beams.iter() {
-            heap.push(Beam{x: start_beam.x, y: start_beam.y, traveling: start_beam.traveling.clone(),  current_cost: 0, num_step: 0 });
+        for start_state in start_states.iter() {
+            heap.push(State{x: start_state.x, y: start_state.y, traveling: start_state.traveling.clone(),  current_cost: 0, num_step: 0 });
         }
 
-        let mut visited_map: Vec<Vec<Vec<Vec<usize>>>> = vec![vec![vec![vec![usize::MAX; 4]; 4]; self.width]; self.height];
+        let mut visited_map: Vec<Vec<Vec<Vec<usize>>>> = vec![vec![vec![vec![usize::MAX; max_steps + 1]; 4]; self.width]; self.height];
 
-        while let Some(beam) = heap.pop() {
+        while let Some(state) = heap.pop() {
 
-            if beam.x == self.width - 1 && beam.y == self.height - 1 {
-                return beam.current_cost;
+            if state.x == self.width - 1 && state.y == self.height - 1 {
+                return state.current_cost;
             }
-            if beam.current_cost > visited_map[beam.y][beam.x][beam.traveling.to_usize()][beam.num_step] {
+            if state.current_cost > visited_map[state.y][state.x][state.traveling.to_usize()][state.num_step] {
                 continue;
             }
 
-            let beams = self.get_connected_beams(&beam);
+            let states = self.get_connected_states(&state, min_steps, max_steps);
 
-            for new_beam in beams {
-                match new_beam {
+            for new_state in states {
+                match new_state {
                     Some(b) => {
                         if b.current_cost < visited_map[b.y][b.x][b.traveling.to_usize()][b.num_step] {
                             visited_map[b.y][b.x][b.traveling.to_usize()][b.num_step] = b.current_cost;
@@ -141,41 +150,45 @@ impl Grid {
         return 0;
     }
 
-    pub fn get_connected_beams(&self, beam: &Beam) -> Vec<Option<Beam>> {
-        return match beam.traveling {
-            Direction::North => vec![self.get_beam(beam,  0, -1, Direction::North), self.get_beam(beam, -1,  0, Direction::West),  self.get_beam(beam, 1, 0, Direction::East)],
-            Direction::South => vec![self.get_beam(beam,  0,  1, Direction::South), self.get_beam(beam, -1,  0, Direction::West),  self.get_beam(beam, 1, 0, Direction::East)],
-            Direction::East  => vec![self.get_beam(beam,  1,  0, Direction::East ), self.get_beam(beam,  0, -1, Direction::North), self.get_beam(beam, 0, 1, Direction::South)],
-            Direction::West  => vec![self.get_beam(beam, -1,  0, Direction::West ), self.get_beam(beam,  0, -1, Direction::North), self.get_beam(beam, 0, 1, Direction::South)],
+    pub fn get_connected_states(&self, state: &State, min_steps: usize, max_steps: usize) -> Vec<Option<State>> {
+        return match state.traveling {
+            Direction::North => vec![self.get_state(state, Direction::North, min_steps, max_steps), self.get_state(state, Direction::West , min_steps, max_steps), self.get_state(state, Direction::East , min_steps, max_steps)],
+            Direction::South => vec![self.get_state(state, Direction::South, min_steps, max_steps), self.get_state(state, Direction::West , min_steps, max_steps), self.get_state(state, Direction::East , min_steps, max_steps)],
+            Direction::East  => vec![self.get_state(state, Direction::East , min_steps, max_steps), self.get_state(state, Direction::North, min_steps, max_steps), self.get_state(state, Direction::South, min_steps, max_steps)],
+            Direction::West  => vec![self.get_state(state, Direction::West , min_steps, max_steps), self.get_state(state, Direction::North, min_steps, max_steps), self.get_state(state, Direction::South, min_steps, max_steps)],
         };
     }
 
-    pub fn get_beam(&self, b: &Beam, dx: isize, dy: isize, traveling: Direction) -> Option<Beam> {
+    pub fn get_state(&self, b: &State, traveling: Direction, min_steps: usize, max_steps: usize) -> Option<State> {
 
+        let (dx, dy) = traveling.get_delta();
         let new_x = b.x.checked_add_signed(dx);
         let new_y = b.y.checked_add_signed(dy);
 
-        if new_x.is_some_and(|x| x <self.width)
-          && new_y.is_some_and(|y| y <self.height)
-          && (b.num_step < 3 || b.traveling != traveling) {
-            //let mut history = b.history.clone();
-            //history.push(b.traveling.clone());
-            let mut num_step = 1;
-            
-            if b.traveling == traveling {
-                num_step += b.num_step;
-            }
+        // Still in bounds
+        if !(new_x.is_some_and(|x| x < self.width) && new_y.is_some_and(|y| y < self.height)) {
+            return None;
+        }
 
-            return Some(Beam { 
-                x: new_x.unwrap(),
-                y: new_y.unwrap(),
-                traveling, 
-                current_cost: b.current_cost + self.grid[new_y.unwrap()][new_x.unwrap()],
-                //history,
-                num_step });
-          }
+        // Transition conditions are met
+        if (traveling == b.traveling && b.num_step == max_steps)
+        || (traveling != b.traveling && b.num_step < min_steps) {
+            return None;
+        }
 
-        return None;
+        let mut num_step = 1;
+        
+        if b.traveling == traveling {
+            num_step += b.num_step;
+        }
+
+        return Some(State { 
+            x: new_x.unwrap(),
+            y: new_y.unwrap(),
+            traveling, 
+            current_cost: b.current_cost + self.grid[new_y.unwrap()][new_x.unwrap()],
+            num_step });
+
     }
 
 }
@@ -222,5 +235,5 @@ pub fn part2_test1() {
 #[test]
 pub fn part2_test2() {
     let ans = part2("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 1416);
 }
