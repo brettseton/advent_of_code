@@ -17,13 +17,13 @@ fn main() {
 fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let machine = Machine::new(&input);
-    return machine.get_something();
+    return machine.get_accepted_sum();
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let machine = Machine::new(&input);
-    return machine.get_something();
+    return machine.get_accepted_sum();
 }
 
 struct Machine{
@@ -36,7 +36,7 @@ impl Machine {
         return Machine::from_str(str).expect("");
     }
     
-    pub fn get_something(&self) -> usize {
+    pub fn get_accepted_sum(&self) -> usize {
         let mut sum = 0;
 
         for input_condition in self.input_conditions.iter() {
@@ -192,7 +192,7 @@ pub fn part1_test2() {
 #[test]
 pub fn part2_test1() {
     let ans = part2("input/test1.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 167409079868000);
 }
 
 #[test]
