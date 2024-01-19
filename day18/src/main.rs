@@ -22,7 +22,7 @@ fn part1(file_path: &str) -> usize {
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
-    let dig_plan = DigPlan::new(&input);
+    let dig_plan = DigPlan::new2(&input);
     return dig_plan.get_dig_area();
 }
 
@@ -59,9 +59,15 @@ impl Direction {
           Some('R') => Direction::East,
           Some('D') => Direction::South,
           Some('L') => Direction::West,
+
+          Some('0') => Direction::East,
+          Some('1') => Direction::South,
+          Some('2') => Direction::West,
+          Some('3') => Direction::North,
            _ => panic!()
        }; 
     }
+    
 }
 
 impl Ord for Direction {
@@ -89,8 +95,13 @@ struct DigPlan {
 }
 
 impl DigPlan {
+
     pub fn new(str: &str) -> DigPlan {
         return DigPlan::from_str(str).expect("");
+    }
+
+    pub fn new2(str: &str) -> DigPlan {
+        return DigPlan::from_str2(str);
     }
 
     pub fn get_dig_area(&self) -> usize {
@@ -114,6 +125,19 @@ impl DigPlan {
 
         // Pick's theorem https://en.wikipedia.org/wiki/Pick%27s_theorem
         return ((boundary + area)/2) as usize + 1 ;
+    }
+
+    fn from_str2(s: &str) -> DigPlan {
+        let dig_plan = s
+            .lines()
+            .map(|s| {
+                let mut split = s.split_whitespace();
+                let hex_color= split.nth(2).unwrap().trim_start_matches('(').trim_end_matches(')').to_string();
+                return DigStep{ traveling: Direction::new(&hex_color[6..=6]), steps: usize::from_str_radix(&hex_color[1..=5], 16).unwrap() , hex_color };
+            })
+            .collect::<Vec<DigStep>>();
+
+        return DigPlan { dig_plan };
     }
 }
 
@@ -148,17 +172,17 @@ pub fn part1_test1() {
 #[test]
 pub fn part1_test2() {
     let ans = part1("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 50465);
 }
 
 #[test]
 pub fn part2_test1() {
     let ans = part2("input/test1.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 952408144115);
 }
 
 #[test]
 pub fn part2_test2() {
     let ans = part2("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 82712746433310);
 }
