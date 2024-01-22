@@ -23,7 +23,7 @@ fn part1(file_path: &str) -> usize {
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let mut machine = Machine::new(&input);
-    return machine.get_output();
+    return machine.get_output_lcm();
 }
 
 trait IModule {
@@ -52,7 +52,7 @@ impl Machine {
             .clone();
         let mut high = 0;
         let mut low = 0;
-        for i in 0..1000 {
+        for _i in 1..=1000 {
             let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
             low += 1;
             while let Some(s) = queue.pop_front() {
@@ -62,14 +62,9 @@ impl Machine {
                     low += 1;
                 }
 
-                let mut module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
+                let module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
                     Some(m) => m,
                     None => {
-
-                        if s.to == "rx" && !s.state
-                        {
-                            println!("from: {}, to: {}, state: {}, step: {}", s.from, s.to, s.state, i);
-                        }
                         continue;
                     }
                 };
@@ -82,6 +77,60 @@ impl Machine {
         }
 
         return high * low;
+    }
+
+    pub fn get_output_lcm(&mut self) -> usize {
+        let mut broadcaster = self
+            .modules
+            .iter()
+            .filter(|x| x.get_label() == "broadcaster")
+            .nth(0)
+            .expect("broadcaster is required")
+            .clone();
+
+        let rx_parent = self.modules
+        .iter()
+        .filter(|x| x.get_destinations().iter().any(|x| x == "rx"))
+        .nth(0)
+        .expect("rx parent is required")
+        .clone();
+
+        println!("parent: {}, {:?}", rx_parent.get_label(), rx_parent.get_destinations());
+        let Some(rx_conjunction) = rx_parent.as_conjunction() else { panic!("") };
+        let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.iter().map(|(k, v)| (k.clone(), 0)).collect();
+        for i in 1..=usize::MAX {
+            let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
+            while let Some(s) = queue.pop_front() {
+
+                if s.to == rx_conjunction.label && s.state {
+                    visited.get_mut(&s.from).map(|val| {
+                        *val = i;
+                    });
+                }
+
+                if visited.iter().all(|(k, &v)| v != 0) {
+                    let mut lcm = 1;
+                    for v in visited {
+                        lcm = num::integer::lcm(lcm, v.1);
+                    }
+                    return lcm;
+                }
+
+                let mut module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
+                    Some(m) => m,
+                    None => {
+                        continue;
+                    }
+                };
+
+                let signals = module.receive_message(s);
+                for signal in signals.iter() {
+                    queue.push_back(signal.clone());
+                }
+            }
+        }
+
+        return 0;
     }
 }
 
@@ -122,6 +171,16 @@ enum IModuleType {
     Broadcaster(Broadcaster),
     FlipFlop(FlipFlop),
     Conjunction(Conjunction),
+}
+
+impl IModuleType {
+    pub fn as_conjunction(&self) -> Option<Conjunction> {
+        return match self {
+                IModuleType::Broadcaster(b) => None,
+                IModuleType::FlipFlop(f) => None,
+                IModuleType::Conjunction(c) => Some(c.clone()),
+            };
+    }
 }
 
 #[derive(Clone)]
@@ -327,5 +386,5 @@ pub fn part2_test1() {
 #[test]
 pub fn part2_test2() {
     let ans = part2("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 231657829136023);
 }
