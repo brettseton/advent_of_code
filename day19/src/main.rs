@@ -43,7 +43,7 @@ struct PartRange {
     finish_a: usize,
     start_s: usize,
     finish_s: usize,
-    start_label: String
+    start_label: String,
 }
 
 impl PartRange {
@@ -53,8 +53,8 @@ impl PartRange {
             "m" => (self.start_m, self.finish_m),
             "a" => (self.start_a, self.finish_a),
             "s" => (self.start_s, self.finish_s),
-            _ => panic!("no char")
-        }
+            _ => panic!("no char"),
+        };
     }
 
     pub fn set_start(&mut self, s: &str, v: usize) {
@@ -63,8 +63,8 @@ impl PartRange {
             "m" => self.start_m = v,
             "a" => self.start_a = v,
             "s" => self.start_s = v,
-            _ => panic!("no char")
-        }
+            _ => panic!("no char"),
+        };
     }
 
     pub fn set_finish(&mut self, s: &str, v: usize) {
@@ -73,21 +73,21 @@ impl PartRange {
             "m" => self.finish_m = v,
             "a" => self.finish_a = v,
             "s" => self.finish_s = v,
-            _ => panic!("no char")
-        }
+            _ => panic!("no char"),
+        };
     }
 }
 
-struct Machine{
-   workflows: Vec<Workflow>,
-   input_conditions: Vec<Vec<(String, usize)>>
+struct Machine {
+    workflows: Vec<Workflow>,
+    input_conditions: Vec<Vec<(String, usize)>>,
 }
 
 impl Machine {
     pub fn new(str: &str) -> Machine {
         return Machine::from_str(str).expect("");
     }
-    
+
     pub fn get_accepted_sum(&self) -> usize {
         let mut sum = 0;
 
@@ -96,7 +96,7 @@ impl Machine {
                 sum += input_condition.iter().map(|x| x.1).sum::<usize>();
             }
         }
-        
+
         return sum;
     }
 
@@ -105,8 +105,7 @@ impl Machine {
 
         while let Some(workflow) = self.workflows.iter().find(|&x| x.label == current_label) {
             for rule in workflow.rules.iter() {
-
-                if rule.1.is_none(){
+                if rule.1.is_none() {
                     current_label = rule.0.as_str();
                     break;
                 }
@@ -114,7 +113,7 @@ impl Machine {
                 if let [label_str, amount_str] = &rule.0.split("<").map(String::from).collect::<Vec<String>>()[..] {
                     let input_value = match input_condition.iter().find(|&x| x.0.eq(label_str)) {
                         Some(x) => x.1,
-                        None => 0
+                        None => 0,
                     };
 
                     let amount = usize::from_str(amount_str).unwrap();
@@ -128,7 +127,7 @@ impl Machine {
                 if let [label_str, amount_str] = &rule.0.split(">").map(String::from).collect::<Vec<String>>()[..] {
                     let input_value = match input_condition.iter().find(|&x| x.0.eq(label_str)) {
                         Some(x) => x.1,
-                        None => 0
+                        None => 0,
                     };
 
                     let amount = usize::from_str(amount_str).unwrap();
@@ -137,26 +136,22 @@ impl Machine {
                         current_label = rule.1.as_ref().clone().unwrap();
                         break;
                     }
-
                 }
-
             }
-
         }
 
         return current_label == "A";
     }
 
-
-
     pub fn get_accepted_sum_range(&self, part_ranges: &Vec<PartRange>) -> usize {
-
         let mut queue: Vec<PartRange> = part_ranges.iter().map(|v| v.clone()).collect();
         let mut result: Vec<PartRange> = vec![];
 
         while let Some(part_range) = queue.pop() {
-
-            let workflow = self.workflows.iter().find(|&x| x.label == part_range.start_label);
+            let workflow = self
+                .workflows
+                .iter()
+                .find(|&x| x.label == part_range.start_label);
 
             if workflow.is_none() {
                 result.push(part_range);
@@ -165,7 +160,7 @@ impl Machine {
 
             for rule in workflow.unwrap().rules.iter() {
 
-                if rule.1.is_none(){
+                if rule.1.is_none() {
                     let part = PartRange{
                         start_label: rule.0.to_string(),
                         start_x: part_range.start_x, finish_x: part_range.finish_x,
@@ -182,7 +177,7 @@ impl Machine {
 
                     let (start_range, end_range) = part_range.get_range(rule_variable_str);
                     // Split range
-                    if rule_amount > start_range && rule_amount < end_range  {
+                    if rule_amount > start_range && rule_amount < end_range {
                         let mut part1 = part_range.clone();
                         part1.set_finish(rule_variable_str, rule_amount - 1);
                         part1.start_label = rule.1.as_ref().unwrap().to_string();
@@ -193,9 +188,7 @@ impl Machine {
                         part2.start_label = part_range.start_label.to_string();
                         queue.push(part2);
 
-
                         break;
-
                     } else if end_range < rule_amount {
                         let mut part = part_range.clone();
                         part.start_label = rule.1.as_ref().unwrap().to_string();
@@ -211,7 +204,7 @@ impl Machine {
 
                     let (start_range, end_range) = part_range.get_range(rule_variable_str);
                     // Split range
-                    if rule_amount > start_range && rule_amount < end_range  {
+                    if rule_amount > start_range && rule_amount < end_range {
                         let mut part1 = part_range.clone();
                         part1.set_finish(rule_variable_str, rule_amount);
                         part1.start_label = part_range.start_label.to_string();
@@ -222,9 +215,7 @@ impl Machine {
                         part2.start_label = rule.1.as_ref().unwrap().to_string();
                         queue.push(part2);
 
-
                         break;
-
                     } else if start_range > rule_amount {
                         let mut part = part_range.clone();
                         part.start_label = rule.1.as_ref().unwrap().to_string();
@@ -234,19 +225,22 @@ impl Machine {
                 }
             }
         }
-        
-        let sum = result.iter()
-        .map(|x| {
+
+        let sum = result
+            .iter()
+            .map(|x| {
                 if x.start_label == "A" {
-                    return (x.finish_x - x.start_x + 1) * (x.finish_m - x.start_m + 1) * (x.finish_a - x.start_a + 1) * (x.finish_s - x.start_s + 1);
+                    return (x.finish_x - x.start_x + 1)
+                        * (x.finish_m - x.start_m + 1)
+                        * (x.finish_a - x.start_a + 1)
+                        * (x.finish_s - x.start_s + 1);
                 }
                 return 0;
-            }).sum::<usize>();
-
+            })
+            .sum::<usize>();
 
         return sum;
     }
-
 }
 
 #[derive(Debug)]
@@ -256,30 +250,45 @@ impl FromStr for Machine {
     type Err = MachineError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        
         let mut split = s.split("\n\n");
 
-        let workflows: Vec<Workflow> = split.nth(0).unwrap().lines().filter(|s| !s.is_empty()).map(|s| Workflow::new(s)).collect();
-        let input_conditions: Vec<Vec<(String, usize)>> = split.nth(0).unwrap().lines().map(|s| 
-            s.trim_start_matches('{')
-            .trim_end_matches('}')
-            .split(',')
-            .map(|n| 
-                {
-                   let mut split = n.split('=');
-                   return (split.nth(0).unwrap().to_string(), usize::from_str(split.nth(0).unwrap()).unwrap());
-                }
-            ).collect::<Vec<(String, usize)>>()
-        ).collect();
+        let workflows: Vec<Workflow> = split
+            .nth(0)
+            .unwrap()
+            .lines()
+            .filter(|s| !s.is_empty())
+            .map(|s| Workflow::new(s))
+            .collect();
+        let input_conditions: Vec<Vec<(String, usize)>> = split
+            .nth(0)
+            .unwrap()
+            .lines()
+            .map(|s| {
+                s.trim_start_matches('{')
+                    .trim_end_matches('}')
+                    .split(',')
+                    .map(|n| {
+                        let mut split = n.split('=');
+                        return (
+                            split.nth(0).unwrap().to_string(),
+                            usize::from_str(split.nth(0).unwrap()).unwrap(),
+                        );
+                    })
+                    .collect::<Vec<(String, usize)>>()
+            })
+            .collect();
 
-        return Ok(Machine { workflows, input_conditions });
+        return Ok(Machine {
+            workflows,
+            input_conditions,
+        });
     }
 }
 
-struct Workflow{
+struct Workflow {
     label: String,
-    rules: Vec<(String, Option<String>)>
- }
+    rules: Vec<(String, Option<String>)>,
+}
 
 impl Workflow {
     pub fn new(str: &str) -> Workflow {
@@ -294,7 +303,6 @@ impl FromStr for Workflow {
     type Err = WorkflowError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-
         if s.is_empty() {
             return Err(WorkflowError);
         }
@@ -302,26 +310,27 @@ impl FromStr for Workflow {
         let mut split = s.split('{');
 
         let label = split.nth(0).unwrap().to_string();
-        let rules = split.nth(0).unwrap().trim_end_matches('}').split(',').map(|s| {
+        let rules = split
+            .nth(0)
+            .unwrap()
+            .trim_end_matches('}')
+            .split(',')
+            .map(|s| {
+                let mut split = s.split(':');
 
-            let mut split = s.split(':');
+                let condition = split.nth(0).unwrap().to_string();
+                let destination = match split.nth(0) {
+                    Some(s) => Some(s.to_string()),
+                    None => None,
+                };
 
-            let condition = split.nth(0).unwrap().to_string();
-            let destination = match split.nth(0) {
-                Some(s) => Some(s.to_string()),
-                None => None
-            };
-
-            return (condition, destination);
-
-        }
-
-        ).collect();
+                return (condition, destination);
+            })
+            .collect();
 
         return Ok(Workflow { label, rules });
     }
 }
-
 
 #[test]
 pub fn part1_test1() {
