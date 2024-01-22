@@ -161,12 +161,8 @@ impl Machine {
             for rule in workflow.unwrap().rules.iter() {
 
                 if rule.1.is_none() {
-                    let part = PartRange{
-                        start_label: rule.0.to_string(),
-                        start_x: part_range.start_x, finish_x: part_range.finish_x,
-                        start_m: part_range.start_m, finish_m: part_range.finish_m,
-                        start_a: part_range.start_a, finish_a: part_range.finish_a,
-                        start_s: part_range.start_s, finish_s: part_range.finish_s };
+                    let mut part = part_range.clone();
+                    part.start_label = rule.0.to_string();
                     queue.push(part);
                     break;
                 }
@@ -176,12 +172,13 @@ impl Machine {
                     let rule_amount = usize::from_str(amount_str).unwrap();
 
                     let (start_range, end_range) = part_range.get_range(rule_variable_str);
+                    
                     // Split range
                     if rule_amount > start_range && rule_amount < end_range {
                         let mut part1 = part_range.clone();
                         part1.set_finish(rule_variable_str, rule_amount - 1);
                         part1.start_label = rule.1.as_ref().unwrap().to_string();
-                        queue.push(part1.clone());
+                        queue.push(part1);
 
                         let mut part2 = part_range.clone();
                         part2.set_start(rule_variable_str, rule_amount);
@@ -208,7 +205,7 @@ impl Machine {
                         let mut part1 = part_range.clone();
                         part1.set_finish(rule_variable_str, rule_amount);
                         part1.start_label = part_range.start_label.to_string();
-                        queue.push(part1.clone());
+                        queue.push(part1);
 
                         let mut part2 = part_range.clone();
                         part2.set_start(rule_variable_str, rule_amount + 1);
