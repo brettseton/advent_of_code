@@ -94,7 +94,7 @@ impl Machine {
         .nth(0) else { return 0;};
 
         let Some(rx_conjunction) = rx_parent.as_conjunction() else { panic!("") };
-        let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.iter().map(|(k, v)| (k.clone(), 0)).collect();
+        let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.iter().map(|(k, _v)| (k.clone(), 0)).collect();
         for i in 1..=usize::MAX {
             let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
             while let Some(s) = queue.pop_front() {
@@ -105,7 +105,7 @@ impl Machine {
                     });
                 }
 
-                if visited.iter().all(|(k, &v)| v != 0) {
+                if visited.iter().all(|(_k, &v)| v != 0) {
                     let mut lcm = 1;
                     for v in visited {
                         lcm = num::integer::lcm(lcm, v.1);
@@ -113,7 +113,7 @@ impl Machine {
                     return lcm;
                 }
 
-                let mut module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
+                let module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
                     Some(m) => m,
                     None => {
                         continue;
@@ -173,8 +173,8 @@ enum IModuleType {
 impl IModuleType {
     pub fn as_conjunction(&self) -> Option<Conjunction> {
         return match self {
-                IModuleType::Broadcaster(b) => None,
-                IModuleType::FlipFlop(f) => None,
+                IModuleType::Broadcaster(_b) => None,
+                IModuleType::FlipFlop(_f) => None,
                 IModuleType::Conjunction(c) => Some(c.clone()),
             };
     }
@@ -294,7 +294,6 @@ impl IModule for Broadcaster {
 #[derive(Clone)]
 struct Conjunction {
     label: String,
-    state: bool,
     destinations: Vec<String>,
     remembered_pulses: HashMap<String, bool>,
 }
@@ -310,7 +309,7 @@ impl IModule for Conjunction {
             *val = signal.state;
         });
 
-        let state = !self.remembered_pulses.iter().all(|(k, &v)| v);
+        let state = !self.remembered_pulses.iter().all(|(_k, &v)| v);
 
         return self
             .destinations
@@ -351,7 +350,6 @@ impl IModuleFactory {
             }),
             Some('&') => IModuleType::Conjunction(Conjunction {
                 label: label[1..].to_string(),
-                state: false,
                 destinations: destinations.split(", ").map(String::from).collect(),
                 remembered_pulses: HashMap::new(),
             }),
