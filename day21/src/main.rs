@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, fs, str::FromStr, collections::VecDeque};
+use std::{cmp::Ordering, collections::VecDeque, fs, str::FromStr};
 
 fn main() {
     let ans = part1("input/test1.txt", 6);
@@ -18,7 +18,11 @@ fn part1(file_path: &str, steps: usize) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let garden = Garden::new(&input);
     let (start_x, start_y) = garden.get_start();
-    let start_step = Step {count: 0, x: start_x, y: start_y };
+    let start_step = Step {
+        count: 0,
+        x: start_x,
+        y: start_y,
+    };
     return garden.get_reached(start_step, steps);
 }
 
@@ -26,7 +30,11 @@ fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let garden = Garden::new(&input);
     let (start_x, start_y) = garden.get_start();
-    let start_step = Step {count: 0, x: start_x, y: start_y };
+    let start_step = Step {
+        count: 0,
+        x: start_x,
+        y: start_y,
+    };
     return garden.get_reached(start_step, 0);
 }
 
@@ -58,20 +66,19 @@ impl Direction {
     }
 
     pub fn new(str: &str) -> Direction {
-       return match str.chars().nth(0) {
-          Some('U') => Direction::North,
-          Some('R') => Direction::East,
-          Some('D') => Direction::South,
-          Some('L') => Direction::West,
+        return match str.chars().nth(0) {
+            Some('U') => Direction::North,
+            Some('R') => Direction::East,
+            Some('D') => Direction::South,
+            Some('L') => Direction::West,
 
-          Some('0') => Direction::East,
-          Some('1') => Direction::South,
-          Some('2') => Direction::West,
-          Some('3') => Direction::North,
-           _ => panic!()
-       }; 
+            Some('0') => Direction::East,
+            Some('1') => Direction::South,
+            Some('2') => Direction::West,
+            Some('3') => Direction::North,
+            _ => panic!(),
+        };
     }
-    
 }
 
 impl Ord for Direction {
@@ -100,7 +107,6 @@ struct Garden {
 }
 
 impl Garden {
-
     pub fn new(str: &str) -> Garden {
         return Garden::from_str(str).expect("");
     }
@@ -110,7 +116,7 @@ impl Garden {
         queue.push_back(start);
 
         let mut visited_map: Vec<Vec<Vec<usize>>> =
-        vec![vec![vec![usize::MAX; max_steps + 1]; self.width]; self.height];
+            vec![vec![vec![usize::MAX; max_steps + 1]; self.width]; self.height];
 
         while let Some(step) = queue.pop_front() {
             if step.count == max_steps {
@@ -121,28 +127,27 @@ impl Garden {
 
             for step in steps {
                 match step {
-                    
                     Some(s) => {
                         if s.count < visited_map[s.y][s.x][s.count] {
                             visited_map[s.y][s.x][s.count] = s.count;
                             queue.push_back(s);
                         }
-                    },
+                    }
                     None => (),
                 }
             }
         }
-        
+
         return queue.len() + 1;
     }
 
     pub fn get_connected(&self, step: &Step) -> Vec<Option<Step>> {
         return vec![
-                self.get_next(step, Direction::North),
-                self.get_next(step, Direction::South),
-                self.get_next(step, Direction::East ),
-                self.get_next(step, Direction::West ),
-            ];
+            self.get_next(step, Direction::North),
+            self.get_next(step, Direction::South),
+            self.get_next(step, Direction::East),
+            self.get_next(step, Direction::West),
+        ];
     }
 
     pub fn get_next(&self, previous: &Step, traveling: Direction) -> Option<Step> {
@@ -150,11 +155,16 @@ impl Garden {
 
         let new_x = previous.x.checked_add_signed(dx);
         let new_y = previous.y.checked_add_signed(dy);
-        if new_x.is_some_and(|x| x <self.width)
-          && new_y.is_some_and(|y| y <self.height)
-          && self.grid[new_y.unwrap()][new_x.unwrap()] != '#' {
-            return Some(Step { x: new_x.unwrap(), y: new_y.unwrap(), count: previous.count + 1});
-          }
+        if new_x.is_some_and(|x| x < self.width)
+            && new_y.is_some_and(|y| y < self.height)
+            && self.grid[new_y.unwrap()][new_x.unwrap()] != '#'
+        {
+            return Some(Step {
+                x: new_x.unwrap(),
+                y: new_y.unwrap(),
+                count: previous.count + 1,
+            });
+        }
 
         return None;
     }
@@ -167,7 +177,7 @@ impl Garden {
                 }
             }
         }
-        return (0,0);
+        return (0, 0);
     }
 }
 
