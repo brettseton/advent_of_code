@@ -88,17 +88,20 @@ impl Machine {
             .expect("broadcaster is required")
             .clone();
 
-        let Some(rx_parent) = self.modules
-        .iter()
-        .filter(|x| x.get_destinations().iter().any(|x| x == "rx"))
-        .nth(0) else { return 0;};
+        let Some(rx_parent) = self
+            .modules
+            .iter()
+            .filter(|x| x.get_destinations().iter().any(|x| x == "rx"))
+            .nth(0)
+        else {
+            return 0;
+        };
 
         let Some(rx_conjunction) = rx_parent.as_conjunction() else { panic!("") };
         let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.iter().map(|(k, _v)| (k.clone(), 0)).collect();
         for i in 1..=usize::MAX {
             let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
             while let Some(s) = queue.pop_front() {
-
                 if s.to == rx_conjunction.label && s.state {
                     visited.get_mut(&s.from).map(|val| {
                         *val = i;
@@ -173,10 +176,10 @@ enum IModuleType {
 impl IModuleType {
     pub fn as_conjunction(&self) -> Option<Conjunction> {
         return match self {
-                IModuleType::Broadcaster(_b) => None,
-                IModuleType::FlipFlop(_f) => None,
-                IModuleType::Conjunction(c) => Some(c.clone()),
-            };
+            IModuleType::Broadcaster(_b) => None,
+            IModuleType::FlipFlop(_f) => None,
+            IModuleType::Conjunction(c) => Some(c.clone()),
+        };
     }
 }
 
