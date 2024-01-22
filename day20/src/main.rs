@@ -88,14 +88,11 @@ impl Machine {
             .expect("broadcaster is required")
             .clone();
 
-        let rx_parent = self.modules
+        let Some(rx_parent) = self.modules
         .iter()
         .filter(|x| x.get_destinations().iter().any(|x| x == "rx"))
-        .nth(0)
-        .expect("rx parent is required")
-        .clone();
+        .nth(0) else { return 0;};
 
-        println!("parent: {}, {:?}", rx_parent.get_label(), rx_parent.get_destinations());
         let Some(rx_conjunction) = rx_parent.as_conjunction() else { panic!("") };
         let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.iter().map(|(k, v)| (k.clone(), 0)).collect();
         for i in 1..=usize::MAX {
