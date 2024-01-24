@@ -56,7 +56,11 @@ fn part2(file_path: &str) -> usize {
 
     let mut y = vec![];
     for x in [0, 2, 4] {
-        y.push(garden.get_reached(&start_step, garden.width*x + rem, &Garden::get_connected_wrapping));
+        y.push(garden.get_reached(
+            &start_step,
+            garden.width * x + rem,
+            &Garden::get_connected_wrapping,
+        ));
     }
 
     // Equation is in the following form
@@ -87,14 +91,13 @@ fn part2(file_path: &str) -> usize {
     // b = (96749 - 4a - c)/ 2
     // b = (y[1] - 4a - c)/ 2          -- used below
 
+    let c = y[0]; // 3921;
+    let a = (y[2] - 2 * y[1] + c) / 8; // (312993 - 2 * 96749 + c ) / 8
+    let b = (y[1] - 4 * a - c) / 2; // (96749 - c - 4* a)/2
 
-    let c =  y[0]; // 3921;
-    let a = (y[2] - 2 * y[1] + c)/8; // (312993 - 2 * 96749 + c ) / 8
-    let b = (y[1] - 4*a - c)/2; // (96749 - c - 4* a)/2
+    println!("{}x^2 + {}x + {}", a, b, c);
 
-    println!("{}x^2 + {}x + {}" , a , b , c);
-
-    return a*x_max*x_max + b*x_max + c;
+    return a * x_max * x_max + b * x_max + c;
 }
 
 #[derive(PartialEq, Eq, Clone)]
@@ -123,7 +126,6 @@ impl Direction {
             Self::West  => (-1, 0),
         }
     }
-
 }
 
 impl Ord for Direction {
@@ -160,13 +162,13 @@ impl Garden {
         let mut queue = VecDeque::new();
         queue.push_back(start.clone());
 
-        let map_count = ((max_steps/self.width) + 1) * 4;
+        let map_count = ((max_steps / self.width) + 1) * 4;
         let mut visited_map: Vec<Vec<usize>> =
-            vec![vec![usize::MAX; self.width*map_count]; self.height*map_count];
+            vec![vec![usize::MAX; self.width * map_count]; self.height * map_count];
 
         let (start_x, start_y) = self.get_start();
-        let start_x_offset =  (self.width*map_count)/2  + start_x;
-        let start_y_offset =  (self.height*map_count)/2 + start_y;   
+        let start_x_offset = (self.width * map_count) / 2 + start_x;
+        let start_y_offset = (self.height * map_count) / 2 + start_y;
 
         while let Some(step) = queue.pop_front() {
             if step.count == max_steps {
@@ -193,33 +195,37 @@ impl Garden {
         let mut even_count: usize = 0;
         let mut odd_count: usize = 0;
         for line in visited_map.iter() {
-            let out: String = line.iter().map(|&x| {
-                if x == usize::MAX {
-                    return '#';
-                }
-                match x % 2 {
-                    0 => {
-                        even_count += 1;
-                        return 'E';
-                    },
-                    1 => {
-                        odd_count += 1;
-                        return 'O';
-                    },
-                    _ => panic!(),
-                }
-            })
-            .collect();
+            let out: String = line
+                .iter()
+                .map(|&x| {
+                    if x == usize::MAX {
+                        return '#';
+                    }
+                    match x % 2 {
+                        0 => {
+                            even_count += 1;
+                            return 'E';
+                        }
+                        1 => {
+                            odd_count += 1;
+                            return 'O';
+                        }
+                        _ => panic!(),
+                    }
+                })
+                .collect();
             //println!("{}", out);
         }
 
-        println!("steps: {}, even: {}, odd: {}", max_steps, even_count, odd_count);
+        println!(
+            "steps: {}, even: {}, odd: {}",
+            max_steps, even_count, odd_count
+        );
         if max_steps % 2 == 1 {
             return odd_count;
         } else {
             return even_count;
         }
-
     }
 
     pub fn get_connected(&self, step: &Step) -> Vec<Option<Step>> {
@@ -236,8 +242,10 @@ impl Garden {
 
         let new_x = previous.x + dx;
         let new_y = previous.y + dy;
-        if new_x >= 0 && new_x < self.width.try_into().unwrap()
-            && new_y >= 0 &&  new_y < self.height.try_into().unwrap()
+        if new_x >= 0
+            && new_x < self.width.try_into().unwrap()
+            && new_y >= 0
+            && new_y < self.height.try_into().unwrap()
             && self.grid[new_y as usize][new_x as usize] != '#'
         {
             return Some(Step {
@@ -264,10 +272,11 @@ impl Garden {
 
         let new_x: isize = previous.x + dx;
         let new_y: isize = previous.y + dy;
-        let grid_x: usize = usize::try_from(new_x.rem_euclid(self.width.try_into().unwrap())).expect("this is usize");
-        let grid_y: usize = usize::try_from(new_y.rem_euclid(self.height.try_into().unwrap())).expect("this is usize");
-        if self.grid[grid_y][grid_x] != '#'
-        {
+        let grid_x: usize = usize::try_from(new_x.rem_euclid(self.width.try_into().unwrap()))
+            .expect("this is usize");
+        let grid_y: usize = usize::try_from(new_y.rem_euclid(self.height.try_into().unwrap()))
+            .expect("this is usize");
+        if self.grid[grid_y][grid_x] != '#' {
             return Some(Step {
                 x: new_x,
                 y: new_y,
