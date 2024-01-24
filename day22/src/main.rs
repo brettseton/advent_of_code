@@ -136,8 +136,11 @@ impl BrickStack {
             b.start_point.z.min(b.end_point.z)
         });
 
+        let max_x = self.bricks.iter().map(|b| b.start_point.x.max(b.end_point.x) + 1).max().unwrap();
+        let max_y = self.bricks.iter().map(|b| b.start_point.y.max(b.end_point.y) + 1).max().unwrap();
+
         let mut occupancy_grid: Vec<Vec<Vec<Option<usize>>>> =
-            vec![vec![vec![None; 10]; 10]; bricks_ordered.last().unwrap().end_point.z];
+            vec![vec![vec![None; max_x]; max_y]; bricks_ordered.last().unwrap().end_point.z];
         let mut parent_of: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
 
         for brick in bricks_ordered.iter_mut() {
