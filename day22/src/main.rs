@@ -1,4 +1,4 @@
-use std::{fs, str::FromStr, usize, collections::{HashSet, HashMap}};
+use std::{fs, str::FromStr, usize, collections::{HashSet, HashMap, VecDeque}};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -17,13 +17,13 @@ fn main() {
 fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let brick_stack = BrickStack::new(&input);
-    return brick_stack.get_disintegration_count();
+    return brick_stack.get_disintegration_count_and_fallen_sum().0;
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let brick_stack = BrickStack::new(&input);
-    return brick_stack.get_disintegration_count();
+    return brick_stack.get_disintegration_count_and_fallen_sum().1;
 }
 
 #[derive(Debug, Clone)]
@@ -49,7 +49,7 @@ impl Brick {
                 for x in min_x..=max_x {
                     match occupancy_grid[z][y][x] {
                         Some(id) => {
-                            println!("collided with {} resting of {:?} at height: {}", id, self, z+1);
+                            //println!("collided with {} resting of {:?} at height: {}", id, self, z+1);
                             self.resting_on.insert(id);
 
                             // Find any other blocks this is resting on
@@ -81,7 +81,7 @@ impl Brick {
         }
 
         // no collisions and resting on the ground
-        println!("resting on the ground {:?}", self);
+        //println!("resting on the ground {:?}", self);
         for dz in 1..=block_height {
             for y in min_y..=max_y {
                 for x in min_x..=max_x {
@@ -130,7 +130,7 @@ impl BrickStack {
         return BrickStack::from_str(str).expect("");
     }
 
-    pub fn get_disintegration_count(&self) -> usize {
+    pub fn get_disintegration_count_and_fallen_sum(&self) -> (usize, usize) {
         let mut bricks_ordered = self.bricks.clone();
         bricks_ordered.sort_by_key(|b| {
             b.start_point.z.min(b.end_point.z)
@@ -152,27 +152,45 @@ impl BrickStack {
         }
 
         let mut disintegrate = vec![];
+        let mut dont_disintegrate = vec![];
         for (k, v) in parent_of.iter() {
             if v.is_empty() || v.iter().all(|x| x.1 > 1) {
                 disintegrate.push(k);
+            } else {
+                dont_disintegrate.push(k);
             }
         }
 
-        // for (z, plane) in occupancy_grid.iter().enumerate() {
-        //     println!("height {} grid:", z);
-        //     for (y, line) in plane.iter().enumerate() {
-        //         let mut out = "".to_string();
-        //         for (x, brick) in line.iter().enumerate() {
-        //             match brick {
-        //                 None => out.push('.'),
-        //                 Some(id) => out.push(((((id % 74)) as u8) + 48) as char)
-        //             }
-        //         }
-        //         println!("{}", out);
-        //     }
-        //     println!("----------------------");
-        // }
-        return disintegrate.len();
+        let mut fallen_sum = 0;
+        for &parent_id in dont_disintegrate.iter() {
+            let mut have_fallen: HashSet<usize> = HashSet::new();
+            have_fallen.insert(*parent_id);
+
+            let mut might_fall: VecDeque<usize> = parent_of.get(parent_id).unwrap().iter().map(|&x| x.0).collect();
+
+            while let Some(c) = might_fall.pop_front() {
+
+                //check the bricks below and if all the blocks it is resting on have fallen add it to the list
+                let brick = bricks_ordered.iter().find(|x| x.id == c).unwrap();
+                if !brick.resting_on.iter().all(|x| have_fallen.contains(x)) {
+                    continue;
+                }
+
+                have_fallen.insert(c);
+
+                // Add the blocks above to be checked
+                for b in parent_of.get(&c).unwrap().iter().map(|&x| x.0) {
+                    if !have_fallen.contains(&b) {
+                        might_fall.push_back(b);
+                    }
+
+                }
+            }
+             
+            fallen_sum += have_fallen.len() - 1;
+        }
+
+        return (disintegrate.len(), fallen_sum);
     }
 }
 
@@ -220,11 +238,11 @@ pub fn part1_test2() {
 #[test]
 pub fn part2_test1() {
     let ans = part2("input/test1.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 7);
 }
 
 #[test]
 pub fn part2_test2() {
     let ans = part2("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 86556);
 }
