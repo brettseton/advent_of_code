@@ -133,11 +133,7 @@ impl BrickStack {
     pub fn get_disintegration_count(&self) -> usize {
         let mut bricks_ordered = self.bricks.clone();
         bricks_ordered.sort_by_key(|b| {
-            if b.start_point.z < b.end_point.z {
-                b.start_point.z
-            } else {
-                b.end_point.z
-            }
+            b.start_point.z.min(b.end_point.z)
         });
 
         let mut occupancy_grid: Vec<Vec<Vec<Option<usize>>>> = vec![vec![vec![None; 10]; 10]; bricks_ordered.last().unwrap().end_point.z];
