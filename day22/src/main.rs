@@ -136,7 +136,8 @@ impl BrickStack {
             b.start_point.z.min(b.end_point.z)
         });
 
-        let mut occupancy_grid: Vec<Vec<Vec<Option<usize>>>> = vec![vec![vec![None; 10]; 10]; bricks_ordered.last().unwrap().end_point.z];
+        let mut occupancy_grid: Vec<Vec<Vec<Option<usize>>>> =
+            vec![vec![vec![None; 10]; 10]; bricks_ordered.last().unwrap().end_point.z];
         let mut parent_of: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
 
         for brick in bricks_ordered.iter_mut() {
@@ -166,10 +167,14 @@ impl BrickStack {
             let mut have_fallen: HashSet<usize> = HashSet::new();
             have_fallen.insert(*parent_id);
 
-            let mut might_fall: VecDeque<usize> = parent_of.get(parent_id).unwrap().iter().map(|&x| x.0).collect();
+            let mut might_fall: VecDeque<usize> = parent_of
+                .get(parent_id)
+                .unwrap()
+                .iter()
+                .map(|&x| x.0)
+                .collect();
 
             while let Some(c) = might_fall.pop_front() {
-
                 //check the bricks below and if all the blocks it is resting on have fallen add it to the list
                 let brick = bricks_ordered.iter().find(|x| x.id == c).unwrap();
                 if !brick.resting_on.iter().all(|x| have_fallen.contains(x)) {
@@ -183,10 +188,9 @@ impl BrickStack {
                     if !have_fallen.contains(&b) {
                         might_fall.push_back(b);
                     }
-
                 }
             }
-             
+
             fallen_sum += have_fallen.len() - 1;
         }
 
