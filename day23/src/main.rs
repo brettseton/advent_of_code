@@ -22,7 +22,7 @@ fn part1(file_path: &str) -> usize {
         count: 0,
         x: start_x,
         y: start_y,
-        history: HashSet::new()
+        history: HashSet::new(),
     };
     return hiking_trail.get_reached(&start_step, &HikingTrail::get_connected);
 }
@@ -35,7 +35,7 @@ fn part2(file_path: &str) -> usize {
         count: 0,
         x: start_x,
         y: start_y,
-        history: HashSet::new()
+        history: HashSet::new(),
     };
 
     return hiking_trail.dfs(&start_step);
@@ -86,7 +86,7 @@ struct Step {
     count: usize,
     x: usize,
     y: usize,
-    history: HashSet<(usize, usize)>
+    history: HashSet<(usize, usize)>,
 }
 
 struct HikingTrail {
@@ -104,14 +104,12 @@ impl HikingTrail {
         let mut queue = Vec::new();
         queue.push(start.clone());
 
-        let mut visited_map: Vec<Vec<usize>> =
-            vec![vec![0; self.width]; self.height];
+        let mut visited_map: Vec<Vec<usize>> = vec![vec![0; self.width]; self.height];
 
         let mut current_max = 0;
         let (goal_x, goal_y) = self.get_end();
 
         while let Some(step) = queue.pop() {
-
             if step.x == goal_x && step.y == goal_y && current_max < step.count {
                 current_max = step.count;
                 println!("current_max: {}", current_max);
@@ -129,7 +127,7 @@ impl HikingTrail {
             }
         }
 
-       return current_max;
+        return current_max;
     }
 
     fn dfs(&self, start: &Step) -> usize {
@@ -141,7 +139,6 @@ impl HikingTrail {
         let (goal_x, goal_y) = self.get_end();
 
         while let Some(step) = queue.pop() {
-
             if step.x == goal_x && step.y == goal_y && current_max < step.count {
                 current_max = step.count;
                 println!("current_max: {}", current_max);
@@ -155,12 +152,17 @@ impl HikingTrail {
                 }
                 let mut history = step.history.clone();
                 history.insert((*x, *y));
-                let s = Step { x: *x, y: *y, count: step.count + d, history: history };
+                let s = Step {
+                    x: *x,
+                    y: *y,
+                    count: step.count + d,
+                    history: history,
+                };
                 queue.push(s);
             }
         }
 
-       return current_max;
+        return current_max;
     }
 
     pub fn get_connected(&self, step: &Step) -> Vec<Option<Step>> {
@@ -175,8 +177,12 @@ impl HikingTrail {
     pub fn get_next(&self, previous: &Step, traveling: Direction) -> Option<Step> {
         let (dx, dy) = traveling.get_delta();
 
-        let Some(new_x) = previous.x.checked_add_signed(dx) else { return None; };
-        let Some(new_y) = previous.y.checked_add_signed(dy) else { return None; };
+        let Some(new_x) = previous.x.checked_add_signed(dx) else {
+            return None;
+        };
+        let Some(new_y) = previous.y.checked_add_signed(dy) else {
+            return None;
+        };
 
         if previous.history.contains(&(new_x, new_y)) {
             return None;
@@ -190,28 +196,27 @@ impl HikingTrail {
             '#' => return None,
             '^' => {
                 if traveling != Direction::North {
-                    return None
+                    return None;
                 }
-            },
-            '>' =>{
+            }
+            '>' => {
                 if traveling != Direction::East {
-                    return None
+                    return None;
                 }
-            },
+            }
             'v' => {
                 if traveling != Direction::South {
-                    return None
+                    return None;
                 }
-            },
+            }
             '<' => {
                 if traveling != Direction::West {
-                    return None
+                    return None;
                 }
-            },
+            }
             '.' => (),
-            _ => panic!("not a valid hiking trail")
+            _ => panic!("not a valid hiking trail"),
         }
-
 
         let mut history = previous.history.clone();
         history.insert((new_x, new_y));
@@ -230,13 +235,17 @@ impl HikingTrail {
     pub fn get_next_snow_boots(&self, previous: &Step, traveling: Direction) -> Option<Step> {
         let (dx, dy) = traveling.get_delta();
 
-        let Some(new_x) = previous.x.checked_add_signed(dx) else { return None; };
-        let Some(new_y) = previous.y.checked_add_signed(dy) else { return None; };
+        let Some(new_x) = previous.x.checked_add_signed(dx) else {
+            return None;
+        };
+        let Some(new_y) = previous.y.checked_add_signed(dy) else {
+            return None;
+        };
 
         if new_x >= self.width || new_y >= self.height || self.grid[new_y][new_x] == '#' {
             return None;
         }
-        
+
         if previous.history.contains(&(new_x, new_y)) {
             return None;
         }
@@ -256,8 +265,8 @@ impl HikingTrail {
 
     pub fn get_end(&self) -> (usize, usize) {
         for x in 0..self.width {
-            if self.grid[self.height-1][x] == '.' {
-                return (x, self.height-1);
+            if self.grid[self.height - 1][x] == '.' {
+                return (x, self.height - 1);
             }
         }
         return (0, 0);
@@ -274,41 +283,39 @@ impl HikingTrail {
                     for neighbor in self.get_connected_snow_boots(&current).iter() {
                         match neighbor {
                             Some(n) => e.push((n.x, n.y, 1)),
-                            None => ()
+                            None => (),
                         }
                     }
-                      
                 }
             }
         }
 
         // remove all corridors
-        let corridors = graph.iter()
-        .filter(|(_k, v)| v.len() == 2)
-        .map(|(&k,_)| k)
-        .collect::<Vec<_>>();
+        let corridors = graph
+            .iter()
+            .filter(|(_k, v)| v.len() == 2)
+            .map(|(&k, _)| k)
+            .collect::<Vec<_>>();
 
         for (x, y) in corridors {
-            let neighbors = graph.remove(&(x,y)).unwrap();
-            let (x0,y0,d0) = neighbors[0];
-            let (x1,y1,d1) = neighbors[1];
+            let neighbors = graph.remove(&(x, y)).unwrap();
+            let (x0, y0, d0) = neighbors[0];
+            let (x1, y1, d1) = neighbors[1];
 
-            let node1 = graph.get_mut(&(x0,y0)).unwrap();
+            let node1 = graph.get_mut(&(x0, y0)).unwrap();
 
-            if let Some(i) = node1.iter().position(|&(xx,yy,_)| (xx,yy) == (x,y)) {
-                node1[i] = (x1,y1,d0+d1);
+            if let Some(i) = node1.iter().position(|&(xx, yy, _)| (xx, yy) == (x, y)) {
+                node1[i] = (x1, y1, d0 + d1);
             }
 
-            let node2 = graph.get_mut(&(x1,y1)).unwrap();
-            if let Some(i) = node2.iter().position(|&(xx,yy,_)| (xx,yy) == (x,y)) {
-                node2[i] = (x0,y0,d0+d1);
+            let node2 = graph.get_mut(&(x1, y1)).unwrap();
+            if let Some(i) = node2.iter().position(|&(xx, yy, _)| (xx, yy) == (x, y)) {
+                node2[i] = (x0, y0, d0 + d1);
             }
         }
 
         return graph;
-
     }
-
 }
 
 #[derive(Debug)]
