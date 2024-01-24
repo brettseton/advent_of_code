@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::{VecDeque, HashSet, HashMap}, fs, str::FromStr};
+use std::{cmp::Ordering, collections::{HashSet, HashMap}, fs, str::FromStr};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -103,8 +103,6 @@ impl HikingTrail {
     fn get_reached(&self, start: &Step, get_neighbors: & dyn Fn(&Self, &Step) -> Vec<Option<Step>>) -> usize {
         let mut queue = Vec::new();
         queue.push(start.clone());
-
-        let mut visited_map: Vec<Vec<usize>> = vec![vec![0; self.width]; self.height];
 
         let mut current_max = 0;
         let (goal_x, goal_y) = self.get_end();
