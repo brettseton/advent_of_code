@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::{VecDeque, HashSet}, fs, str::FromStr};
+use std::{cmp::Ordering, collections::{VecDeque, HashSet, HashMap}, fs, str::FromStr};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -38,10 +38,8 @@ fn part2(file_path: &str) -> usize {
         history: HashSet::new()
     };
 
-    return hiking_trail.get_reached(&start_step, &HikingTrail::get_connected);
+    return hiking_trail.dfs(&start_step);
 }
-
-
 
 #[derive(PartialEq, Eq, Clone)]
 enum Direction {
@@ -103,8 +101,8 @@ impl HikingTrail {
     }
 
     fn get_reached(&self, start: &Step, get_neighbors: & dyn Fn(&Self, &Step) -> Vec<Option<Step>>) -> usize {
-        let mut queue = VecDeque::new();
-        queue.push_back(start.clone());
+        let mut queue = Vec::new();
+        queue.push(start.clone());
 
         let mut visited_map: Vec<Vec<usize>> =
             vec![vec![0; self.width]; self.height];
@@ -112,15 +110,11 @@ impl HikingTrail {
         let mut current_max = 0;
         let (goal_x, goal_y) = self.get_end();
 
-        while let Some(step) = queue.pop_front() {
-
-            // found another way to get here slower
-            if step.count < visited_map[step.y][step.x] {
-                continue;
-            }
+        while let Some(step) = queue.pop() {
 
             if step.x == goal_x && step.y == goal_y && current_max < step.count {
-                current_max = step.count
+                current_max = step.count;
+                println!("current_max: {}", current_max);
             }
 
             let steps = get_neighbors(&self, &step);
@@ -128,13 +122,41 @@ impl HikingTrail {
             for step in steps {
                 match step {
                     Some(s) => {
-                        if s.count > visited_map[s.y][s.x] {
-                            visited_map[s.y][s.x] = s.count;
-                            queue.push_back(s);
-                        }
+                        queue.push(s);
                     }
                     None => (),
                 }
+            }
+        }
+
+       return current_max;
+    }
+
+    fn dfs(&self, start: &Step) -> usize {
+        let mut queue = Vec::new();
+        queue.push(start.clone());
+        let graph = self.get_graph();
+
+        let mut current_max = 0;
+        let (goal_x, goal_y) = self.get_end();
+
+        while let Some(step) = queue.pop() {
+
+            if step.x == goal_x && step.y == goal_y && current_max < step.count {
+                current_max = step.count;
+                println!("current_max: {}", current_max);
+            }
+
+            let neighbors = graph.get(&(step.x, step.y)).unwrap();
+
+            for (x, y, d) in neighbors {
+                if step.history.contains(&(*x, *y)) {
+                    continue;
+                }
+                let mut history = step.history.clone();
+                history.insert((*x, *y));
+                let s = Step { x: *x, y: *y, count: step.count + d, history: history };
+                queue.push(s);
             }
         }
 
@@ -196,6 +218,33 @@ impl HikingTrail {
         return Some(Step {x: new_x, y: new_y, count: previous.count + 1, history });
     }
 
+    pub fn get_connected_snow_boots(&self, step: &Step) -> Vec<Option<Step>> {
+        return vec![
+            self.get_next_snow_boots(step, Direction::North),
+            self.get_next_snow_boots(step, Direction::South),
+            self.get_next_snow_boots(step, Direction::East),
+            self.get_next_snow_boots(step, Direction::West),
+        ];
+    }
+
+    pub fn get_next_snow_boots(&self, previous: &Step, traveling: Direction) -> Option<Step> {
+        let (dx, dy) = traveling.get_delta();
+
+        let Some(new_x) = previous.x.checked_add_signed(dx) else { return None; };
+        let Some(new_y) = previous.y.checked_add_signed(dy) else { return None; };
+
+        if new_x >= self.width || new_y >= self.height || self.grid[new_y][new_x] == '#' {
+            return None;
+        }
+        
+        if previous.history.contains(&(new_x, new_y)) {
+            return None;
+        }
+        let mut history = previous.history.clone();
+        history.insert((new_x, new_y));
+        return Some(Step {x: new_x, y: new_y, count: previous.count + 1, history });
+    }
+
     pub fn get_start(&self) -> (usize, usize) {
         for x in 0..self.width {
             if self.grid[0][x] == '.' {
@@ -213,6 +262,53 @@ impl HikingTrail {
         }
         return (0, 0);
     }
+
+    pub fn get_graph(&self) -> HashMap<(usize, usize), Vec<(usize, usize, usize)>> {
+        let mut graph: HashMap<(usize, usize), Vec<(usize, usize, usize)>> = HashMap::new();
+
+        for y in 0..self.height {
+            for x in 0..self.width {
+                if self.grid[y][x] != '#' {
+                    let e = graph.entry((x,y)).or_default();
+                    let current = Step {x, y, count: 0, history: HashSet::new()};
+                    for neighbor in self.get_connected_snow_boots(&current).iter() {
+                        match neighbor {
+                            Some(n) => e.push((n.x, n.y, 1)),
+                            None => ()
+                        }
+                    }
+                      
+                }
+            }
+        }
+
+        // remove all corridors
+        let corridors = graph.iter()
+        .filter(|(_k, v)| v.len() == 2)
+        .map(|(&k,_)| k)
+        .collect::<Vec<_>>();
+
+        for (x, y) in corridors {
+            let neighbors = graph.remove(&(x,y)).unwrap();
+            let (x0,y0,d0) = neighbors[0];
+            let (x1,y1,d1) = neighbors[1];
+
+            let node1 = graph.get_mut(&(x0,y0)).unwrap();
+
+            if let Some(i) = node1.iter().position(|&(xx,yy,_)| (xx,yy) == (x,y)) {
+                node1[i] = (x1,y1,d0+d1);
+            }
+
+            let node2 = graph.get_mut(&(x1,y1)).unwrap();
+            if let Some(i) = node2.iter().position(|&(xx,yy,_)| (xx,yy) == (x,y)) {
+                node2[i] = (x0,y0,d0+d1);
+            }
+        }
+
+        return graph;
+
+    }
+
 }
 
 #[derive(Debug)]
@@ -245,17 +341,17 @@ pub fn part1_test1() {
 #[test]
 pub fn part1_test2() {
     let ans = part1("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 2246);
 }
 
 #[test]
 pub fn part2_test1() {
     let ans = part2("input/test1.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 154);
 }
 
 #[test]
 pub fn part2_test2() {
     let ans = part2("input/test2.txt");
-    assert_eq!(ans, 0);
+    assert_eq!(ans, 6622);
 }
