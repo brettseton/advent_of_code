@@ -65,13 +65,13 @@ fn part2(file_path: &str) -> usize {
     // points for my input are {x, y} => {0, 3921}, {2, 96749}, {4, 312993}
     // when x = 0, c = y[0] = 3921
     // y = 0a + 0b + c
-    // 3921 = c
+    // c = 3921                        -- used below
     //
     // when x = 2, y = y[1] = 96749
     // y = 4a + 2b + c
     // rearrange
     // 2b = y - 4a - c
-    // 2b = 96749 - 4a - c    -- Equation 1
+    // 2b = 96749 - 4a - c             -- Equation 1
     //
     // when x = 4, y = y[2] = 312993
     // y = 16a + 4b + c
@@ -80,12 +80,12 @@ fn part2(file_path: &str) -> usize {
     // y = 8a + 2(96749) - c
     // 8a = y - 2(96749) + c
     // a = (y - 2(96749) + c)/8
-    // a = (y[2] - 2 * y[1] + c)/ 8
+    // a = (y[2] - 2 * y[1] + c)/ 8    -- used below
     //
     // use this for b in Equation 1
     // 2b = 96749 - 4a - c
     // b = (96749 - 4a - c)/ 2
-    // b = (y[1] - 4a - c)/ 2
+    // b = (y[1] - 4a - c)/ 2          -- used below
 
 
     let c =  y[0]; // 3921;
