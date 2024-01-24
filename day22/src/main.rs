@@ -31,12 +31,11 @@ struct Brick {
     id: usize,
     start_point: Point3D,
     end_point: Point3D,
-    resting_on: HashSet<usize>
+    resting_on: HashSet<usize>,
 }
 
 impl Brick {
     fn drop(&mut self, occupancy_grid: &mut Vec<Vec<Vec<Option<usize>>>>) {
-
         let min_x = self.start_point.x.min(self.end_point.x);
         let max_x = self.start_point.x.max(self.end_point.x);
         let min_y = self.start_point.y.min(self.end_point.y);
@@ -59,32 +58,31 @@ impl Brick {
                                     match occupancy_grid[z][y][x] {
                                         Some(id) => {
                                             self.resting_on.insert(id);
-                                        },
-                                        None => ()
+                                        }
+                                        None => (),
                                     }
                                 }
                             }
 
                             // Fill the occupancy grid for the other blocks to use
-                            for dz in 1..=block_height { 
+                            for dz in 1..=block_height {
                                 for y in min_y..=max_y {
                                     for x in min_x..=max_x {
-                                        occupancy_grid[z+dz][y][x] = Some(self.id);
+                                        occupancy_grid[z + dz][y][x] = Some(self.id);
                                     }
                                 }
                             }
                             return;
-                        },
-                        None => ()
+                        }
+                        None => (),
                     }
-
                 }
             }
         }
 
         // no collisions and resting on the ground
         println!("resting on the ground {:?}", self);
-        for dz in 1..=block_height { 
+        for dz in 1..=block_height {
             for y in min_y..=max_y {
                 for x in min_x..=max_x {
                     occupancy_grid[dz][y][x] = Some(self.id);
@@ -93,7 +91,6 @@ impl Brick {
         }
         return;
     }
-
 }
 
 #[derive(Debug, Clone)]
@@ -135,7 +132,13 @@ impl BrickStack {
 
     pub fn get_disintegration_count(&self) -> usize {
         let mut bricks_ordered = self.bricks.clone();
-        bricks_ordered.sort_by_key(|b| if b.start_point.z < b.end_point.z { b.start_point.z } else { b.end_point.z });
+        bricks_ordered.sort_by_key(|b| {
+            if b.start_point.z < b.end_point.z {
+                b.start_point.z
+            } else {
+                b.end_point.z
+            }
+        });
 
         let mut occupancy_grid: Vec<Vec<Vec<Option<usize>>>> = vec![vec![vec![None; 10]; 10]; bricks_ordered.last().unwrap().end_point.z];
         let mut parent_of: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
@@ -145,12 +148,15 @@ impl BrickStack {
 
             parent_of.insert(brick.id, vec![]);
             for &resting_on in brick.resting_on.iter() {
-                parent_of.entry(resting_on).or_insert(vec![]).push((brick.id, brick.resting_on.len()));
+                parent_of
+                    .entry(resting_on)
+                    .or_insert(vec![])
+                    .push((brick.id, brick.resting_on.len()));
             }
         }
-        
+
         let mut disintegrate = vec![];
-        for (k, v) in parent_of.iter(){
+        for (k, v) in parent_of.iter() {
             if v.is_empty() || v.iter().all(|x| x.1 > 1) {
                 disintegrate.push(k);
             }
@@ -184,17 +190,24 @@ impl FromStr for BrickStack {
         let bricks: Vec<Brick> = s
             .lines()
             .enumerate()
-            .map(|(i,s)| {
-                let [start_str, end_str] = &s.split('~').map(String::from).collect::<Vec<String>>()[..] else { panic!() };
-                return Brick { id: i, start_point: start_str.parse::<Point3D>().expect(""), end_point: end_str.parse::<Point3D>().expect(""), resting_on: HashSet::new() };
-
+            .map(|(i, s)| {
+                let [start_str, end_str] =
+                    &s.split('~').map(String::from).collect::<Vec<String>>()[..]
+                else {
+                    panic!()
+                };
+                return Brick {
+                    id: i,
+                    start_point: start_str.parse::<Point3D>().expect(""),
+                    end_point: end_str.parse::<Point3D>().expect(""),
+                    resting_on: HashSet::new(),
+                };
             })
             .collect();
 
         return Ok(BrickStack { bricks });
     }
 }
-
 
 #[test]
 pub fn part1_test1() {
