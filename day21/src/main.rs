@@ -93,7 +93,7 @@ fn part2(file_path: &str) -> usize {
 
     let c = y[0]; // 3921;
     let a = (y[2] - 2 * y[1] + c) / 8; // (312993 - 2 * 96749 + c ) / 8
-    let b = (y[1] - 4 * a - c) / 2; // (96749 - c - 4* a)/2
+    let b = (y[1] - 4 * a - c) / 2; // (96749 - 4 * a - c)/2
 
     println!("{}x^2 + {}x + {}", a, b, c);
 
