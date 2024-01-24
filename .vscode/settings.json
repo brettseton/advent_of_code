@@ -23,5 +23,8 @@
         ".\\day19\\Cargo.toml",
         ".\\day20\\Cargo.toml",
         ".\\day21\\Cargo.toml",
+    ],
+    "cSpell.words": [
+        "Deque"
     ]
 }
