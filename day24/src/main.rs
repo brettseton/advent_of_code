@@ -26,7 +26,6 @@ fn part2(file_path: &str) -> usize {
     return hail_storm.get_collision_count(7.0, 27.0);
 }
 
-
 struct HailStorm {
     hail: Vec<Hail>,
 }
@@ -37,16 +36,13 @@ impl HailStorm {
     }
 
     fn get_collision_count(&self, min: f64, max: f64) -> usize {
-
         let mut collisions = 0;
-        for i in 0..self.hail.len()-1 {
-            for j in i+1..self.hail.len() {
-
+        for i in 0..self.hail.len() - 1 {
+            for j in i + 1..self.hail.len() {
                 let hail1 = &self.hail[i];
                 let hail2 = &self.hail[j];
                 if let Some(p) = hail1.find_intersection(&hail2) {
-                    if p.x >= min && p.x <= max
-                    && p.y >= min && p.y <= max {
+                    if p.x >= min && p.x <= max && p.y >= min && p.y <= max {
                         collisions += 1;
                         //println!("intersects in bounds {:?}, {:?} @ {:?}", hail1, hail2, p);
                     }
@@ -55,7 +51,6 @@ impl HailStorm {
         }
         return collisions;
     }
-    
 }
 
 #[derive(Debug)]
@@ -69,9 +64,7 @@ impl FromStr for HailStorm {
             .lines()
             .map(|s| s.parse::<Hail>().expect(""))
             .collect::<Vec<Hail>>();
-        return Ok(HailStorm {
-            hail
-        });
+        return Ok(HailStorm { hail });
     }
 }
 
@@ -82,37 +75,35 @@ struct Hail {
 }
 
 impl Hail {
-
-        // Get a point on the line at a given parameter t
-        fn point_at_parameter(&self, t: f64) -> Point3D {
-            Point3D {
-                x: self.position.x + t * self.velocity.x,
-                y: self.position.y + t * self.velocity.y,
-                z: self.position.z + t * self.velocity.z
-            }
+    // Get a point on the line at a given parameter t
+    fn point_at_parameter(&self, t: f64) -> Point3D {
+        Point3D {
+            x: self.position.x + t * self.velocity.x,
+            y: self.position.y + t * self.velocity.y,
+            z: self.position.z + t * self.velocity.z,
         }
+    }
 
-        // Find the intersection point with another line
-        fn find_intersection(&self, other: &Hail) -> Option<Point3D> {
-            // Solve for t values at the intersection point
-            let det = self.velocity.x * other.velocity.y - self.velocity.y * other.velocity.x;
-    
-            if det.abs() < 1e-10 {
-                // Lines are parallel
-                None
+    // Find the intersection point with another line
+    fn find_intersection(&self, other: &Hail) -> Option<Point3D> {
+        // Solve for t values at the intersection point
+        let det = self.velocity.x * other.velocity.y - self.velocity.y * other.velocity.x;
+
+        if det.abs() < 1e-10 {
+            // Lines are parallel
+            None
+        } else {
+            let t1 = ((other.position.x - self.position.x) * other.velocity.y - (other.position.y - self.position.y) * other.velocity.x)/ det;
+            let t2 = ((other.position.x - self.position.x) * self.velocity.y - (other.position.y - self.position.y) * self.velocity.x)/ det;
+
+            // Check if the intersection point is within the line segments
+            if t1 >= 0.0 && t2 >= 0.0 {
+                Some(self.point_at_parameter(t1))
             } else {
-                let t1 = ((other.position.x - self.position.x) * other.velocity.y - (other.position.y - self.position.y) * other.velocity.x) / det;
-                let t2 = ((other.position.x - self.position.x) * self.velocity.y - (other.position.y - self.position.y) * self.velocity.x) / det;
-    
-                // Check if the intersection point is within the line segments
-                if t1 >= 0.0 && t2 >= 0.0 {
-                    Some(self.point_at_parameter(t1))
-                } else {
-                    None
-                }
+                None
             }
         }
-    
+    }
 }
 
 #[derive(Debug)]
@@ -122,7 +113,6 @@ impl FromStr for Hail {
     type Err = HailError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-
         let [position_str, velocity_str] =
             &s.split('@').map(String::from).collect::<Vec<String>>()[..]
         else {
