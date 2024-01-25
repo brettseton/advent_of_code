@@ -195,7 +195,7 @@ impl Garden {
         let mut even_count: usize = 0;
         let mut odd_count: usize = 0;
         for line in visited_map.iter() {
-            let out: String = line
+            let _out: String = line
                 .iter()
                 .map(|&x| {
                     if x == usize::MAX {
@@ -214,7 +214,7 @@ impl Garden {
                     }
                 })
                 .collect();
-            //println!("{}", out);
+            //println!("{}", _out);
         }
 
         println!(

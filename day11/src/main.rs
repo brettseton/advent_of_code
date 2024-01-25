@@ -37,10 +37,7 @@ struct Point {
 
 #[derive(Debug)]
 struct GalaxyMap {
-    map: Vec<char>,
     galaxies: Vec<Point>,
-    map_width: usize,
-    map_height: usize,
     expanded_rows: Vec<usize>,
     expanded_cols: Vec<usize>,
 }
@@ -123,10 +120,7 @@ impl FromStr for GalaxyMap {
             .collect();
 
         return Ok(GalaxyMap {
-            map,
             galaxies,
-            map_width,
-            map_height,
             expanded_rows,
             expanded_cols,
         });

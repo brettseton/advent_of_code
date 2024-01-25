@@ -7,10 +7,10 @@ fn main() {
     let ans = part1("input/test2.txt", 200000000000000.0, 400000000000000.0);
     println!("part 1 test 2 : {}", ans);
 
-    let ans = part2("input/test1.txt", 7.0, 27.0);
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 : {}", ans);
 
-    let ans = part2("input/test2.txt", 200000000000000.0, 400000000000000.0);
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 : {}", ans);
 }
 
@@ -20,10 +20,10 @@ fn part1(file_path: &str, min_bound: f64, max_bound: f64) -> usize {
     return hail_storm.get_collision_count(min_bound, max_bound);
 }
 
-fn part2(file_path: &str, min_bound: f64, max_bound: f64) -> f64 {
+fn part2(file_path: &str) -> f64 {
     let input = fs::read_to_string(file_path).expect("file input");
     let hail_storm = HailStorm::new(&input);
-    return hail_storm.get_magic_stone(min_bound, max_bound);
+    return hail_storm.get_magic_stone();
 }
 
 struct HailStorm {
@@ -52,7 +52,7 @@ impl HailStorm {
         return collisions;
     }
 
-    fn get_magic_stone(&self, min: f64, max: f64) -> f64 {
+    fn get_magic_stone(&self) -> f64 {
         // Find 3 non-linear stones and solve
         let h1 = self.hail[0].clone();
         let mut h2 = self.hail[0].clone();
@@ -273,12 +273,12 @@ pub fn part1_test2() {
 
 #[test]
 pub fn part2_test1() {
-    let ans = part2("input/test1.txt", 7.0, 27.0);
+    let ans = part2("input/test1.txt");
     assert_eq!(ans, 47.0);
 }
 
 #[test]
 pub fn part2_test2() {
-    let ans = part2("input/test2.txt", 200000000000000.0, 400000000000000.0);
+    let ans = part2("input/test2.txt");
     assert_eq!(ans, 641619849766168.0);
 }

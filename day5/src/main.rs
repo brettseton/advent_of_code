@@ -121,7 +121,6 @@ struct SeedRange {
 }
 
 struct Map {
-    name: String,
     source_to_destinations: Vec<SourceToDestination>,
 }
 
@@ -253,7 +252,6 @@ impl FromStr for Map {
     type Err = MapsParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
-        let name = str.lines().nth(0).map(String::from).expect("should be a name");
         let mut source_to_destinations: Vec<SourceToDestination> = Vec::new();
         // Skip 'seed-to-soil map:' name line
         for line in str.lines().skip(1) {
@@ -261,7 +259,6 @@ impl FromStr for Map {
         }
 
         return Ok(Map {
-            name,
             source_to_destinations
         });
     }

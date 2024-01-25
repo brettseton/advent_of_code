@@ -63,9 +63,6 @@ impl FromStr for Game {
 
 #[derive(Clone)]
 struct ScratchCard {
-    id: usize,
-    winning_numbers: Vec<u32>,
-    numbers: Vec<u32>,
     overlap_count: usize,
     points: usize
 }
@@ -88,7 +85,7 @@ impl FromStr for ScratchCard {
             return Err(ScratchCardParseError);
         }
 
-        let id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<usize>().expect("Unable to parse Game Id");
+        let _id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<usize>().expect("Unable to parse Game Id");
         let winning_numbers: Vec<u32>;
         let numbers: Vec<u32>;
         
@@ -110,7 +107,7 @@ impl FromStr for ScratchCard {
             len => 2_usize.pow((len - 1) as u32)
         };
 
-        return Ok(ScratchCard { id, winning_numbers, numbers, overlap_count: overlap.len(), points});
+        return Ok(ScratchCard { overlap_count: overlap.len(), points});
     }
 }
 
