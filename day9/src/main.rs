@@ -2,16 +2,16 @@ use std::str::FromStr;
 use std::fs;
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day9/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day9/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day9/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day9/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 answer: {}", ans);
 }
 
@@ -95,24 +95,24 @@ impl FromStr for Oasis {
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day9/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 114);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day9/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 2038472161);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part2("C:/git/advent_of_code/day9/input/test1.txt");
+    let result = part2("input/test1.txt");
     assert_eq!(result, 2);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part2("C:/git/advent_of_code/day9/input/test2.txt");
+    let result = part2("input/test2.txt");
     assert_eq!(result, 1091);
 }

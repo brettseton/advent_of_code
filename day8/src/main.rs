@@ -3,19 +3,19 @@ use std::str::FromStr;
 use std::{fs, usize};
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day8/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day8/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day8/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day8/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day8/input/test3.txt");
+    let ans = part2("input/test3.txt");
     println!("part 2 test 3 answer: {}", ans);
 }
 
@@ -135,30 +135,30 @@ impl FromStr for Network {
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day8/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 2);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day8/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 11911);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part2("C:/git/advent_of_code/day8/input/test1.txt");
+    let result = part2("input/test1.txt");
     assert_eq!(result, 2);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part2("C:/git/advent_of_code/day8/input/test2.txt");
+    let result = part2("input/test2.txt");
     assert_eq!(result, 10151663816849);
 }
 
 #[test]
 fn part2_test3() {
-    let result = part2("C:/git/advent_of_code/day8/input/test3.txt");
+    let result = part2("input/test3.txt");
     assert_eq!(result, 6);
 }

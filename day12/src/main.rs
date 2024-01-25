@@ -285,24 +285,24 @@ impl FromStr for ConditionRecord {
 
 #[test]
 pub fn part1_test1() {
-    let ans = part1("C:/git/advent_of_code/day12/input/test1.txt");
+    let ans = part1("input/test1.txt");
     assert_eq!(ans, 21);
 }
 
 #[test]
 pub fn part1_test2() {
-    let ans = part1("C:/git/advent_of_code/day12/input/test2.txt");
+    let ans = part1("input/test2.txt");
     assert_eq!(ans, 7857);
 }
 
 #[test]
 pub fn part2_test1() {
-    let ans = part2("C:/git/advent_of_code/day12/input/test1.txt");
+    let ans = part2("input/test1.txt");
     assert_eq!(ans, 525152);
 }
 
 #[test]
 pub fn part2_test2() {
-    let ans = part2("C:/git/advent_of_code/day12/input/test2.txt");
+    let ans = part2("input/test2.txt");
     assert_eq!(ans, 28606137449920);
 }

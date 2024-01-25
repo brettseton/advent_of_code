@@ -3,16 +3,16 @@ use std::fs;
 use std::str::FromStr;
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day10/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day10/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day10/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day10/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 answer: {}", ans);
 }
 
@@ -292,42 +292,42 @@ impl FromStr for PipeMap {
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day10/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 8);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day10/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 6927);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part2("C:/git/advent_of_code/day10/input/test1.txt");
+    let result = part2("input/test1.txt");
     assert_eq!(result, 1);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part2("C:/git/advent_of_code/day10/input/test2.txt");
+    let result = part2("input/test2.txt");
     assert_eq!(result, 467);
 }
 
 #[test]
 fn part2_test3() {
-    let result = part2("C:/git/advent_of_code/day10/input/test3.txt");
+    let result = part2("input/test3.txt");
     assert_eq!(result, 4);
 }
 
 #[test]
 fn part2_test4() {
-    let result = part2("C:/git/advent_of_code/day10/input/test4.txt");
+    let result = part2("input/test4.txt");
     assert_eq!(result, 8);
 }
 
 #[test]
 fn part2_test5() {
-    let result = part2("C:/git/advent_of_code/day10/input/test5.txt");
+    let result = part2("input/test5.txt");
     assert_eq!(result, 10);
 }

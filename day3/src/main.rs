@@ -3,16 +3,16 @@ use std::fs;
 use std::str::FromStr;
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day3/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day3/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day3/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day3/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 answer: {}", ans);
 }
 
@@ -407,24 +407,24 @@ fn is_part(number: &Number, str: &str) -> bool {
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day3/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 4361);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day3/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 521515);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part2("C:/git/advent_of_code/day3/input/test1.txt");
+    let result = part2("input/test1.txt");
     assert_eq!(result, 467835);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part2("C:/git/advent_of_code/day3/input/test2.txt");
+    let result = part2("input/test2.txt");
     assert_eq!(result, 69527306);
 }

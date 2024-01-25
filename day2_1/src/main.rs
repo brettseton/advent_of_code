@@ -8,16 +8,16 @@ const GREEN_LIMIT: u32 = 13;
 const BLUE_LIMIT: u32 = 14;
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day2_1/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day2_1/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day2_1/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day2_1/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 answer: {}", ans);
 }
 
@@ -127,24 +127,24 @@ where
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day2_1/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 8);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day2_1/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 2285);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part2("C:/git/advent_of_code/day2_1/input/test1.txt");
+    let result = part2("input/test1.txt");
     assert_eq!(result, 2286);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part2("C:/git/advent_of_code/day2_1/input/test2.txt");
+    let result = part2("input/test2.txt");
     assert_eq!(result, 77021);
 }

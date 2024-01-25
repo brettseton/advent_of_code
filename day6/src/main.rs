@@ -2,16 +2,16 @@ use std::str::FromStr;
 use std::{fs, usize};
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day6/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day6/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day6/input/test3.txt");
+    let ans = part1("input/test3.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day6/input/test4.txt");
+    let ans = part1("input/test4.txt");
     println!("part 2 test 2 answer: {}", ans);
 }
 
@@ -103,24 +103,24 @@ impl Race {
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day6/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 288);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day6/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 861300);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part1("C:/git/advent_of_code/day6/input/test3.txt");
+    let result = part1("input/test3.txt");
     assert_eq!(result, 71503);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part1("C:/git/advent_of_code/day6/input/test4.txt");
+    let result = part1("input/test4.txt");
     assert_eq!(result, 28101347);
 }

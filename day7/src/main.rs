@@ -4,16 +4,16 @@ use std::str::FromStr;
 use std::{fs, usize, fmt};
 
 fn main() {
-    let ans = part1("C:/git/advent_of_code/day7/input/test1.txt");
+    let ans = part1("input/test1.txt");
     println!("part 1 test 1 answer: {}", ans);
 
-    let ans = part1("C:/git/advent_of_code/day7/input/test2.txt");
+    let ans = part1("input/test2.txt");
     println!("part 1 test 2 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day7/input/test1.txt");
+    let ans = part2("input/test1.txt");
     println!("part 2 test 1 answer: {}", ans);
 
-    let ans = part2("C:/git/advent_of_code/day7/input/test2.txt");
+    let ans = part2("input/test2.txt");
     println!("part 2 test 2 answer: {}", ans);
 }
 
@@ -281,24 +281,24 @@ impl JHand {
 
 #[test]
 fn part1_test1() {
-    let result = part1("C:/git/advent_of_code/day7/input/test1.txt");
+    let result = part1("input/test1.txt");
     assert_eq!(result, 6440);
 }
 
 #[test]
 fn part1_test2() {
-    let result = part1("C:/git/advent_of_code/day7/input/test2.txt");
+    let result = part1("input/test2.txt");
     assert_eq!(result, 249390788);
 }
 
 #[test]
 fn part2_test1() {
-    let result = part1("C:/git/advent_of_code/day7/input/test3.txt");
+    let result = part1("input/test3.txt");
     assert_eq!(result, 5905);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part1("C:/git/advent_of_code/day7/input/test4.txt");
+    let result = part1("input/test4.txt");
     assert_eq!(result, 0);
 }
