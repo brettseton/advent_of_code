@@ -144,12 +144,12 @@ fn part1_test2() {
 
 #[test]
 fn part2_test1() {
-    let ans = part1("input/test3.txt");
+    let ans = part2("input/test3.txt");
     assert_eq!(ans, 281);
 }
 
 #[test]
 fn part2_test2() {
-  let ans = part1("input/test2.txt");
+  let ans = part2("input/test2.txt");
   assert_eq!(ans, 53868);
 }

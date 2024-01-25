@@ -293,12 +293,12 @@ fn part1_test2() {
 
 #[test]
 fn part2_test1() {
-    let result = part1("input/test3.txt");
+    let result = part2("input/test1.txt");
     assert_eq!(result, 5905);
 }
 
 #[test]
 fn part2_test2() {
-    let result = part1("input/test4.txt");
-    assert_eq!(result, 0);
+    let result = part2("input/test2.txt");
+    assert_eq!(result, 248750248);
 }
