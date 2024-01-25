@@ -24,7 +24,6 @@ impl WireDiagram {
     }
 
     fn get_sum(&self) -> usize {
-
         let mut nodes: HashSet<String> = self.graph.keys().cloned().collect();
         let count = |v: &String, nodes: &HashSet<String>| -> usize { self.graph[v].difference(nodes).count() };
 
@@ -32,10 +31,9 @@ impl WireDiagram {
             let max_v = nodes.iter().max_by_key(|v| count(v, &nodes)).cloned().unwrap();
             nodes.remove(&max_v);
         }
-    
+
         return nodes.len() * (self.graph.keys().len() - &nodes.len());
     }
-
 }
 
 #[derive(Debug)]
@@ -46,20 +44,24 @@ impl FromStr for WireDiagram {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut graph: HashMap<String, HashSet<String>> = HashMap::new();
-        s
-            .lines()
-            .for_each(|s| {
-                let [label_str, children_str] = &s.split(':').map(String::from).collect::<Vec<String>>()[..] else { panic!() };
-                let links = children_str.split_whitespace().map(String::from).collect::<Vec<String>>();
+        s.lines().for_each(|s| {
+            let [label_str, children_str] =
+                &s.split(':').map(String::from).collect::<Vec<String>>()[..]
+            else {
+                panic!()
+            };
+            let links = children_str
+                .split_whitespace()
+                .map(String::from)
+                .collect::<Vec<String>>();
 
-                for link in links.iter() {
-                    let entry = graph.entry(link.to_string()).or_insert(HashSet::new());
-                    entry.insert(label_str.to_string());
-                    let new_entry = graph.entry(label_str.to_string()).or_insert(HashSet::new());
-                    new_entry.insert(link.to_string());
-                }
-                
-            });
+            for link in links.iter() {
+                let entry = graph.entry(link.to_string()).or_insert(HashSet::new());
+                entry.insert(label_str.to_string());
+                let new_entry = graph.entry(label_str.to_string()).or_insert(HashSet::new());
+                new_entry.insert(link.to_string());
+            }
+        });
         return Ok(WireDiagram { graph });
     }
 }
