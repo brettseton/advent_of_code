@@ -1,5 +1,4 @@
-# Answers for [Advent of Code 2023](https://adventofcode.com/2023)
-
+# [Advent of Code 2023](https://adventofcode.com/2023)
 
 ### Run
 To run navigate to the folder and run:
@@ -19,7 +18,8 @@ You can also check tests by running:
 cargo test
 ```
 
-| Puzzle|Link|
+### Contents
+| Puzzle|Code|
 |-------|----|
 | [Day 01: Trebuchet?!](https://adventofcode.com/2023/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/day01/src/main.rs) |
 | [Day 02: Cube Conundrum](https://adventofcode.com/2023/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/day02/src/main.rs) |
