@@ -19,7 +19,7 @@ cargo test
 ```
 
 ### Contents
-| Puzzle|Code|
+| Puzzle|Code (Part 1 and 2)|
 |-------|----|
 | [Day 01: Trebuchet?!](https://adventofcode.com/2023/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/day01/src/main.rs) |
 | [Day 02: Cube Conundrum](https://adventofcode.com/2023/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/day02/src/main.rs) |
