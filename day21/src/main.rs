@@ -175,7 +175,7 @@ impl Garden {
                 break;
             }
 
-            let steps = get_neighbors(&self, &step);
+            let steps = get_neighbors(self, &step);
 
             for step in steps {
                 match step {

@@ -30,7 +30,7 @@ fn part2(file_path: &str) -> u32 {
     return schematic
         .gears
         .iter()
-        .map(|x| x.iter().map(|p| p.value).fold(1, |acc, e| acc * e))
+        .map(|x| x.iter().map(|p| p.value).product::<u32>())
         .sum();
 }
 
@@ -77,7 +77,7 @@ impl FromStr for Schematic {
             parts.append(
                 &mut get_numbers(line, line_index)
                     .into_iter()
-                    .filter(|x| is_part(&x, str))
+                    .filter(|x| is_part(x, str))
                     .collect(),
             );
             line_index += 1;
@@ -138,7 +138,7 @@ fn get_numbers(line: &str, line_number: usize) -> Vec<Number> {
     let mut current_number = String::new();
 
     for ch in line.char_indices() {
-        if ch.1.is_digit(10) {
+        if ch.1.is_ascii_digit() {
             current_number.push(ch.1);
         } else if !current_number.is_empty() {
             if let Ok(number) = current_number.parse::<u32>() {
@@ -236,11 +236,11 @@ fn get_gears(
         };
 
         if line_index > 0 {
-            let y = (line_index - 1) as usize;
+            let y = line_index - 1;
             if let Some(prev) = str.lines().nth(y) {
                 for x in start_x..=end_x {
                     if let Some(ch) = prev.chars().nth(x) {
-                        if ch.is_digit(10) {
+                        if ch.is_ascii_digit() {
                             numbers.insert(
                                 parts
                                     .iter()
@@ -257,7 +257,7 @@ fn get_gears(
         }
 
         if let Some(ch) = line.chars().nth(start_x) {
-            if ch.is_digit(10) {
+            if ch.is_ascii_digit() {
                 numbers.insert(
                     parts
                         .iter()
@@ -273,7 +273,7 @@ fn get_gears(
         }
 
         if let Some(ch) = line.chars().nth(end_x) {
-            if ch.is_digit(10) {
+            if ch.is_ascii_digit() {
                 numbers.insert(
                     parts
                         .iter()
@@ -288,11 +288,11 @@ fn get_gears(
             }
         }
 
-        let y = (line_index + 1) as usize;
+        let y = line_index + 1;
         if let Some(next) = str.lines().nth(y) {
             for x in start_x..=end_x {
                 if let Some(ch) = next.chars().nth(x) {
-                    if ch.is_digit(10) {
+                    if ch.is_ascii_digit() {
                         numbers.insert(
                             parts
                                 .iter()
@@ -353,7 +353,7 @@ fn get_gears(
 fn is_part(number: &Number, str: &str) -> bool {
     let line = str
         .lines()
-        .nth(number.line_number as usize)
+        .nth(number.line_number)
         .expect("no line");
 
     let start_x = if number.start_index == 0 {
@@ -369,10 +369,10 @@ fn is_part(number: &Number, str: &str) -> bool {
     };
 
     if number.line_number > 0 {
-        if let Some(prev) = str.lines().nth((number.line_number - 1) as usize) {
+        if let Some(prev) = str.lines().nth(number.line_number - 1) {
             for x in start_x..=end_x {
                 if let Some(ch) = prev.chars().nth(x) {
-                    if !(ch.is_digit(10) || ch == '.') {
+                    if !(ch.is_ascii_digit() || ch == '.') {
                         return true;
                     }
                 }
@@ -381,21 +381,21 @@ fn is_part(number: &Number, str: &str) -> bool {
     }
 
     if let Some(ch) = line.chars().nth(start_x) {
-        if !(ch.is_digit(10) || ch == '.') {
+        if !(ch.is_ascii_digit() || ch == '.') {
             return true;
         }
     }
 
     if let Some(ch) = line.chars().nth(end_x) {
-        if !(ch.is_digit(10) || ch == '.') {
+        if !(ch.is_ascii_digit() || ch == '.') {
             return true;
         }
     }
 
-    if let Some(next) = str.lines().nth((number.line_number + 1) as usize) {
+    if let Some(next) = str.lines().nth(number.line_number + 1) {
         for x in start_x..=end_x {
             if let Some(ch) = next.chars().nth(x) {
-                if !(ch.is_digit(10) || ch == '.') {
+                if !(ch.is_ascii_digit() || ch == '.') {
                     return true;
                 }
             }

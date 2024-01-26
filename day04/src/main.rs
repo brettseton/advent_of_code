@@ -90,8 +90,8 @@ impl FromStr for ScratchCard {
         let numbers: Vec<u32>;
         
         if let [winning_str, number_str] = &game_split[1].split('|').map(String::from).collect::<Vec<String>>()[..] {
-            winning_numbers = winning_str.split_whitespace().into_iter().map(|x| x.parse::<u32>().expect("Unable to parse winning number")).collect();
-            numbers = number_str.split_whitespace().into_iter().map(|x| x.parse::<u32>().expect("Unable to parse numbers")).collect();
+            winning_numbers = winning_str.split_whitespace().map(|x| x.parse::<u32>().expect("Unable to parse winning number")).collect();
+            numbers = number_str.split_whitespace().map(|x| x.parse::<u32>().expect("Unable to parse numbers")).collect();
         } else {
             return Err(ScratchCardParseError);
         }

@@ -113,7 +113,7 @@ impl HikingTrail {
                 println!("current_max: {}", current_max);
             }
 
-            let steps = get_neighbors(&self, &step);
+            let steps = get_neighbors(self, &step);
 
             for step in steps {
                 match step {

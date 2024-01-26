@@ -73,7 +73,7 @@ impl Network {
         let current_paths: Vec<String> = self
             .nodes
             .keys()
-            .filter(|x| x.ends_with("A"))
+            .filter(|x| x.ends_with('A'))
             .map(String::from)
             .collect();
 
@@ -83,7 +83,7 @@ impl Network {
             let mut current: &str = &path;
             let mut direction = self.instructions.chars().cycle();
             let mut step_count = 0;
-            while !current.ends_with("Z") {
+            while !current.ends_with('Z') {
                 let next_direction = direction.next().expect("direction not empty");
                 let (left, right) = match self.nodes.get(current) {
                     Some((left, right)) => (left, right),
@@ -115,9 +115,9 @@ impl FromStr for Network {
         let mut nodes = HashMap::new();
 
         for line in str.lines().skip(2) {
-            if let [node, map] = &line.split("=").map(String::from).collect::<Vec<String>>()[..] {
+            if let [node, map] = &line.split('=').map(String::from).collect::<Vec<String>>()[..] {
                 if let [left, right] =
-                    &map.split(",").map(String::from).collect::<Vec<String>>()[..]
+                    &map.split(',').map(String::from).collect::<Vec<String>>()[..]
                 {
                     nodes.insert(
                         node.trim().to_string(),

@@ -98,14 +98,12 @@ impl Machine {
         };
 
         let Some(rx_conjunction) = rx_parent.as_conjunction() else { panic!("") };
-        let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.iter().map(|(k, _v)| (k.clone(), 0)).collect();
+        let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.keys().map(|k| (k.clone(), 0)).collect();
         for i in 1..=usize::MAX {
             let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
             while let Some(s) = queue.pop_front() {
                 if s.to == rx_conjunction.label && s.state {
-                    visited.get_mut(&s.from).map(|val| {
-                        *val = i;
-                    });
+                    if let Some(val) = visited.get_mut(&s.from) { *val = i; }
                 }
 
                 if visited.iter().all(|(_k, &v)| v != 0) {
@@ -141,7 +139,7 @@ impl FromStr for Machine {
     type Err = MachineError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut modules: Vec<IModuleType> = s.lines().map(|s| IModuleFactory::new(s)).collect();
+        let mut modules: Vec<IModuleType> = s.lines().map(IModuleFactory::new).collect();
 
         let module_lookup = modules.clone();
 
@@ -308,9 +306,7 @@ impl IModule for Conjunction {
 
     fn receive_message(&mut self, signal: Signal) -> Vec<Signal> {
         // set state
-        self.remembered_pulses.get_mut(&signal.from).map(|val| {
-            *val = signal.state;
-        });
+        if let Some(val) = self.remembered_pulses.get_mut(&signal.from) { *val = signal.state; }
 
         let state = !self.remembered_pulses.iter().all(|(_k, &v)| v);
 

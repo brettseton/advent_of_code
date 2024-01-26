@@ -53,7 +53,7 @@ impl FromStr for ConditionReport {
     type Err = ConditionReportError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let rows = s.lines().map(|x| ConditionRecord::new(x)).collect();
+        let rows = s.lines().map(ConditionRecord::new).collect();
         return Ok(ConditionReport { rows });
     }
 }

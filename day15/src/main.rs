@@ -59,16 +59,14 @@ impl Sequence {
                         None => continue,
                     }
                 }
-            } else {
-                if let Some((label, focal_length_str)) = calc.split_once('=') {
-                    let hash = Sequence::get_hash(label);
-                    let lens = Lens { label: label.to_string(), focal_length: focal_length_str.parse::<usize>().unwrap() };
-                    match boxes[hash].iter().enumerate().find(|(_i, x)| x.label == label) {
-                        Some((index, _)) => {
-                            boxes[hash][index].focal_length = lens.focal_length;
-                        },
-                        None => { boxes[hash].push(lens); },
-                    }
+            } else if let Some((label, focal_length_str)) = calc.split_once('=') {
+                let hash = Sequence::get_hash(label);
+                let lens = Lens { label: label.to_string(), focal_length: focal_length_str.parse::<usize>().unwrap() };
+                match boxes[hash].iter().enumerate().find(|(_i, x)| x.label == label) {
+                    Some((index, _)) => {
+                        boxes[hash][index].focal_length = lens.focal_length;
+                    },
+                    None => { boxes[hash].push(lens); },
                 }
             }
         }

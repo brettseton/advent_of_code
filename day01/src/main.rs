@@ -19,8 +19,8 @@ fn part1(file_path: &str) -> u32 {
   let mut sum = 0;
 
   input.lines().for_each(|line| {
-    let c1 = line.chars().find(|ch| ch.is_digit(10));
-    let c2 = line.chars().rev().find(|ch| ch.is_digit(10));
+    let c1 = line.chars().find(|ch| ch.is_ascii_digit());
+    let c2 = line.chars().rev().find(|ch| ch.is_ascii_digit());
     
     let d1 = match c1 {
         Some(c)=> c.to_digit(10).unwrap(),
@@ -96,7 +96,7 @@ fn get_number_from_string(line: &String) -> u32 {
           break;
       }
 
-      if ch.is_digit(10) {
+      if ch.is_ascii_digit() {
           d1 = ch.to_digit(10).expect("couldn't get number");
           break;
       }
@@ -119,7 +119,7 @@ fn get_number_from_string(line: &String) -> u32 {
           break;
       }
 
-      if ch.is_digit(10) {
+      if ch.is_ascii_digit() {
           d2 = ch.to_digit(10).expect("couldn't get number");
           break;
       }

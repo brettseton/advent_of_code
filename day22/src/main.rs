@@ -150,7 +150,7 @@ impl BrickStack {
             for &resting_on in brick.resting_on.iter() {
                 parent_of
                     .entry(resting_on)
-                    .or_insert(vec![])
+                    .or_default()
                     .push((brick.id, brick.resting_on.len()));
             }
         }

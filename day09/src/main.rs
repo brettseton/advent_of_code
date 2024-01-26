@@ -41,11 +41,11 @@ impl Oasis {
     }
 
     pub fn get_predictions(&self) -> Vec<i32> {
-        return self.reports.iter().map(|x| Oasis::get_prediction(x)).collect();
+        return self.reports.iter().map(Oasis::get_prediction).collect();
     }
 
     pub fn get_left_predictions(&self) -> Vec<i32> {
-        return self.reports.iter().map(|x| Oasis::get_left_prediction(x)).collect();
+        return self.reports.iter().map(Oasis::get_left_prediction).collect();
     }
 
     pub fn get_prediction(report: &Vec<i32>) -> i32 {

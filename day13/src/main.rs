@@ -52,7 +52,7 @@ impl FromStr for Puzzle {
     type Err = PuzzleError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let rows = s.split("\n\n").map(|x| AshRockMap::new(x)).collect();
+        let rows = s.split("\n\n").map(AshRockMap::new).collect();
         return Ok(Puzzle { rows });
     }
 }

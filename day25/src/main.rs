@@ -56,9 +56,9 @@ impl FromStr for WireDiagram {
                 .collect::<Vec<String>>();
 
             for link in links.iter() {
-                let entry = graph.entry(link.to_string()).or_insert(HashSet::new());
+                let entry = graph.entry(link.to_string()).or_default();
                 entry.insert(label_str.to_string());
-                let new_entry = graph.entry(label_str.to_string()).or_insert(HashSet::new());
+                let new_entry = graph.entry(label_str.to_string()).or_default();
                 new_entry.insert(link.to_string());
             }
         });

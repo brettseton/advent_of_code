@@ -110,7 +110,7 @@ impl Machine {
                     break;
                 }
                 
-                if let [label_str, amount_str] = &rule.0.split("<").map(String::from).collect::<Vec<String>>()[..] {
+                if let [label_str, amount_str] = &rule.0.split('<').map(String::from).collect::<Vec<String>>()[..] {
                     let input_value = match input_condition.iter().find(|&x| x.0.eq(label_str)) {
                         Some(x) => x.1,
                         None => 0,
@@ -119,12 +119,12 @@ impl Machine {
                     let amount = usize::from_str(amount_str).unwrap();
 
                     if input_value < amount {
-                        current_label = rule.1.as_ref().clone().unwrap();
+                        current_label = rule.1.as_ref().unwrap();
                         break;
                     }
                 }
 
-                if let [label_str, amount_str] = &rule.0.split(">").map(String::from).collect::<Vec<String>>()[..] {
+                if let [label_str, amount_str] = &rule.0.split('>').map(String::from).collect::<Vec<String>>()[..] {
                     let input_value = match input_condition.iter().find(|&x| x.0.eq(label_str)) {
                         Some(x) => x.1,
                         None => 0,
@@ -133,7 +133,7 @@ impl Machine {
                     let amount = usize::from_str(amount_str).unwrap();
 
                     if input_value > amount {
-                        current_label = rule.1.as_ref().clone().unwrap();
+                        current_label = rule.1.as_ref().unwrap();
                         break;
                     }
                 }
@@ -144,7 +144,7 @@ impl Machine {
     }
 
     pub fn get_accepted_sum_range(&self, part_ranges: &Vec<PartRange>) -> usize {
-        let mut queue: Vec<PartRange> = part_ranges.iter().map(|v| v.clone()).collect();
+        let mut queue: Vec<PartRange> = part_ranges.to_vec();
         let mut result: Vec<PartRange> = vec![];
 
         while let Some(part_range) = queue.pop() {
@@ -167,7 +167,7 @@ impl Machine {
                     break;
                 }
                 
-                if let [rule_variable_str, amount_str] = &rule.0.split("<").map(String::from).collect::<Vec<String>>()[..] {
+                if let [rule_variable_str, amount_str] = &rule.0.split('<').map(String::from).collect::<Vec<String>>()[..] {
 
                     let rule_amount = usize::from_str(amount_str).unwrap();
 
@@ -194,7 +194,7 @@ impl Machine {
                     }
                 }
 
-                if let [rule_variable_str, amount_str] = &rule.0.split(">").map(String::from).collect::<Vec<String>>()[..] {
+                if let [rule_variable_str, amount_str] = &rule.0.split('>').map(String::from).collect::<Vec<String>>()[..] {
 
                     
                     let rule_amount = usize::from_str(amount_str).unwrap();
@@ -254,7 +254,7 @@ impl FromStr for Machine {
             .unwrap()
             .lines()
             .filter(|s| !s.is_empty())
-            .map(|s| Workflow::new(s))
+            .map(Workflow::new)
             .collect();
         let input_conditions: Vec<Vec<(String, usize)>> = split
             .nth(0)
@@ -316,10 +316,7 @@ impl FromStr for Workflow {
                 let mut split = s.split(':');
 
                 let condition = split.nth(0).unwrap().to_string();
-                let destination = match split.nth(0) {
-                    Some(s) => Some(s.to_string()),
-                    None => None,
-                };
+                let destination = split.nth(0).map(|s| s.to_string());
 
                 return (condition, destination);
             })

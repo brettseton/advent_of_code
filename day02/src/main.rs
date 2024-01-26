@@ -35,7 +35,7 @@ fn part1(file_path: &str) -> u32 {
 
                 let game_id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<u32>().expect("Unable to parse Game Id");
                 
-                if game_split[1].split(';').any(|x| exceeds_limit(x)) {
+                if game_split[1].split(';').any(exceeds_limit) {
                     continue;
                 }
                 sum += game_id;
@@ -71,7 +71,7 @@ fn exceeds_limit(set: &str) -> bool {
     //println!("Set: {}", set);
     for roll in set.split(','){
         //println!("roll: {}", roll);
-        let amount = roll.split_whitespace().nth(0).expect("No roll count present").parse::<u32>().expect("Unable to parse roll count");
+        let amount = roll.split_whitespace().next().expect("No roll count present").parse::<u32>().expect("Unable to parse roll count");
         let color = roll.split_whitespace().nth(1).expect("No color present");
         let limit = match color {
             "red" => RED_LIMIT,
@@ -98,7 +98,7 @@ fn get_rgb(set: &str) -> RGB {
     let mut rgb = RGB::default();
     for roll in set.split(','){
         //println!("roll: {}", roll);
-        let amount = roll.split_whitespace().nth(0).expect("No roll count present").parse::<u32>().expect("Unable to parse roll count");
+        let amount = roll.split_whitespace().next().expect("No roll count present").parse::<u32>().expect("Unable to parse roll count");
         let color = roll.split_whitespace().nth(1).expect("No color present");
         match color {
             "red" => rgb.r = amount,

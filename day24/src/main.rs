@@ -41,7 +41,7 @@ impl HailStorm {
             for j in i + 1..self.hail.len() {
                 let hail1 = &self.hail[i];
                 let hail2 = &self.hail[j];
-                if let Some(p) = hail1.find_intersection(&hail2) {
+                if let Some(p) = hail1.find_intersection(hail2) {
                     if p.x >= min && p.x <= max && p.y >= min && p.y <= max {
                         collisions += 1;
                         //println!("intersects in bounds {:?}, {:?} @ {:?}", hail1, hail2, p);
