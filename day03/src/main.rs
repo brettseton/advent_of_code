@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::fs;
+use std::hash::Hash;
 use std::str::FromStr;
 
 fn main() {
@@ -34,7 +35,7 @@ fn part2(file_path: &str) -> u32 {
         .sum();
 }
 
-#[derive(Default, Debug, Eq, Hash, Clone)]
+#[derive(Default, Debug, Eq, Clone)]
 struct Number {
     start_index: usize,
     end_index: usize,
@@ -48,6 +49,15 @@ impl PartialEq for Number {
             && self.end_index == other.end_index
             && self.line_number == other.line_number
             && self.value == other.value
+    }
+}
+
+impl Hash for Number {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.start_index.hash(state);
+        self.end_index.hash(state);
+        self.line_number.hash(state);
+        self.value.hash(state);
     }
 }
 
@@ -145,7 +155,7 @@ fn get_numbers(line: &str, line_number: usize) -> Vec<Number> {
                 numbers_vec.push(Number {
                     start_index: ch.0 - current_number.len(),
                     end_index: ch.0 - 1,
-                    line_number: line_number,
+                    line_number,
                     value: number,
                 });
             }
@@ -157,7 +167,7 @@ fn get_numbers(line: &str, line_number: usize) -> Vec<Number> {
         numbers_vec.push(Number {
             start_index: line.len() - current_number.len(),
             end_index: line.len() - 1,
-            line_number: line_number,
+            line_number,
             value: number,
         });
     }
