@@ -73,7 +73,7 @@ impl AshRockMap {
             return match_index * 100;
         }
         
-        let map_width = self.map.iter().nth(0).unwrap().len();
+        let map_width = self.map.get(0).unwrap().len();
         let map_height = self.map.len();
         let vertical_map: Vec<String> = (0..map_width)
         .map(|x| {
@@ -114,8 +114,8 @@ impl AshRockMap {
                     }
                     return Some(index)
                 }
-                if let Some(check_up) = lines.iter().nth(index  - i - 1) {
-                    if let Some(check_down) = lines.iter().nth(index + i)  {
+                if let Some(check_up) = lines.get(index  - i - 1) {
+                    if let Some(check_down) = lines.get(index + i)  {
                         let num_differences = AshRockMap::get_differences(check_up, check_down);
 
                         if num_differences + acc_differences <= allowed_differences {

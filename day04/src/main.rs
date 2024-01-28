@@ -27,7 +27,7 @@ fn part2(file_path: &str) -> usize {
 
     let mut duplicates = vec![1_usize ; game.scratch_cards.len()];
     for index in 0..duplicates.len()  {
-        let card = game.scratch_cards.iter().nth(index).expect("no cards?!");
+        let card = game.scratch_cards.get(index).expect("no cards?!");
         for i in 1..=card.overlap_count {
             duplicates[index+i] += duplicates[index];
         }
