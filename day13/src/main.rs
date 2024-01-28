@@ -73,7 +73,7 @@ impl AshRockMap {
             return match_index * 100;
         }
         
-        let map_width = self.map.get(0).unwrap().len();
+        let map_width = self.map.first().unwrap().len();
         let map_height = self.map.len();
         let vertical_map: Vec<String> = (0..map_width)
         .map(|x| {
