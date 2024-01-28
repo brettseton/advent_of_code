@@ -25,21 +25,19 @@ fn part1(file_path: &str) -> u32 {
     let mut sum = 0;
 
     if let Ok(lines) = read_lines(file_path) {
-        for line in lines {
-            if let Ok(ip) = line {
-                let game_split: Vec<&str> = ip.split(':').collect();
-                if game_split.len() != 2 {
-                    println!("Error with line so skipping: {}", ip);
-                    continue;
-                }
-
-                let game_id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<u32>().expect("Unable to parse Game Id");
-                
-                if game_split[1].split(';').any(exceeds_limit) {
-                    continue;
-                }
-                sum += game_id;
+        for line in lines.flatten() {
+            let game_split: Vec<&str> = line.split(':').collect();
+            if game_split.len() != 2 {
+                println!("Error with line so skipping: {}", line);
+                continue;
             }
+
+            let game_id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<u32>().expect("Unable to parse Game Id");
+            
+            if game_split[1].split(';').any(exceeds_limit) {
+                continue;
+            }
+            sum += game_id;
         }
     }
     return sum;
@@ -49,19 +47,16 @@ fn part2(file_path: &str) -> u32 {
     let mut sum = 0;
 
     if let Ok(lines) = read_lines(file_path) {
-        for line in lines {
-            if let Ok(ip) = line {
-
-                let game_split: Vec<&str> = ip.split(':').collect();
-                if game_split.len() != 2 {
-                    println!("Error with line so skipping: {}", ip);
-                    continue;
-                }
-
-                let max_rgb = game_split[1].split(';').fold(RGB::default(), |acc, x| get_max(&acc, &get_rgb(x)));
-
-                sum += max_rgb.r*max_rgb.g*max_rgb.b;
+        for line in lines.flatten() {
+            let game_split: Vec<&str> = line.split(':').collect();
+            if game_split.len() != 2 {
+                println!("Error with line so skipping: {}", line);
+                continue;
             }
+
+            let max_rgb = game_split[1].split(';').fold(RGB::default(), |acc, x| get_max(&acc, &get_rgb(x)));
+
+            sum += max_rgb.r*max_rgb.g*max_rgb.b;
         }
     }
     return sum;
