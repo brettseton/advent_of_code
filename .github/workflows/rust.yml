@@ -39,7 +39,7 @@ jobs:
       - run: |
           ls ${{ matrix.value }}
       - name: Build
-        run: cargo build --verbose --manifest-path .\${{ matrix.value }}\Cargo.toml
+        run: cargo build --verbose --manifest-path ${{ matrix.value }}/Cargo.toml
       - name: Run tests
-        run: cargo test --verbose --manifest-path .\${{ matrix.value }}\Cargo.toml
+        run: cargo test --verbose --manifest-path ${{ matrix.value }}/Cargo.toml
           echo "${{ matrix.value }}"
