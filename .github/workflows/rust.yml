@@ -17,7 +17,13 @@ jobs:
     steps:
       - id: matrix
         run: |
-          echo "value=[\"a\", \"b\", \"c\"]" >> $GITHUB_OUTPUT
+          numbers=()
+
+          for i in {1..25}; do
+              numbers+=($(printf "\"day%02d\"" "$i"))
+          done
+
+          echo "value=[${numbers[@]}]" >> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
   build:
