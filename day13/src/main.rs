@@ -100,11 +100,15 @@ impl AshRockMap {
 
             let num_differences = AshRockMap::get_differences(line, prev);
 
-            if num_differences > allowed_differences {
-                prev = line;
-                continue;
-            } else if num_differences == allowed_differences {
-                acc_differences = num_differences;
+            match num_differences.cmp(&allowed_differences) {
+                Ordering::Greater =>  {
+                    prev = line;
+                    continue;
+                },
+                Ordering::Less => (),
+                Ordering::Equal => {
+                    acc_differences = num_differences;
+                }
             }
 
             for i in 1..lines.len() {

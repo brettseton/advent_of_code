@@ -100,7 +100,7 @@ impl Machine {
         return sum;
     }
 
-    pub fn is_accepted(&self, input_condition: &Vec<(String, usize)>) -> bool {
+    pub fn is_accepted(&self, input_condition: &[(String, usize)]) -> bool {
         let mut current_label = "in";
 
         while let Some(workflow) = self.workflows.iter().find(|&x| x.label == current_label) {
@@ -143,7 +143,7 @@ impl Machine {
         return current_label == "A";
     }
 
-    pub fn get_accepted_sum_range(&self, part_ranges: &Vec<PartRange>) -> usize {
+    pub fn get_accepted_sum_range(&self, part_ranges: &[PartRange]) -> usize {
         let mut queue: Vec<PartRange> = part_ranges.to_vec();
         let mut result: Vec<PartRange> = vec![];
 

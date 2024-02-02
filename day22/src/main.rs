@@ -35,7 +35,7 @@ struct Brick {
 }
 
 impl Brick {
-    fn drop(&mut self, occupancy_grid: &mut Vec<Vec<Vec<Option<usize>>>>) {
+    fn drop(&mut self, occupancy_grid: &mut [Vec<Vec<Option<usize>>>]) {
         let min_x = self.start_point.x.min(self.end_point.x);
         let max_x = self.start_point.x.max(self.end_point.x);
         let min_y = self.start_point.y.min(self.end_point.y);
@@ -47,34 +47,26 @@ impl Brick {
         for z in (1..self.start_point.z).rev() {
             for y in min_y..=max_y {
                 for x in min_x..=max_x {
-                    match occupancy_grid[z][y][x] {
-                        Some(id) => {
-                            //println!("collided with {} resting of {:?} at height: {}", id, self, z+1);
-                            self.resting_on.insert(id);
-
-                            // Find any other blocks this is resting on
+                    if let Some(id) = occupancy_grid[z][y][x] {
+                        //println!("collided with {} resting of {:?} at height: {}", id, self, z+1);
+                        self.resting_on.insert(id);
+                        // Find any other blocks this is resting on
+                        for y in min_y..=max_y {
+                            for x in min_x..=max_x {
+                                if let Some(id) = occupancy_grid[z][y][x] {
+                                    self.resting_on.insert(id);
+                                }
+                            }
+                        }
+                        // Fill the occupancy grid for the other blocks to use
+                        for dz in 1..=block_height {
                             for y in min_y..=max_y {
                                 for x in min_x..=max_x {
-                                    match occupancy_grid[z][y][x] {
-                                        Some(id) => {
-                                            self.resting_on.insert(id);
-                                        }
-                                        None => (),
-                                    }
+                                    occupancy_grid[z + dz][y][x] = Some(self.id);
                                 }
                             }
-
-                            // Fill the occupancy grid for the other blocks to use
-                            for dz in 1..=block_height {
-                                for y in min_y..=max_y {
-                                    for x in min_x..=max_x {
-                                        occupancy_grid[z + dz][y][x] = Some(self.id);
-                                    }
-                                }
-                            }
-                            return;
                         }
-                        None => (),
+                        return;
                     }
                 }
             }
@@ -82,10 +74,10 @@ impl Brick {
 
         // no collisions and resting on the ground
         //println!("resting on the ground {:?}", self);
-        for dz in 1..=block_height {
-            for y in min_y..=max_y {
-                for x in min_x..=max_x {
-                    occupancy_grid[dz][y][x] = Some(self.id);
+        for dz in occupancy_grid.iter_mut().take(block_height + 1).skip(1) {
+            for y in dz.iter_mut().take(max_y + 1).skip(min_y) {
+                for x in y.iter_mut().take(max_x + 1).skip(min_x) {
+                    *x = Some(self.id);
                 }
             }
         }

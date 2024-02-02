@@ -227,7 +227,7 @@ fn get_gears(
     potential_gears: Vec<usize>,
     line_index: usize,
     str: &str,
-    parts: &Vec<Number>,
+    parts: &[Number],
 ) -> Vec<HashSet<Number>> {
     let mut gears = Vec::new();
 

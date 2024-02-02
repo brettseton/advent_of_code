@@ -240,16 +240,16 @@ impl HikingTrail {
     }
 
     pub fn get_graph(&self) -> Graph {
-        let mut graph: HashMap<(usize, usize), Vec<(usize, usize, usize)>> = HashMap::new();
+        let mut graph: HashMap<Point2D, Vec<Point3D>> = HashMap::new();
 
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.grid[y][x] != '#' {
-                    let e = graph.entry((x,y)).or_default();
+                    let e = graph.entry(Point2D {x,y}).or_default();
                     let current = Step {x, y, count: 0, history: HashSet::new()};
                     for neighbor in self.get_connected_snow_boots(&current).iter() {
                         match neighbor {
-                            Some(n) => e.push((n.x, n.y, 1)),
+                            Some(n) => e.push(Point3D{x: n.x, y: n.y, z: 1}),
                             None => (),
                         }
                     }
@@ -264,24 +264,42 @@ impl HikingTrail {
             .map(|(&k, _)| k)
             .collect::<Vec<_>>();
 
-        for (x, y) in corridors {
-            let neighbors = graph.remove(&(x, y)).unwrap();
-            let (x0, y0, d0) = neighbors[0];
-            let (x1, y1, d1) = neighbors[1];
+        for point in corridors {
+            let neighbors = graph.remove(&point).unwrap();
+            let n0 = &neighbors[0];
+            let n1= &neighbors[1];
 
-            let node1 = graph.get_mut(&(x0, y0)).unwrap();
+            let node1 = graph.get_mut(&n0.as_point2d()).unwrap();
 
-            if let Some(i) = node1.iter().position(|&(xx, yy, _)| (xx, yy) == (x, y)) {
-                node1[i] = (x1, y1, d0 + d1);
+            if let Some(i) = node1.iter().position(|p| (p.x, p.y) == (point.x, point.y)) {
+                node1[i] = Point3D {x: n1.x, y: n1.y, z: n0.z + n1.z};
             }
 
-            let node2 = graph.get_mut(&(x1, y1)).unwrap();
-            if let Some(i) = node2.iter().position(|&(xx, yy, _)| (xx, yy) == (x, y)) {
-                node2[i] = (x0, y0, d0 + d1);
+            let node2 = graph.get_mut(&n1.as_point2d()).unwrap();
+            if let Some(i) = node2.iter().position(|p| (p.x, p.y) == (point.x, point.y)) {
+                node2[i] = Point3D {x: n0.x, y: n0.y, z: n0.z + n1.z};
             }
         }
 
         return Graph{ graph, width: self.width, height: self.height };
+    }
+}
+
+#[derive(Eq, Hash, PartialEq, Clone, Copy)]
+struct Point2D {
+    x: usize,
+    y: usize
+}
+
+struct Point3D {
+    x: usize,
+    y: usize,
+    z: usize
+}
+
+impl Point3D {
+    pub fn as_point2d(&self) -> Point2D {
+        return Point2D {x: self.x, y: self.y} ;
     }
 }
 
@@ -307,7 +325,7 @@ impl FromStr for HikingTrail {
 }
 
 struct Graph {
-    graph: HashMap<(usize, usize), Vec<(usize, usize, usize)>>,
+    graph: HashMap<Point2D, Vec<Point3D>>,
     width: usize,
     height: usize
 }
@@ -317,23 +335,23 @@ impl Graph {
         let mut max_length = 0;
         let mut visited = vec![vec![false; self.width]; self.height];
         
-        self.dfs_recursive(&(start.x, start.y), &mut visited, &mut max_length, 0);
+        self.dfs_recursive(&Point2D{x: start.x, y: start.y}, &mut visited, &mut max_length, 0);
 
         return max_length;
     }
 
-    fn dfs_recursive(&self, start: &(usize, usize), visited: &mut Vec<Vec<bool>>, max_length: &mut usize, length: usize) {
-        visited[start.1][start.0] = true;
+    fn dfs_recursive(&self, start: &Point2D, visited: &mut Vec<Vec<bool>>, max_length: &mut usize, length: usize) {
+        visited[start.y][start.x] = true;
         *max_length = (*max_length).max(length);
 
-        if let Some(neighbors) = self.graph.get(&(start.0, start.1)) {
-            for &(x, y, d) in neighbors {
-                if !visited[y][x] {
-                    self.dfs_recursive(&(x, y), visited, max_length, length + d);
+        if let Some(neighbors) = self.graph.get(start) {
+            for neighbor in neighbors {
+                if !visited[neighbor.y][neighbor.x] {
+                    self.dfs_recursive(&neighbor.as_point2d(), visited, max_length, length + neighbor.z);
                 }
             }
         }
-        visited[start.1][start.0] = false; // Backtrack
+        visited[start.y][start.x] = false; // Backtrack
     }
 }
 

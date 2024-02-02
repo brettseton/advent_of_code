@@ -84,11 +84,8 @@ impl Contraption {
 
             let beams = self.get_connected_beams(&beam);
 
-            for beam in beams {
-                match beam {
-                    Some(b) => queue.push(b),
-                    None => (),
-                }
+            for beam in beams.into_iter().flatten() {
+                queue.push(beam) 
             }
         }
         

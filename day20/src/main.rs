@@ -139,7 +139,7 @@ impl FromStr for Machine {
     type Err = MachineError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut modules: Vec<IModuleType> = s.lines().map(IModuleFactory::new).collect();
+        let mut modules: Vec<IModuleType> = s.lines().map(IModuleFactory::new_module).collect();
 
         let module_lookup = modules.clone();
 
@@ -333,7 +333,7 @@ impl IModule for Conjunction {
 struct IModuleFactory {}
 
 impl IModuleFactory {
-    pub fn new(str: &str) -> IModuleType {
+    pub fn new_module(str: &str) -> IModuleType {
 
         let [label, destinations] = &str.split(" -> ").map(String::from).collect::<Vec<String>>()[..] else { panic!() };
 

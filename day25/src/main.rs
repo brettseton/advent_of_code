@@ -32,7 +32,7 @@ impl WireDiagram {
             nodes.remove(&max_v);
         }
 
-        return nodes.len() * (self.graph.keys().len() - &nodes.len());
+        return nodes.len() * (self.graph.keys().len() - nodes.len());
     }
 }
 

@@ -134,15 +134,10 @@ impl Grid {
 
             let states = self.get_connected_states(&state, min_steps, max_steps);
 
-            for new_state in states {
-                match new_state {
-                    Some(b) => {
-                        if b.current_cost < visited_map[b.y][b.x][b.traveling.to_usize()][b.num_step] {
-                            visited_map[b.y][b.x][b.traveling.to_usize()][b.num_step] = b.current_cost;
-                            heap.push(b);
-                        }
-                    }
-                    None => (),
+            for new_state in states.into_iter().flatten() {
+                if new_state.current_cost < visited_map[new_state.y][new_state.x][new_state.traveling.to_usize()][new_state.num_step] {
+                    visited_map[new_state.y][new_state.x][new_state.traveling.to_usize()][new_state.num_step] = new_state.current_cost;
+                    heap.push(new_state);
                 }
             }
         }

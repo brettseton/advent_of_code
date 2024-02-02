@@ -42,7 +42,7 @@ fn part2(file_path: &str) -> u32  {
   let input = fs::read_to_string(file_path).expect("Unable to read the input file");
   let mut sum = 0;
   input.lines().for_each(|line| {
-      sum += get_number_from_string(&line.to_string());
+      sum += get_number_from_string(line);
   });
   return sum;
 }
@@ -78,7 +78,7 @@ fn check_pattern_rev(iter: &mut std::iter::Peekable<std::iter::Rev<std::str::Cha
   return Some(value);
 }
 
-fn get_number_from_string(line: &String) -> u32 {
+fn get_number_from_string(line: &str) -> u32 {
   let mut d1 = 0;
   let mut chars = line.chars().peekable();
 

@@ -177,17 +177,12 @@ impl Garden {
 
             let steps = get_neighbors(self, &step);
 
-            for step in steps {
-                match step {
-                    Some(s) => {
-                        let grid_x = start_x_offset.checked_add_signed(s.x).unwrap();
-                        let grid_y = start_y_offset.checked_add_signed(s.y).unwrap();
-                        if s.count < visited_map[grid_y][grid_x] {
-                            visited_map[grid_y][grid_x] = s.count;
-                            queue.push_back(s);
-                        }
-                    }
-                    None => (),
+            for step in steps.into_iter().flatten() {
+                let grid_x = start_x_offset.checked_add_signed(step.x).unwrap();
+                let grid_y = start_y_offset.checked_add_signed(step.y).unwrap();
+                if step.count < visited_map[grid_y][grid_x] {
+                    visited_map[grid_y][grid_x] = step.count;
+                    queue.push_back(step);
                 }
             }
         }
