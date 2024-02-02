@@ -1,3 +1,4 @@
+#![allow(clippy::needless_return)]
 use std::{cmp::Ordering, collections::{HashSet, HashMap}, fs, str::FromStr};
 
 fn main() {
@@ -115,13 +116,8 @@ impl HikingTrail {
 
             let steps = get_neighbors(self, &step);
 
-            for step in steps {
-                match step {
-                    Some(s) => {
-                        queue.push(s);
-                    }
-                    None => (),
-                }
+            for step in steps.into_iter().flatten() {
+                queue.push(step);
             }
         }
 
@@ -129,39 +125,12 @@ impl HikingTrail {
     }
 
     fn dfs(&self, start: &Step) -> usize {
-        let mut queue = Vec::new();
-        queue.push(start.clone());
         let graph = self.get_graph();
 
-        let mut current_max = 0;
-        let (goal_x, goal_y) = self.get_end();
-
-        while let Some(step) = queue.pop() {
-            if step.x == goal_x && step.y == goal_y && current_max < step.count {
-                current_max = step.count;
-                println!("current_max: {}", current_max);
-            }
-
-            let neighbors = graph.get(&(step.x, step.y)).unwrap();
-
-            for (x, y, d) in neighbors {
-                if step.history.contains(&(*x, *y)) {
-                    continue;
-                }
-                let mut history = step.history.clone();
-                history.insert((*x, *y));
-                let s = Step {
-                    x: *x,
-                    y: *y,
-                    count: step.count + d,
-                    history: history,
-                };
-                queue.push(s);
-            }
-        }
-
-        return current_max;
+        return graph.get_longest(start);
     }
+
+
 
     pub fn get_connected(&self, step: &Step) -> Vec<Option<Step>> {
         return vec![
@@ -270,7 +239,7 @@ impl HikingTrail {
         return (0, 0);
     }
 
-    pub fn get_graph(&self) -> HashMap<(usize, usize), Vec<(usize, usize, usize)>> {
+    pub fn get_graph(&self) -> Graph {
         let mut graph: HashMap<(usize, usize), Vec<(usize, usize, usize)>> = HashMap::new();
 
         for y in 0..self.height {
@@ -312,7 +281,7 @@ impl HikingTrail {
             }
         }
 
-        return graph;
+        return Graph{ graph, width: self.width, height: self.height };
     }
 }
 
@@ -334,6 +303,37 @@ impl FromStr for HikingTrail {
             width,
             height,
         });
+    }
+}
+
+struct Graph {
+    graph: HashMap<(usize, usize), Vec<(usize, usize, usize)>>,
+    width: usize,
+    height: usize
+}
+
+impl Graph {
+    pub fn get_longest(&self, start: &Step) -> usize {
+        let mut max_length = 0;
+        let mut visited = vec![vec![false; self.width]; self.height];
+        
+        self.dfs_recursive(&(start.x, start.y), &mut visited, &mut max_length, 0);
+
+        return max_length;
+    }
+
+    fn dfs_recursive(&self, start: &(usize, usize), visited: &mut Vec<Vec<bool>>, max_length: &mut usize, length: usize) {
+        visited[start.1][start.0] = true;
+        *max_length = (*max_length).max(length);
+
+        if let Some(neighbors) = self.graph.get(&(start.0, start.1)) {
+            for &(x, y, d) in neighbors {
+                if !visited[y][x] {
+                    self.dfs_recursive(&(x, y), visited, max_length, length + d);
+                }
+            }
+        }
+        visited[start.1][start.0] = false; // Backtrack
     }
 }
 
