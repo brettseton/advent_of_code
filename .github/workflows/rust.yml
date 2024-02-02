@@ -34,10 +34,6 @@ jobs:
         value: ${{fromJSON(needs.setup.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v4.1.1
-      - run: |
-          pwd
-      - run: |
-          ls ${{ matrix.value }}
       - name: Build
         run: cargo build --verbose --manifest-path ${{ matrix.value }}/Cargo.toml
       - name: Run tests
