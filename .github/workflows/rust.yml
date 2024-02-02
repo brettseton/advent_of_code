@@ -20,7 +20,7 @@ jobs:
           numbers=()
 
           for i in {1..25}; do
-              numbers+=($(printf "\\\"day%02d\\\"" "$i"))
+              numbers+=($(printf "\\\\\"day%02d\\\\\"" "$i"))
           done
 
           echo "value=[${numbers[@]}]" >> $GITHUB_OUTPUT
