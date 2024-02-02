@@ -33,5 +33,9 @@ jobs:
       matrix:
         value: ${{fromJSON(needs.setup.outputs.matrix)}}
     steps:
-      - run: |
+      - uses: actions/checkout@v3
+      - name: Build
+        run: cargo build --verbose --manifest-path ${{ matrix.value }}\Cargo.toml
+      - name: Run tests
+        run: cargo test --verbose --manifest-path ${{ matrix.value }}\Cargo.toml
           echo "${{ matrix.value }}"
