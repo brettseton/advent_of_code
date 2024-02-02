@@ -33,7 +33,7 @@ jobs:
       matrix:
         value: ${{fromJSON(needs.setup.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@latest
       - run: |
           pwd
       - run: |
