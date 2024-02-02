@@ -8,7 +8,7 @@ To run navigate to the folder and run:
 
 eg
 ```
-cd day1
+cd day01
 cargo run
 ```
 
