@@ -1,3 +1,4 @@
+[![Build and Test](https://github.com/brettseton/advent_of_code/actions/workflows/rust.yml/badge.svg)](https://github.com/brettseton/advent_of_code/actions/workflows/rust.yml)
 # [Advent of Code 2023](https://adventofcode.com/2023)
 
 ### Run
