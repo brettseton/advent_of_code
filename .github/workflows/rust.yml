@@ -15,17 +15,29 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix.outputs.value }}
     steps:
+      - uses: actions/checkout@v4.1.1
       - id: matrix
         run: |
-          numbers=()
-
-          for i in {1..25}; do
-              numbers+=($(printf "\"day%02d\"" "$i"))
+          paths=()
+          
+          # Loop through each year directory
+          for year in 202[34]; do
+            if [ -d "$year" ]; then
+              # Loop through days 1-25 for each year
+              for i in {1..25}; do
+                day_path="$year/day$(printf "%02d" "$i")"
+                if [ -f "$day_path/Cargo.toml" ]; then
+                  paths+=("\"$day_path\"")
+                fi
+              done
+            fi
           done
-
-          echo "$(IFS=','; echo "value=[${numbers[*]}]")" >> $GITHUB_OUTPUT
+          
+          # Output the matrix
+          echo "value=[${paths[*]}]" >> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
+  
   build:
     needs: [ setup ]
     runs-on: ubuntu-latest
