@@ -27,14 +27,15 @@ jobs:
               for i in {1..25}; do
                 day_path="$year/day$(printf "%02d" "$i")"
                 if [ -f "$day_path/Cargo.toml" ]; then
-                  paths+=("\"$day_path\"")
+                  paths+=("$day_path")
                 fi
               done
             fi
           done
           
-          # Output the matrix
-          echo "value=[${paths[*]}]" >> $GITHUB_OUTPUT
+          # Create JSON array string
+          json_array=$(printf '%s\n' "${paths[@]}" | jq -R . | jq -s .)
+          echo "value=$json_array" >> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
   
