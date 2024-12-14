@@ -1,4 +1,9 @@
 [![Build and Test](https://github.com/brettseton/advent_of_code/actions/workflows/rust.yml/badge.svg)](https://github.com/brettseton/advent_of_code/actions/workflows/rust.yml)
+
+# Quick Links
+- [2023](#advent-of-code-2023)
+- [2024](#advent-of-code-2024)
+
 # [Advent of Code 2023](https://adventofcode.com/2023)
 
 ### Run
@@ -47,3 +52,31 @@ cargo test
 | [Day 23: A Long Walk](https://adventofcode.com/2023/day/23) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2023/day23/src/main.rs) |
 | [Day 24: Never Tell Me The Odds](https://adventofcode.com/2023/day/24) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2023/day24/src/main.rs) |
 | [Day 25: Snowverload](https://adventofcode.com/2023/day/25) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2023/day25/src/main.rs) |
+
+<br><br>
+
+# [Advent of Code 2024](https://adventofcode.com/2024)
+
+### Run
+To run navigate to the folder and run:
+ ```
+ cargo run
+ ```
+
+eg
+```
+cd 2024/day01
+cargo run
+``` 
+
+### Test
+You can also check tests by running:
+```
+cargo test
+```
+
+### Contents
+| Puzzle|Code (Part 1 and 2)|
+|-------|----|
+| [Day 01: Historian Hysteria](https://adventofcode.com/2024/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day01/src/main.rs) |
+| [Day 02: Red-Nosed Reports](https://adventofcode.com/2024/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day02/src/main.rs) |
