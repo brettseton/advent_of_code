@@ -85,3 +85,22 @@ cargo test
 | [Day 05: Print Queue](https://adventofcode.com/2024/day/5) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day05/src/main.rs) |
 | [Day 06: Guard Gallivant](https://adventofcode.com/2024/day/6) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day06/src/main.rs) |
 | [Day 07: Bridge Repair](https://adventofcode.com/2024/day/7) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day07/src/main.rs) |
+| [Day 08: Resonant Collinearity](https://adventofcode.com/2024/day/8) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day08/src/main.rs) |
+| [Day 09: Disk Fragmenter](https://adventofcode.com/2024/day/9) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day09/src/main.rs) |
+| [Day 10: Hoof It](https://adventofcode.com/2024/day/10) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day10/src/main.rs) |
+| [Day 11: Plutonian Pebbles](https://adventofcode.com/2024/day/11) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day11/src/main.rs) |
+| [Day 12: Garden Groups](https://adventofcode.com/2024/day/12) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day12/src/main.rs) |
+| [Day 13: Claw Contraption](https://adventofcode.com/2024/day/13) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day13/src/main.rs) |
+| [Day 14: Restroom Redoubt](https://adventofcode.com/2024/day/14) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day14/src/main.rs) |
+| [Day 15: Warehouse Woes](https://adventofcode.com/2024/day/15) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day15/src/main.rs) |
+| [Day 16: ???](https://adventofcode.com/2024/day/16) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day16/src/main.rs) |
+| [Day 17: ???](https://adventofcode.com/2024/day/17) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day17/src/main.rs) |
+| [Day 18: ???](https://adventofcode.com/2024/day/18) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day18/src/main.rs) |
+| [Day 19: ???](https://adventofcode.com/2024/day/19) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day19/src/main.rs) |
+| [Day 20: ???](https://adventofcode.com/2024/day/20) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day20/src/main.rs) |
+| [Day 21: ???](https://adventofcode.com/2024/day/21) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day21/src/main.rs) |
+| [Day 22: ???](https://adventofcode.com/2024/day/22) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day22/src/main.rs) |
+| [Day 23: ???](https://adventofcode.com/2024/day/23) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day23/src/main.rs) |
+| [Day 24: ???](https://adventofcode.com/2024/day/24) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day24/src/main.rs) |
+| [Day 25: ???](https://adventofcode.com/2024/day/25) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day25/src/main.rs) |
+
