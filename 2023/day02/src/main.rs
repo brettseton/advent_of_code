@@ -25,7 +25,7 @@ fn part1(file_path: &str) -> u32 {
     let mut sum = 0;
 
     if let Ok(lines) = read_lines(file_path) {
-        for line in lines.flatten() {
+        for line in lines.map_while(Result::ok) {
             let game_split: Vec<&str> = line.split(':').collect();
             if game_split.len() != 2 {
                 println!("Error with line so skipping: {}", line);
@@ -52,7 +52,7 @@ fn part2(file_path: &str) -> u32 {
     let mut sum = 0;
 
     if let Ok(lines) = read_lines(file_path) {
-        for line in lines.flatten() {
+        for line in lines.map_while(Result::ok) {
             let game_split: Vec<&str> = line.split(':').collect();
             if game_split.len() != 2 {
                 println!("Error with line so skipping: {}", line);

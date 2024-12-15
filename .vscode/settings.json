@@ -25,10 +25,21 @@
         "2023/day23/Cargo.toml",
         "2023/day24/Cargo.toml",
         "2023/day25/Cargo.toml",
-        
         "2024/day01/Cargo.toml",
         "2024/day02/Cargo.toml",
     ],
+    "editor.formatOnSave": true,
+    "rust-analyzer.checkOnSave.command": "clippy",
+    "rust-analyzer.checkOnSave.extraArgs": [
+        "--",
+        "-A",
+        "clippy::needless_return",
+        "-A",
+        "clippy::redundant_field_names",
+        "-A",
+        "clippy::upper_case_acronyms"
+    ],
+    "rust-analyzer.rustfmt.rangeFormatting.enable": true,
     "cSpell.words": [
         "Deque"
     ]
