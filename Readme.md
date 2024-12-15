@@ -82,3 +82,6 @@ cargo test
 | [Day 02: Red-Nosed Reports](https://adventofcode.com/2024/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day02/src/main.rs) |
 | [Day 03: Mull It Over](https://adventofcode.com/2024/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day03/src/main.rs) |
 | [Day 04: Ceres Search](https://adventofcode.com/2024/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day04/src/main.rs) |
+| [Day 05: Print Queue](https://adventofcode.com/2024/day/5) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day05/src/main.rs) |
+| [Day 06: Guard Gallivant](https://adventofcode.com/2024/day/6) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day06/src/main.rs) |
+| [Day 07: Bridge Repair](https://adventofcode.com/2024/day/7) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day07/src/main.rs) |

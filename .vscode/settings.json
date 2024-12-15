@@ -30,7 +30,8 @@
         "2024/day03/Cargo.toml",
         "2024/day04/Cargo.toml",
         "2024/day05/Cargo.toml",
-        "2024/day06/Cargo.toml"
+        "2024/day06/Cargo.toml",
+        "2024/day07/Cargo.toml"
     ],
     "editor.formatOnSave": true,
     "rust-analyzer.checkOnSave.command": "clippy",
