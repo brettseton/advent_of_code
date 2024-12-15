@@ -81,3 +81,4 @@ cargo test
 | [Day 01: Historian Hysteria](https://adventofcode.com/2024/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day01/src/main.rs) |
 | [Day 02: Red-Nosed Reports](https://adventofcode.com/2024/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day02/src/main.rs) |
 | [Day 03: Mull It Over](https://adventofcode.com/2024/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day03/src/main.rs) |
+| [Day 04: Ceres Search](https://adventofcode.com/2024/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day04/src/main.rs) |
