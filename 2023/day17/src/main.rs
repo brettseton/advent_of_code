@@ -17,23 +17,79 @@ fn main() {
 fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let heat_map = Grid::new(&input);
-    return heat_map.get_path(vec![
-        State{ x: 0, y: 0, traveling: Direction::East,  current_cost: 0, num_step: 0 },
-        State{ x: 0, y: 0, traveling: Direction::South, current_cost: 0, num_step: 0 },
-        State{ x: 0, y: 0, traveling: Direction::North, current_cost: 0, num_step: 0 },
-        State{ x: 0, y: 0, traveling: Direction::West,  current_cost: 0, num_step: 0 },
-        ], 0, 3);
+    return heat_map.get_path(
+        vec![
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::East,
+                current_cost: 0,
+                num_step: 0,
+            },
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::South,
+                current_cost: 0,
+                num_step: 0,
+            },
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::North,
+                current_cost: 0,
+                num_step: 0,
+            },
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::West,
+                current_cost: 0,
+                num_step: 0,
+            },
+        ],
+        0,
+        3,
+    );
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let heat_map = Grid::new(&input);
-    return heat_map.get_path(vec![
-        State{ x: 0, y: 0, traveling: Direction::East,  current_cost: 0, num_step: 0 },
-        State{ x: 0, y: 0, traveling: Direction::South, current_cost: 0, num_step: 0 },
-        State{ x: 0, y: 0, traveling: Direction::North, current_cost: 0, num_step: 0 },
-        State{ x: 0, y: 0, traveling: Direction::West,  current_cost: 0, num_step: 0 },
-        ], 4, 10);
+    return heat_map.get_path(
+        vec![
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::East,
+                current_cost: 0,
+                num_step: 0,
+            },
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::South,
+                current_cost: 0,
+                num_step: 0,
+            },
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::North,
+                current_cost: 0,
+                num_step: 0,
+            },
+            State {
+                x: 0,
+                y: 0,
+                traveling: Direction::West,
+                current_cost: 0,
+                num_step: 0,
+            },
+        ],
+        4,
+        10,
+    );
 }
 
 #[derive(PartialEq, Eq, Clone)]
@@ -48,18 +104,18 @@ impl Direction {
     pub fn to_usize(&self) -> usize {
         match self {
             Self::North => 0,
-            Self::East  => 1,
+            Self::East => 1,
             Self::South => 2,
-            Self::West  => 3,
+            Self::West => 3,
         }
     }
 
     pub fn get_delta(&self) -> (isize, isize) {
         match self {
             Self::North => (0, -1),
-            Self::East  => (1,  0),
-            Self::South => (0,  1),
-            Self::West  => (-1, 0),
+            Self::East => (1, 0),
+            Self::South => (0, 1),
+            Self::West => (-1, 0),
         }
     }
 }
@@ -118,7 +174,13 @@ impl Grid {
     fn get_path(&self, start_states: Vec<State>, min_steps: usize, max_steps: usize) -> usize {
         let mut heap = BinaryHeap::new();
         for start_state in start_states.iter() {
-            heap.push(State{ x: start_state.x, y: start_state.y, traveling: start_state.traveling.clone(),  current_cost: 0, num_step: 0 });
+            heap.push(State {
+                x: start_state.x,
+                y: start_state.y,
+                traveling: start_state.traveling.clone(),
+                current_cost: 0,
+                num_step: 0,
+            });
         }
 
         let mut visited_map: Vec<Vec<Vec<Vec<usize>>>> =
@@ -128,15 +190,21 @@ impl Grid {
             if state.x == self.width - 1 && state.y == self.height - 1 {
                 return state.current_cost;
             }
-            if state.current_cost > visited_map[state.y][state.x][state.traveling.to_usize()][state.num_step] {
+            if state.current_cost
+                > visited_map[state.y][state.x][state.traveling.to_usize()][state.num_step]
+            {
                 continue;
             }
 
             let states = self.get_connected_states(&state, min_steps, max_steps);
 
             for new_state in states.into_iter().flatten() {
-                if new_state.current_cost < visited_map[new_state.y][new_state.x][new_state.traveling.to_usize()][new_state.num_step] {
-                    visited_map[new_state.y][new_state.x][new_state.traveling.to_usize()][new_state.num_step] = new_state.current_cost;
+                if new_state.current_cost
+                    < visited_map[new_state.y][new_state.x][new_state.traveling.to_usize()]
+                        [new_state.num_step]
+                {
+                    visited_map[new_state.y][new_state.x][new_state.traveling.to_usize()]
+                        [new_state.num_step] = new_state.current_cost;
                     heap.push(new_state);
                 }
             }
@@ -145,7 +213,12 @@ impl Grid {
         return 0;
     }
 
-    pub fn get_connected_states(&self, state: &State, min_steps: usize, max_steps: usize) -> Vec<Option<State>> {
+    pub fn get_connected_states(
+        &self,
+        state: &State,
+        min_steps: usize,
+        max_steps: usize,
+    ) -> Vec<Option<State>> {
         return match state.traveling {
             Direction::North => vec![
                 self.get_state(state, Direction::North, min_steps, max_steps),
@@ -170,8 +243,13 @@ impl Grid {
         };
     }
 
-    pub fn get_state(&self, b: &State, traveling: Direction, min_steps: usize, max_steps: usize) -> Option<State> {
-
+    pub fn get_state(
+        &self,
+        b: &State,
+        traveling: Direction,
+        min_steps: usize,
+        max_steps: usize,
+    ) -> Option<State> {
         let (dx, dy) = traveling.get_delta();
         let new_x = b.x.checked_add_signed(dx);
         let new_y = b.y.checked_add_signed(dy);
@@ -183,7 +261,8 @@ impl Grid {
 
         // Transition conditions are met
         if (traveling == b.traveling && b.num_step == max_steps)
-        || (traveling != b.traveling && b.num_step < min_steps) {
+            || (traveling != b.traveling && b.num_step < min_steps)
+        {
             return None;
         }
 

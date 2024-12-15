@@ -23,13 +23,17 @@ fn part1(file_path: &str) -> usize {
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let machine = Machine::new(&input);
-    let part_range: Vec<PartRange> = vec![
-        PartRange{
-            start_label: "in".to_string(),
-            start_x: 1, finish_x: 4000,
-            start_m: 1, finish_m: 4000,
-            start_a: 1, finish_a: 4000,
-            start_s: 1, finish_s: 4000 }];
+    let part_range: Vec<PartRange> = vec![PartRange {
+        start_label: "in".to_string(),
+        start_x: 1,
+        finish_x: 4000,
+        start_m: 1,
+        finish_m: 4000,
+        start_a: 1,
+        finish_a: 4000,
+        start_s: 1,
+        finish_s: 4000,
+    }];
     return machine.get_accepted_sum_range(&part_range);
 }
 
@@ -109,8 +113,10 @@ impl Machine {
                     current_label = rule.0.as_str();
                     break;
                 }
-                
-                if let [label_str, amount_str] = &rule.0.split('<').map(String::from).collect::<Vec<String>>()[..] {
+
+                if let [label_str, amount_str] =
+                    &rule.0.split('<').map(String::from).collect::<Vec<String>>()[..]
+                {
                     let input_value = match input_condition.iter().find(|&x| x.0.eq(label_str)) {
                         Some(x) => x.1,
                         None => 0,
@@ -124,7 +130,9 @@ impl Machine {
                     }
                 }
 
-                if let [label_str, amount_str] = &rule.0.split('>').map(String::from).collect::<Vec<String>>()[..] {
+                if let [label_str, amount_str] =
+                    &rule.0.split('>').map(String::from).collect::<Vec<String>>()[..]
+                {
                     let input_value = match input_condition.iter().find(|&x| x.0.eq(label_str)) {
                         Some(x) => x.1,
                         None => 0,
@@ -159,20 +167,20 @@ impl Machine {
             }
 
             for rule in workflow.unwrap().rules.iter() {
-
                 if rule.1.is_none() {
                     let mut part = part_range.clone();
                     part.start_label = rule.0.to_string();
                     queue.push(part);
                     break;
                 }
-                
-                if let [rule_variable_str, amount_str] = &rule.0.split('<').map(String::from).collect::<Vec<String>>()[..] {
 
+                if let [rule_variable_str, amount_str] =
+                    &rule.0.split('<').map(String::from).collect::<Vec<String>>()[..]
+                {
                     let rule_amount = usize::from_str(amount_str).unwrap();
 
                     let (start_range, end_range) = part_range.get_range(rule_variable_str);
-                    
+
                     // Split range
                     if rule_amount > start_range && rule_amount < end_range {
                         let mut part1 = part_range.clone();
@@ -194,9 +202,9 @@ impl Machine {
                     }
                 }
 
-                if let [rule_variable_str, amount_str] = &rule.0.split('>').map(String::from).collect::<Vec<String>>()[..] {
-
-                    
+                if let [rule_variable_str, amount_str] =
+                    &rule.0.split('>').map(String::from).collect::<Vec<String>>()[..]
+                {
                     let rule_amount = usize::from_str(amount_str).unwrap();
 
                     let (start_range, end_range) = part_range.get_range(rule_variable_str);

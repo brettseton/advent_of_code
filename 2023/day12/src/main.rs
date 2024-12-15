@@ -82,7 +82,6 @@ impl ConditionRecord {
     }
 
     pub fn get_arrangements(&self, use_dynamic_solution: bool) -> usize {
-
         if use_dynamic_solution {
             return ConditionRecord::get_arrangement_count_dp(&self.springs, &self.sizes);
         }
@@ -220,20 +219,22 @@ impl ConditionRecord {
     /// assert_eq!(result, 1);
     /// ```
     fn get_arrangement_count_dp(spring: &str, sizes: &[usize]) -> usize {
-        //Prepend a '.' and trim any '.' from the end 
-        let spring = format!(".{}", spring.trim_end_matches('.')).chars().collect::<Vec<_>>();
-    
-        let mut arrangement_count:Vec<usize> = vec![0; spring.len() + 1];
+        //Prepend a '.' and trim any '.' from the end
+        let spring = format!(".{}", spring.trim_end_matches('.'))
+            .chars()
+            .collect::<Vec<_>>();
+
+        let mut arrangement_count: Vec<usize> = vec![0; spring.len() + 1];
         arrangement_count[0] = 1;
-    
+
         for (i, _) in spring.iter().take_while(|&&c| c != '#').enumerate() {
             arrangement_count[i + 1] = 1;
         }
-    
+
         for &size in sizes {
             let mut new_arrangement_count = vec![0; spring.len() + 1];
             let mut group_length = 0;
-    
+
             for (i, &c) in spring.iter().enumerate() {
                 // reset the group length or increase
                 if c == '.' {
@@ -241,22 +242,21 @@ impl ConditionRecord {
                 } else {
                     group_length += 1;
                 }
-    
+
                 if c != '#' {
                     new_arrangement_count[i + 1] += new_arrangement_count[i];
                 }
-    
+
                 if group_length >= size && spring[i - size] != '#' {
                     new_arrangement_count[i + 1] += arrangement_count[i - size];
                 }
             }
-    
+
             arrangement_count = new_arrangement_count;
         }
-    
+
         return *arrangement_count.last().unwrap();
     }
-
 }
 
 #[derive(Debug)]

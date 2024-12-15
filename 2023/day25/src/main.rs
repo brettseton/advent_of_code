@@ -1,4 +1,8 @@
-use std::{fs, str::FromStr, collections::{HashMap, HashSet}};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    str::FromStr,
+};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -25,10 +29,16 @@ impl WireDiagram {
 
     fn get_sum(&self) -> usize {
         let mut nodes: HashSet<String> = self.graph.keys().cloned().collect();
-        let count = |v: &String, nodes: &HashSet<String>| -> usize { self.graph[v].difference(nodes).count() };
+        let count = |v: &String, nodes: &HashSet<String>| -> usize {
+            self.graph[v].difference(nodes).count()
+        };
 
         while nodes.iter().map(|v| count(v, &nodes)).sum::<usize>() != 3 {
-            let max_v = nodes.iter().max_by_key(|v| count(v, &nodes)).cloned().unwrap();
+            let max_v = nodes
+                .iter()
+                .max_by_key(|v| count(v, &nodes))
+                .cloned()
+                .unwrap();
             nodes.remove(&max_v);
         }
 

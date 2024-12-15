@@ -38,36 +38,35 @@ impl Direction {
     pub fn to_usize(&self) -> usize {
         match self {
             Self::North => 0,
-            Self::East  => 1,
+            Self::East => 1,
             Self::South => 2,
-            Self::West  => 3,
+            Self::West => 3,
         }
     }
 
     pub fn get_delta(&self) -> (isize, isize) {
         match self {
             Self::North => (0, -1),
-            Self::East  => (1,  0),
-            Self::South => (0,  1),
-            Self::West  => (-1, 0),
+            Self::East => (1, 0),
+            Self::South => (0, 1),
+            Self::West => (-1, 0),
         }
     }
 
     pub fn new(str: &str) -> Direction {
-       return match str.chars().nth(0) {
-          Some('U') => Direction::North,
-          Some('R') => Direction::East,
-          Some('D') => Direction::South,
-          Some('L') => Direction::West,
+        return match str.chars().nth(0) {
+            Some('U') => Direction::North,
+            Some('R') => Direction::East,
+            Some('D') => Direction::South,
+            Some('L') => Direction::West,
 
-          Some('0') => Direction::East,
-          Some('1') => Direction::South,
-          Some('2') => Direction::West,
-          Some('3') => Direction::North,
-           _ => panic!()
-       }; 
+            Some('0') => Direction::East,
+            Some('1') => Direction::South,
+            Some('2') => Direction::West,
+            Some('3') => Direction::North,
+            _ => panic!(),
+        };
     }
-    
 }
 
 impl Ord for Direction {
@@ -86,16 +85,14 @@ impl PartialOrd for Direction {
 struct DigStep {
     traveling: Direction,
     steps: usize,
-    hex_color: String
+    hex_color: String,
 }
-
 
 struct DigPlan {
     dig_plan: Vec<DigStep>,
 }
 
 impl DigPlan {
-
     pub fn new(str: &str) -> DigPlan {
         return DigPlan::from_str(str).expect("");
     }
@@ -114,17 +111,17 @@ impl DigPlan {
         let mut previous_y = 0;
 
         for step in self.dig_plan.iter() {
-           let (dx, dy) = step.traveling.get_delta();
-           current_x += dx * step.steps as isize;
-           current_y += dy * step.steps as isize;
-           boundary += step.steps as isize;
-           area += (previous_y + current_y) * (previous_x - current_x);
-           previous_x = current_x;
-           previous_y = current_y;
+            let (dx, dy) = step.traveling.get_delta();
+            current_x += dx * step.steps as isize;
+            current_y += dy * step.steps as isize;
+            boundary += step.steps as isize;
+            area += (previous_y + current_y) * (previous_x - current_x);
+            previous_x = current_x;
+            previous_y = current_y;
         }
 
         // Pick's theorem https://en.wikipedia.org/wiki/Pick%27s_theorem
-        return ((boundary + area)/2) as usize + 1 ;
+        return ((boundary + area) / 2) as usize + 1;
     }
 
     fn from_str2(s: &str) -> DigPlan {
@@ -132,8 +129,17 @@ impl DigPlan {
             .lines()
             .map(|s| {
                 let mut split = s.split_whitespace();
-                let hex_color= split.nth(2).unwrap().trim_start_matches('(').trim_end_matches(')').to_string();
-                return DigStep{ traveling: Direction::new(&hex_color[6..=6]), steps: usize::from_str_radix(&hex_color[1..=5], 16).unwrap() , hex_color };
+                let hex_color = split
+                    .nth(2)
+                    .unwrap()
+                    .trim_start_matches('(')
+                    .trim_end_matches(')')
+                    .to_string();
+                return DigStep {
+                    traveling: Direction::new(&hex_color[6..=6]),
+                    steps: usize::from_str_radix(&hex_color[1..=5], 16).unwrap(),
+                    hex_color,
+                };
             })
             .collect::<Vec<DigStep>>();
 
@@ -154,8 +160,17 @@ impl FromStr for DigPlan {
                 let mut split = s.split_whitespace();
                 let traveling = Direction::new(split.nth(0).unwrap());
                 let steps = split.nth(0).unwrap().parse::<usize>().unwrap();
-                let hex_color= split.nth(0).unwrap().trim_start_matches('(').trim_end_matches(')').to_string();
-                return DigStep{ traveling, steps, hex_color };
+                let hex_color = split
+                    .nth(0)
+                    .unwrap()
+                    .trim_start_matches('(')
+                    .trim_end_matches(')')
+                    .to_string();
+                return DigStep {
+                    traveling,
+                    steps,
+                    hex_color,
+                };
             })
             .collect::<Vec<DigStep>>();
 

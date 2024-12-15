@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::{fs, usize, fmt};
+use std::{fmt, fs, usize};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -52,9 +52,11 @@ struct Game<T> {
     hands: Vec<T>,
 }
 
-impl<T: FromStr> Game<T> where
-<T as FromStr>::Err: fmt::Debug,
-T: fmt::Debug {
+impl<T: FromStr> Game<T>
+where
+    <T as FromStr>::Err: fmt::Debug,
+    T: fmt::Debug,
+{
     pub fn new(str: &str) -> Game<T> {
         return Game::<T>::from_str(str).expect("Ctor from string failed");
     }
@@ -63,9 +65,11 @@ T: fmt::Debug {
 #[derive(Debug)]
 struct GameParseError;
 
-impl<T: FromStr> FromStr for Game<T> where
-<T as FromStr>::Err: fmt::Debug,
-T: fmt::Debug {
+impl<T: FromStr> FromStr for Game<T>
+where
+    <T as FromStr>::Err: fmt::Debug,
+    T: fmt::Debug,
+{
     type Err = GameParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
@@ -233,7 +237,10 @@ impl JHand {
         let mut char_counts = HashMap::new();
 
         for c in str.chars() {
-            char_counts.entry(c).and_modify(|count| *count += 1).or_insert(1);
+            char_counts
+                .entry(c)
+                .and_modify(|count| *count += 1)
+                .or_insert(1);
         }
 
         // Give the jokers to the highest current count
@@ -246,12 +253,12 @@ impl JHand {
                     .max_by_key(|(_, &v)| v)
                     .map(|(k, &v)| (*k, v))
                     .unwrap_or(('J', 0));
-        
+
                 char_counts
                     .entry(largest_key)
                     .and_modify(|count| *count += joker_count)
                     .or_insert(joker_count);
-        
+
                 char_counts.remove(&'J');
             }
         }

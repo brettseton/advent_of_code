@@ -1,4 +1,9 @@
-use std::{fs, str::FromStr, usize, collections::{HashMap, VecDeque} };
+use std::{
+    collections::{HashMap, VecDeque},
+    fs,
+    str::FromStr,
+    usize,
+};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -53,7 +58,13 @@ impl Machine {
         let mut high = 0;
         let mut low = 0;
         for _i in 1..=1000 {
-            let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
+            let mut queue: VecDeque<Signal> = broadcaster
+                .receive_message(Signal {
+                    to: "broadcaster".to_string(),
+                    from: "main".to_string(),
+                    state: false,
+                })
+                .into();
             low += 1;
             while let Some(s) = queue.pop_front() {
                 if s.state {
@@ -97,13 +108,27 @@ impl Machine {
             return 0;
         };
 
-        let Some(rx_conjunction) = rx_parent.as_conjunction() else { panic!("") };
-        let mut visited: HashMap<String, usize> = rx_conjunction.remembered_pulses.keys().map(|k| (k.clone(), 0)).collect();
+        let Some(rx_conjunction) = rx_parent.as_conjunction() else {
+            panic!("")
+        };
+        let mut visited: HashMap<String, usize> = rx_conjunction
+            .remembered_pulses
+            .keys()
+            .map(|k| (k.clone(), 0))
+            .collect();
         for i in 1..=usize::MAX {
-            let mut queue: VecDeque<Signal> = broadcaster.receive_message(Signal {to: "broadcaster".to_string(), from: "main".to_string(), state: false}).into();
+            let mut queue: VecDeque<Signal> = broadcaster
+                .receive_message(Signal {
+                    to: "broadcaster".to_string(),
+                    from: "main".to_string(),
+                    state: false,
+                })
+                .into();
             while let Some(s) = queue.pop_front() {
                 if s.to == rx_conjunction.label && s.state {
-                    if let Some(val) = visited.get_mut(&s.from) { *val = i; }
+                    if let Some(val) = visited.get_mut(&s.from) {
+                        *val = i;
+                    }
                 }
 
                 if visited.iter().all(|(_k, &v)| v != 0) {
@@ -306,7 +331,9 @@ impl IModule for Conjunction {
 
     fn receive_message(&mut self, signal: Signal) -> Vec<Signal> {
         // set state
-        if let Some(val) = self.remembered_pulses.get_mut(&signal.from) { *val = signal.state; }
+        if let Some(val) = self.remembered_pulses.get_mut(&signal.from) {
+            *val = signal.state;
+        }
 
         let state = !self.remembered_pulses.iter().all(|(_k, &v)| v);
 
@@ -334,8 +361,11 @@ struct IModuleFactory {}
 
 impl IModuleFactory {
     pub fn new_module(str: &str) -> IModuleType {
-
-        let [label, destinations] = &str.split(" -> ").map(String::from).collect::<Vec<String>>()[..] else { panic!() };
+        let [label, destinations] =
+            &str.split(" -> ").map(String::from).collect::<Vec<String>>()[..]
+        else {
+            panic!()
+        };
 
         let module: IModuleType = match str.chars().nth(0) {
             Some('b') => IModuleType::Broadcaster(Broadcaster {

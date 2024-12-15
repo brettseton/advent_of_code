@@ -32,8 +32,13 @@ fn part1(file_path: &str) -> u32 {
                 continue;
             }
 
-            let game_id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<u32>().expect("Unable to parse Game Id");
-            
+            let game_id = game_split[0]
+                .split_whitespace()
+                .nth(1)
+                .expect("No Game Id present")
+                .parse::<u32>()
+                .expect("Unable to parse Game Id");
+
             if game_split[1].split(';').any(exceeds_limit) {
                 continue;
             }
@@ -54,9 +59,11 @@ fn part2(file_path: &str) -> u32 {
                 continue;
             }
 
-            let max_rgb = game_split[1].split(';').fold(RGB::default(), |acc, x| get_max(&acc, &get_rgb(x)));
+            let max_rgb = game_split[1]
+                .split(';')
+                .fold(RGB::default(), |acc, x| get_max(&acc, &get_rgb(x)));
 
-            sum += max_rgb.r*max_rgb.g*max_rgb.b;
+            sum += max_rgb.r * max_rgb.g * max_rgb.b;
         }
     }
     return sum;
@@ -64,15 +71,20 @@ fn part2(file_path: &str) -> u32 {
 
 fn exceeds_limit(set: &str) -> bool {
     //println!("Set: {}", set);
-    for roll in set.split(','){
+    for roll in set.split(',') {
         //println!("roll: {}", roll);
-        let amount = roll.split_whitespace().next().expect("No roll count present").parse::<u32>().expect("Unable to parse roll count");
+        let amount = roll
+            .split_whitespace()
+            .next()
+            .expect("No roll count present")
+            .parse::<u32>()
+            .expect("Unable to parse roll count");
         let color = roll.split_whitespace().nth(1).expect("No color present");
         let limit = match color {
             "red" => RED_LIMIT,
             "green" => GREEN_LIMIT,
             "blue" => BLUE_LIMIT,
-            _ => RED_LIMIT
+            _ => RED_LIMIT,
         };
 
         if amount > limit {
@@ -91,22 +103,31 @@ struct RGB {
 
 fn get_rgb(set: &str) -> RGB {
     let mut rgb = RGB::default();
-    for roll in set.split(','){
+    for roll in set.split(',') {
         //println!("roll: {}", roll);
-        let amount = roll.split_whitespace().next().expect("No roll count present").parse::<u32>().expect("Unable to parse roll count");
+        let amount = roll
+            .split_whitespace()
+            .next()
+            .expect("No roll count present")
+            .parse::<u32>()
+            .expect("Unable to parse roll count");
         let color = roll.split_whitespace().nth(1).expect("No color present");
         match color {
             "red" => rgb.r = amount,
             "green" => rgb.g = amount,
             "blue" => rgb.b = amount,
-            _ => rgb.r = amount
+            _ => rgb.r = amount,
         };
     }
     return rgb;
 }
 
 fn get_max(a: &RGB, b: &RGB) -> RGB {
-    let rgb = RGB {r: max(a.r, b.r), g: max(a.g, b.g), b: max(a.b, b.b)};
+    let rgb = RGB {
+        r: max(a.r, b.r),
+        g: max(a.g, b.g),
+        b: max(a.b, b.b),
+    };
     return rgb;
 }
 

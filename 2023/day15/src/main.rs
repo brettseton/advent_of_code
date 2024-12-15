@@ -33,7 +33,7 @@ struct Sequence {
 #[derive(Clone)]
 struct Lens {
     label: String,
-    focal_length: usize
+    focal_length: usize,
 }
 
 impl Sequence {
@@ -51,27 +51,49 @@ impl Sequence {
             if calc.contains('-') {
                 if let Some((label, _operation)) = calc.split_once('-') {
                     let hash = Sequence::get_hash(label);
-                    
-                    match boxes[hash].iter().enumerate().find(|(_i, x)| x.label == label) {
+
+                    match boxes[hash]
+                        .iter()
+                        .enumerate()
+                        .find(|(_i, x)| x.label == label)
+                    {
                         Some((index, _)) => {
                             boxes[hash].remove(index);
-                        },
+                        }
                         None => continue,
                     }
                 }
             } else if let Some((label, focal_length_str)) = calc.split_once('=') {
                 let hash = Sequence::get_hash(label);
-                let lens = Lens { label: label.to_string(), focal_length: focal_length_str.parse::<usize>().unwrap() };
-                match boxes[hash].iter().enumerate().find(|(_i, x)| x.label == label) {
+                let lens = Lens {
+                    label: label.to_string(),
+                    focal_length: focal_length_str.parse::<usize>().unwrap(),
+                };
+                match boxes[hash]
+                    .iter()
+                    .enumerate()
+                    .find(|(_i, x)| x.label == label)
+                {
                     Some((index, _)) => {
                         boxes[hash][index].focal_length = lens.focal_length;
-                    },
-                    None => { boxes[hash].push(lens); },
+                    }
+                    None => {
+                        boxes[hash].push(lens);
+                    }
                 }
             }
         }
 
-        return boxes.iter().enumerate().map(|(box_id, x)| x.iter().enumerate().map(|(slot_id, lens)| (box_id + 1) * (slot_id + 1) * lens.focal_length).sum::<usize>()).sum();
+        return boxes
+            .iter()
+            .enumerate()
+            .map(|(box_id, x)| {
+                x.iter()
+                    .enumerate()
+                    .map(|(slot_id, lens)| (box_id + 1) * (slot_id + 1) * lens.focal_length)
+                    .sum::<usize>()
+            })
+            .sum();
     }
 
     fn get_hash(s: &str) -> usize {

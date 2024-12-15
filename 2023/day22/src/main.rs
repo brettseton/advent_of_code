@@ -1,4 +1,9 @@
-use std::{fs, str::FromStr, usize, collections::{HashSet, HashMap, VecDeque}};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    fs,
+    str::FromStr,
+    usize,
+};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -124,12 +129,20 @@ impl BrickStack {
 
     pub fn get_disintegration_count_and_fallen_sum(&self) -> (usize, usize) {
         let mut bricks_ordered = self.bricks.clone();
-        bricks_ordered.sort_by_key(|b| {
-            b.start_point.z.min(b.end_point.z)
-        });
+        bricks_ordered.sort_by_key(|b| b.start_point.z.min(b.end_point.z));
 
-        let max_x = self.bricks.iter().map(|b| b.start_point.x.max(b.end_point.x) + 1).max().unwrap();
-        let max_y = self.bricks.iter().map(|b| b.start_point.y.max(b.end_point.y) + 1).max().unwrap();
+        let max_x = self
+            .bricks
+            .iter()
+            .map(|b| b.start_point.x.max(b.end_point.x) + 1)
+            .max()
+            .unwrap();
+        let max_y = self
+            .bricks
+            .iter()
+            .map(|b| b.start_point.y.max(b.end_point.y) + 1)
+            .max()
+            .unwrap();
 
         let mut occupancy_grid: Vec<Vec<Vec<Option<usize>>>> =
             vec![vec![vec![None; max_x]; max_y]; bricks_ordered.last().unwrap().end_point.z];

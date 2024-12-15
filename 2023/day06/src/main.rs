@@ -84,10 +84,10 @@ impl Race {
         let b = self.time as f32;
         let c = self.distance as f32;
 
-        // Get the lower square root of 
+        // Get the lower square root of
         // x^2 - time*x+ distance = 0
         let mut l = ((b - f32::sqrt(b * b - 4.0 * c)) / 2.0).ceil() as usize;
-        
+
         // We need to beat the current distance record
         if (self.time - l) * l <= self.distance {
             l += 1;

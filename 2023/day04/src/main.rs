@@ -25,11 +25,11 @@ fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("Unable to read the input file");
     let game = Game::new(&input);
 
-    let mut duplicates = vec![1_usize ; game.scratch_cards.len()];
-    for index in 0..duplicates.len()  {
+    let mut duplicates = vec![1_usize; game.scratch_cards.len()];
+    for index in 0..duplicates.len() {
         let card = game.scratch_cards.get(index).expect("no cards?!");
         for i in 1..=card.overlap_count {
-            duplicates[index+i] += duplicates[index];
+            duplicates[index + i] += duplicates[index];
         }
     }
 
@@ -37,7 +37,7 @@ fn part2(file_path: &str) -> usize {
 }
 
 struct Game {
-    scratch_cards: Vec<ScratchCard>
+    scratch_cards: Vec<ScratchCard>,
 }
 
 impl Game {
@@ -51,7 +51,7 @@ struct GameParseError;
 
 impl FromStr for Game {
     type Err = GameParseError;
-    
+
     fn from_str(str: &str) -> Result<Self, Self::Err> {
         let mut scratch_cards = Vec::new();
         for line in str.lines() {
@@ -64,7 +64,7 @@ impl FromStr for Game {
 #[derive(Clone)]
 struct ScratchCard {
     overlap_count: usize,
-    points: usize
+    points: usize,
 }
 
 impl ScratchCard {
@@ -85,32 +85,49 @@ impl FromStr for ScratchCard {
             return Err(ScratchCardParseError);
         }
 
-        let _id = game_split[0].split_whitespace().nth(1).expect("No Game Id present").parse::<usize>().expect("Unable to parse Game Id");
+        let _id = game_split[0]
+            .split_whitespace()
+            .nth(1)
+            .expect("No Game Id present")
+            .parse::<usize>()
+            .expect("Unable to parse Game Id");
         let winning_numbers: Vec<u32>;
         let numbers: Vec<u32>;
-        
-        if let [winning_str, number_str] = &game_split[1].split('|').map(String::from).collect::<Vec<String>>()[..] {
-            winning_numbers = winning_str.split_whitespace().map(|x| x.parse::<u32>().expect("Unable to parse winning number")).collect();
-            numbers = number_str.split_whitespace().map(|x| x.parse::<u32>().expect("Unable to parse numbers")).collect();
+
+        if let [winning_str, number_str] = &game_split[1]
+            .split('|')
+            .map(String::from)
+            .collect::<Vec<String>>()[..]
+        {
+            winning_numbers = winning_str
+                .split_whitespace()
+                .map(|x| x.parse::<u32>().expect("Unable to parse winning number"))
+                .collect();
+            numbers = number_str
+                .split_whitespace()
+                .map(|x| x.parse::<u32>().expect("Unable to parse numbers"))
+                .collect();
         } else {
             return Err(ScratchCardParseError);
         }
 
         let overlap: Vec<u32> = numbers
-        .iter()
-        .filter(|&value| winning_numbers.contains(value))
-        .cloned()
-        .collect();
+            .iter()
+            .filter(|&value| winning_numbers.contains(value))
+            .cloned()
+            .collect();
 
         let points = match overlap.len() {
             0 => 0,
-            len => 2_usize.pow((len - 1) as u32)
+            len => 2_usize.pow((len - 1) as u32),
         };
 
-        return Ok(ScratchCard { overlap_count: overlap.len(), points});
+        return Ok(ScratchCard {
+            overlap_count: overlap.len(),
+            points,
+        });
     }
 }
-
 
 #[test]
 fn part1_test1() {

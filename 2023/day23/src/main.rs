@@ -1,5 +1,10 @@
 #![allow(clippy::needless_return)]
-use std::{cmp::Ordering, collections::{HashSet, HashMap}, fs, str::FromStr};
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
+    fs,
+    str::FromStr,
+};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -54,18 +59,18 @@ impl Direction {
     pub fn to_usize(&self) -> usize {
         match self {
             Self::North => 0,
-            Self::East  => 1,
+            Self::East => 1,
             Self::South => 2,
-            Self::West  => 3,
+            Self::West => 3,
         }
     }
 
     pub fn get_delta(&self) -> (isize, isize) {
         match self {
             Self::North => (0, -1),
-            Self::East  => (1,  0),
-            Self::South => (0,  1),
-            Self::West  => (-1, 0),
+            Self::East => (1, 0),
+            Self::South => (0, 1),
+            Self::West => (-1, 0),
         }
     }
 }
@@ -101,7 +106,11 @@ impl HikingTrail {
         return HikingTrail::from_str(str).expect("");
     }
 
-    fn get_reached(&self, start: &Step, get_neighbors: & dyn Fn(&Self, &Step) -> Vec<Option<Step>>) -> usize {
+    fn get_reached(
+        &self,
+        start: &Step,
+        get_neighbors: &dyn Fn(&Self, &Step) -> Vec<Option<Step>>,
+    ) -> usize {
         let mut queue = Vec::new();
         queue.push(start.clone());
 
@@ -129,8 +138,6 @@ impl HikingTrail {
 
         return graph.get_longest(start);
     }
-
-
 
     pub fn get_connected(&self, step: &Step) -> Vec<Option<Step>> {
         return vec![
@@ -187,7 +194,12 @@ impl HikingTrail {
 
         let mut history = previous.history.clone();
         history.insert((new_x, new_y));
-        return Some(Step {x: new_x, y: new_y, count: previous.count + 1, history });
+        return Some(Step {
+            x: new_x,
+            y: new_y,
+            count: previous.count + 1,
+            history,
+        });
     }
 
     pub fn get_connected_snow_boots(&self, step: &Step) -> Vec<Option<Step>> {
@@ -218,7 +230,12 @@ impl HikingTrail {
         }
         let mut history = previous.history.clone();
         history.insert((new_x, new_y));
-        return Some(Step {x: new_x, y: new_y, count: previous.count + 1, history });
+        return Some(Step {
+            x: new_x,
+            y: new_y,
+            count: previous.count + 1,
+            history,
+        });
     }
 
     pub fn get_start(&self) -> (usize, usize) {
@@ -245,11 +262,20 @@ impl HikingTrail {
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.grid[y][x] != '#' {
-                    let e = graph.entry(Point2D {x,y}).or_default();
-                    let current = Step {x, y, count: 0, history: HashSet::new()};
+                    let e = graph.entry(Point2D { x, y }).or_default();
+                    let current = Step {
+                        x,
+                        y,
+                        count: 0,
+                        history: HashSet::new(),
+                    };
                     for neighbor in self.get_connected_snow_boots(&current).iter() {
                         match neighbor {
-                            Some(n) => e.push(Point3D{x: n.x, y: n.y, z: 1}),
+                            Some(n) => e.push(Point3D {
+                                x: n.x,
+                                y: n.y,
+                                z: 1,
+                            }),
                             None => (),
                         }
                     }
@@ -267,39 +293,54 @@ impl HikingTrail {
         for point in corridors {
             let neighbors = graph.remove(&point).unwrap();
             let n0 = &neighbors[0];
-            let n1= &neighbors[1];
+            let n1 = &neighbors[1];
 
             let node1 = graph.get_mut(&n0.as_point2d()).unwrap();
 
             if let Some(i) = node1.iter().position(|p| (p.x, p.y) == (point.x, point.y)) {
-                node1[i] = Point3D {x: n1.x, y: n1.y, z: n0.z + n1.z};
+                node1[i] = Point3D {
+                    x: n1.x,
+                    y: n1.y,
+                    z: n0.z + n1.z,
+                };
             }
 
             let node2 = graph.get_mut(&n1.as_point2d()).unwrap();
             if let Some(i) = node2.iter().position(|p| (p.x, p.y) == (point.x, point.y)) {
-                node2[i] = Point3D {x: n0.x, y: n0.y, z: n0.z + n1.z};
+                node2[i] = Point3D {
+                    x: n0.x,
+                    y: n0.y,
+                    z: n0.z + n1.z,
+                };
             }
         }
 
-        return Graph{ graph, width: self.width, height: self.height };
+        return Graph {
+            graph,
+            width: self.width,
+            height: self.height,
+        };
     }
 }
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 struct Point2D {
     x: usize,
-    y: usize
+    y: usize,
 }
 
 struct Point3D {
     x: usize,
     y: usize,
-    z: usize
+    z: usize,
 }
 
 impl Point3D {
     pub fn as_point2d(&self) -> Point2D {
-        return Point2D {x: self.x, y: self.y} ;
+        return Point2D {
+            x: self.x,
+            y: self.y,
+        };
     }
 }
 
@@ -327,27 +368,46 @@ impl FromStr for HikingTrail {
 struct Graph {
     graph: HashMap<Point2D, Vec<Point3D>>,
     width: usize,
-    height: usize
+    height: usize,
 }
 
 impl Graph {
     pub fn get_longest(&self, start: &Step) -> usize {
         let mut max_length = 0;
         let mut visited = vec![vec![false; self.width]; self.height];
-        
-        self.dfs_recursive(&Point2D{x: start.x, y: start.y}, &mut visited, &mut max_length, 0);
+
+        self.dfs_recursive(
+            &Point2D {
+                x: start.x,
+                y: start.y,
+            },
+            &mut visited,
+            &mut max_length,
+            0,
+        );
 
         return max_length;
     }
 
-    fn dfs_recursive(&self, start: &Point2D, visited: &mut Vec<Vec<bool>>, max_length: &mut usize, length: usize) {
+    fn dfs_recursive(
+        &self,
+        start: &Point2D,
+        visited: &mut Vec<Vec<bool>>,
+        max_length: &mut usize,
+        length: usize,
+    ) {
         visited[start.y][start.x] = true;
         *max_length = (*max_length).max(length);
 
         if let Some(neighbors) = self.graph.get(start) {
             for neighbor in neighbors {
                 if !visited[neighbor.y][neighbor.x] {
-                    self.dfs_recursive(&neighbor.as_point2d(), visited, max_length, length + neighbor.z);
+                    self.dfs_recursive(
+                        &neighbor.as_point2d(),
+                        visited,
+                        max_length,
+                        length + neighbor.z,
+                    );
                 }
             }
         }

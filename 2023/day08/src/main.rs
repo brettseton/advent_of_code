@@ -61,7 +61,7 @@ impl Network {
             current = match next_direction {
                 'L' => &left,
                 'R' => &right,
-                _ => panic!("path must continue")
+                _ => panic!("path must continue"),
             };
             path.push(current.to_string());
         }
@@ -87,13 +87,13 @@ impl Network {
                 let next_direction = direction.next().expect("direction not empty");
                 let (left, right) = match self.nodes.get(current) {
                     Some((left, right)) => (left, right),
-                    None => panic!("path must exist")
+                    None => panic!("path must exist"),
                 };
-    
+
                 current = match next_direction {
                     'L' => &left,
                     'R' => &right,
-                    _ => panic!("path must continue")
+                    _ => panic!("path must continue"),
                 };
                 step_count += 1;
             }

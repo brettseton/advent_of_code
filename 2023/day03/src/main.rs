@@ -361,10 +361,7 @@ fn get_gears(
 /// assert_eq!(result, true);
 /// ```
 fn is_part(number: &Number, str: &str) -> bool {
-    let line = str
-        .lines()
-        .nth(number.line_number)
-        .expect("no line");
+    let line = str.lines().nth(number.line_number).expect("no line");
 
     let start_x = if number.start_index == 0 {
         0

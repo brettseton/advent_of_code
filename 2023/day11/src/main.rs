@@ -114,9 +114,7 @@ impl FromStr for GalaxyMap {
             .collect();
 
         let expanded_cols: Vec<usize> = (0..map_width)
-            .filter(|&x| {
-                (0..map_height).all(|y| map[x + y * map_width] == '.')
-            })
+            .filter(|&x| (0..map_height).all(|y| map[x + y * map_width] == '.'))
             .collect();
 
         return Ok(GalaxyMap {

@@ -58,7 +58,7 @@ impl FromStr for Puzzle {
 }
 
 struct AshRockMap {
-    map: Vec<String>
+    map: Vec<String>,
 }
 
 impl AshRockMap {
@@ -67,32 +67,44 @@ impl AshRockMap {
     }
 
     pub fn get_mirror_location(&self, allowed_differences: usize) -> usize {
-        
         // Horizontal mirror
-        if let Some(match_index) = AshRockMap::get_mirror_location_from_lines(&self.map, allowed_differences){
+        if let Some(match_index) =
+            AshRockMap::get_mirror_location_from_lines(&self.map, allowed_differences)
+        {
             return match_index * 100;
         }
-        
+
         let map_width = self.map.first().unwrap().len();
         let map_height = self.map.len();
         let vertical_map: Vec<String> = (0..map_width)
-        .map(|x| {
-            (0..map_height)
-            .map(|y| self.map.get(y).unwrap_or(&"".to_string()).chars().nth(x).unwrap_or(' '))
-            .collect()
-        })
-        .collect();
+            .map(|x| {
+                (0..map_height)
+                    .map(|y| {
+                        self.map
+                            .get(y)
+                            .unwrap_or(&"".to_string())
+                            .chars()
+                            .nth(x)
+                            .unwrap_or(' ')
+                    })
+                    .collect()
+            })
+            .collect();
 
         // Vertical mirror
-        if let Some(match_index) = AshRockMap::get_mirror_location_from_lines(&vertical_map, allowed_differences){
+        if let Some(match_index) =
+            AshRockMap::get_mirror_location_from_lines(&vertical_map, allowed_differences)
+        {
             return match_index;
         }
-        
+
         return 0;
     }
 
-    pub fn get_mirror_location_from_lines(lines: &[String], allowed_differences: usize) -> Option<usize> {
-
+    pub fn get_mirror_location_from_lines(
+        lines: &[String],
+        allowed_differences: usize,
+    ) -> Option<usize> {
         let mut prev = lines.first().unwrap();
 
         for (index, line) in lines.iter().enumerate().skip(1) {
@@ -101,10 +113,10 @@ impl AshRockMap {
             let num_differences = AshRockMap::get_differences(line, prev);
 
             match num_differences.cmp(&allowed_differences) {
-                Ordering::Greater =>  {
+                Ordering::Greater => {
                     prev = line;
                     continue;
-                },
+                }
                 Ordering::Less => (),
                 Ordering::Equal => {
                     acc_differences = num_differences;
@@ -116,10 +128,10 @@ impl AshRockMap {
                     if acc_differences != allowed_differences {
                         break;
                     }
-                    return Some(index)
+                    return Some(index);
                 }
-                if let Some(check_up) = lines.get(index  - i - 1) {
-                    if let Some(check_down) = lines.get(index + i)  {
+                if let Some(check_up) = lines.get(index - i - 1) {
+                    if let Some(check_down) = lines.get(index + i) {
                         let num_differences = AshRockMap::get_differences(check_up, check_down);
 
                         if num_differences + acc_differences <= allowed_differences {
@@ -144,15 +156,16 @@ impl AshRockMap {
 
             prev = line;
         }
-        
+
         return None;
     }
 
     pub fn get_differences(str1: &str, str2: &str) -> usize {
-        return str1.chars()
-        .zip(str2.chars())
-        .filter(|&(c1, c2)| c1 != c2)
-        .count();
+        return str1
+            .chars()
+            .zip(str2.chars())
+            .filter(|&(c1, c2)| c1 != c2)
+            .count();
     }
 }
 
@@ -163,7 +176,9 @@ impl FromStr for AshRockMap {
     type Err = AshRockMapError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        return Ok(AshRockMap{ map: s.lines().map(|x| x.to_string()).collect::<Vec<String>>() });
+        return Ok(AshRockMap {
+            map: s.lines().map(|x| x.to_string()).collect::<Vec<String>>(),
+        });
     }
 }
 

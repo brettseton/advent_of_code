@@ -1,5 +1,5 @@
-use std::{fs, usize};
 use std::str::FromStr;
+use std::{fs, usize};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -19,7 +19,10 @@ fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("Unable to read the input file");
     let almanac = Almanac::new(&input);
     let seed_destinations = almanac.get_seed_destinations();
-    return seed_destinations.into_iter().min().expect("there will be a map");
+    return seed_destinations
+        .into_iter()
+        .min()
+        .expect("there will be a map");
 }
 
 fn part2(file_path: &str) -> usize {
@@ -60,7 +63,10 @@ impl Almanac {
         for chunks in self.seeds.chunks(2) {
             let seed_start = chunks[0];
             let seed_range = chunks[1];
-            let mut seed_ranges = vec![SeedRange{start: seed_start, range: seed_range}];
+            let mut seed_ranges = vec![SeedRange {
+                start: seed_start,
+                range: seed_range,
+            }];
             for map in self.maps.iter() {
                 seed_ranges = map.get_map_destination_ranges(seed_ranges);
             }
@@ -68,7 +74,6 @@ impl Almanac {
         }
         return destinations;
     }
-
 }
 
 #[derive(Debug)]
@@ -117,7 +122,7 @@ impl FromStr for Almanac {
 
 struct SeedRange {
     start: usize,
-    range: usize
+    range: usize,
 }
 
 struct Map {
@@ -130,10 +135,12 @@ impl Map {
     }
 
     pub fn get_map_destination(&self, start: usize) -> usize {
-
         for source_to_destination in self.source_to_destinations.iter() {
-            if start >= source_to_destination.source_start && start <= source_to_destination.source_start + source_to_destination.range_length {
-                let destination = start - source_to_destination.source_start + source_to_destination.destination_start;
+            if start >= source_to_destination.source_start
+                && start <= source_to_destination.source_start + source_to_destination.range_length
+            {
+                let destination = start - source_to_destination.source_start
+                    + source_to_destination.destination_start;
                 return destination;
             }
         }
@@ -147,20 +154,24 @@ impl Map {
             let mut destination_ranges = Vec::new();
             for source_to_destination in self.source_to_destinations.iter() {
                 let start = source_to_destination.source_start;
-                let end = source_to_destination.source_start + source_to_destination.range_length - 1;
-                
+                let end =
+                    source_to_destination.source_start + source_to_destination.range_length - 1;
+
                 let seed_start = seed_range.start;
                 let seed_end = seed_range.start + seed_range.range - 1;
 
                 // Do the windows overlap
                 if seed_end >= start && seed_start <= end {
-
                     // Remap everything in current seed range
                     if seed_start >= start && seed_end <= end {
                         // No Split required as full range is mapped
-                        let new_start = seed_start - start + source_to_destination.destination_start;
+                        let new_start =
+                            seed_start - start + source_to_destination.destination_start;
                         let new_range = seed_range.range;
-                        destination_ranges.push(SeedRange{ start: new_start, range: new_range });
+                        destination_ranges.push(SeedRange {
+                            start: new_start,
+                            range: new_range,
+                        });
                         break;
                     } else if seed_start >= start && seed_end > end {
                         // Split into two list
@@ -170,17 +181,25 @@ impl Map {
                         // 1. middle full overlap
                         // Push the original list up to its max
 
-                        let new_start = seed_start - start + source_to_destination.destination_start;
+                        let new_start =
+                            seed_start - start + source_to_destination.destination_start;
                         let new_range = end - seed_start + 1;
 
-                        destination_ranges.push(SeedRange{ start: new_start, range: new_range});
+                        destination_ranges.push(SeedRange {
+                            start: new_start,
+                            range: new_range,
+                        });
 
                         // 2. overhang at end
                         // Find the destination for the remainder of the list
                         let split_start = end + 1;
                         let split_range = seed_end - end;
-                        
-                        let mut remaining_destinations = self.get_map_destination_ranges(vec![SeedRange { start: split_start, range: split_range }]);
+
+                        let mut remaining_destinations =
+                            self.get_map_destination_ranges(vec![SeedRange {
+                                start: split_start,
+                                range: split_range,
+                            }]);
 
                         destination_ranges.append(&mut remaining_destinations);
                         break;
@@ -192,18 +211,25 @@ impl Map {
                         // 1. overhang at start
                         let split_start = seed_start;
                         let split_range = start - seed_start;
-                        
-                        let mut remaining_destinations = self.get_map_destination_ranges(vec![SeedRange { start: split_start, range: split_range }]);
+
+                        let mut remaining_destinations =
+                            self.get_map_destination_ranges(vec![SeedRange {
+                                start: split_start,
+                                range: split_range,
+                            }]);
                         destination_ranges.append(&mut remaining_destinations);
 
                         // 2. middle full overlap
                         let new_start = source_to_destination.destination_start;
                         let new_range = seed_end - start + 1;
 
-                        destination_ranges.push(SeedRange{ start: new_start, range: new_range});
+                        destination_ranges.push(SeedRange {
+                            start: new_start,
+                            range: new_range,
+                        });
 
                         break;
-                    }  else if seed_start < start && seed_end > end {
+                    } else if seed_start < start && seed_end > end {
                         // Split into three list
                         // 1. overhang at start
                         // 2. middle full overlap
@@ -212,21 +238,32 @@ impl Map {
                         // 1. overhang at start
                         let split_start = seed_start;
                         let split_range = start - seed_start;
-                        
-                        let mut remaining_destinations = self.get_map_destination_ranges(vec![SeedRange { start: split_start, range: split_range }]);
+
+                        let mut remaining_destinations =
+                            self.get_map_destination_ranges(vec![SeedRange {
+                                start: split_start,
+                                range: split_range,
+                            }]);
                         destination_ranges.append(&mut remaining_destinations);
 
                         // 2. middle full overlap
                         let new_start = source_to_destination.destination_start;
                         let new_range = end - start + 1;
 
-                        destination_ranges.push(SeedRange{ start: new_start, range: new_range});
+                        destination_ranges.push(SeedRange {
+                            start: new_start,
+                            range: new_range,
+                        });
 
                         // 3. overhang at end
                         let split_start = end + 1;
                         let split_range = seed_end - end;
-                        
-                        let mut remaining_destinations = self.get_map_destination_ranges(vec![SeedRange { start: split_start, range: split_range }]);
+
+                        let mut remaining_destinations =
+                            self.get_map_destination_ranges(vec![SeedRange {
+                                start: split_start,
+                                range: split_range,
+                            }]);
                         destination_ranges.append(&mut remaining_destinations);
 
                         break;
@@ -236,10 +273,12 @@ impl Map {
 
             // No mappings found
             if destination_ranges.is_empty() {
-                destination_ranges.push(SeedRange {start: seed_range.start, range: seed_range.range});
+                destination_ranges.push(SeedRange {
+                    start: seed_range.start,
+                    range: seed_range.range,
+                });
             }
             all_destination_ranges.append(&mut destination_ranges);
-
         }
         return all_destination_ranges;
     }
@@ -259,7 +298,7 @@ impl FromStr for Map {
         }
 
         return Ok(Map {
-            source_to_destinations
+            source_to_destinations,
         });
     }
 }
@@ -283,8 +322,11 @@ impl FromStr for SourceToDestination {
     type Err = SourceToDestinationParseError;
 
     fn from_str(str: &str) -> Result<Self, Self::Err> {
-        if let [destination_start, source_start, range_length] =
-        str.split_whitespace().map(|x| x.parse::<usize>().expect("Unable to parse ranges")).collect::<Vec<usize>>()[..] {
+        if let [destination_start, source_start, range_length] = str
+            .split_whitespace()
+            .map(|x| x.parse::<usize>().expect("Unable to parse ranges"))
+            .collect::<Vec<usize>>()[..]
+        {
             return Ok(SourceToDestination {
                 destination_start,
                 source_start,

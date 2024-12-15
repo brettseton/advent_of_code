@@ -157,20 +157,19 @@ impl Platform {
     }
 }
 
-
 #[derive(Debug)]
 struct PlatformError;
 
 impl FromStr for Platform {
     type Err = PlatformError;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let width = s.lines().nth(0).unwrap().len();
         let height = s.lines().count();
         let map = s
-        .lines()
-        .map(|s| s.chars().collect::<Vec<char>>())
-        .collect::<Vec<Vec<char>>>();
+            .lines()
+            .map(|s| s.chars().collect::<Vec<char>>())
+            .collect::<Vec<Vec<char>>>();
         return Ok(Platform {
             map,
             width,

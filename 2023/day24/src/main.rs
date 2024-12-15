@@ -57,7 +57,7 @@ impl HailStorm {
         let h1 = self.hail[0].clone();
         let mut h2 = self.hail[0].clone();
         let mut h3 = self.hail[0].clone();
-        
+
         // Search from the start to find a stone that is not linear
         for i in 1..self.hail.len() - 1 {
             if h1.velocity.not_linear(&self.hail[i].velocity) {
@@ -116,7 +116,14 @@ impl HailStorm {
         return (rock, s);
     }
 
-    fn lin(a_scale: f64, a: &Point3D, b_scale: f64, b: &Point3D, c_scale: f64, c: &Point3D) -> Point3D {
+    fn lin(
+        a_scale: f64,
+        a: &Point3D,
+        b_scale: f64,
+        b: &Point3D,
+        c_scale: f64,
+        c: &Point3D,
+    ) -> Point3D {
         let x = a_scale * a.x + b_scale * b.x + c_scale * c.x;
         let y = a_scale * a.y + b_scale * b.y + c_scale * c.y;
         let z = a_scale * a.z + b_scale * b.z + c_scale * c.z;
@@ -171,8 +178,12 @@ impl Hail {
             // Lines are parallel
             None
         } else {
-            let t1 = ((other.position.x - self.position.x) * other.velocity.y - (other.position.y - self.position.y) * other.velocity.x)/ det;
-            let t2 = ((other.position.x - self.position.x) * self.velocity.y - (other.position.y - self.position.y) * self.velocity.x)/ det;
+            let t1 = ((other.position.x - self.position.x) * other.velocity.y
+                - (other.position.y - self.position.y) * other.velocity.x)
+                / det;
+            let t2 = ((other.position.x - self.position.x) * self.velocity.y
+                - (other.position.y - self.position.y) * self.velocity.x)
+                / det;
 
             // Check if the intersection point is within the line segments
             if t1 >= 0.0 && t2 >= 0.0 {

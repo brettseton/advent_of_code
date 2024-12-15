@@ -112,18 +112,18 @@ impl Direction {
     pub fn to_usize(&self) -> usize {
         match self {
             Self::North => 0,
-            Self::East  => 1,
+            Self::East => 1,
             Self::South => 2,
-            Self::West  => 3,
+            Self::West => 3,
         }
     }
 
     pub fn get_delta(&self) -> (isize, isize) {
         match self {
             Self::North => (0, -1),
-            Self::East  => (1,  0),
-            Self::South => (0,  1),
-            Self::West  => (-1, 0),
+            Self::East => (1, 0),
+            Self::South => (0, 1),
+            Self::West => (-1, 0),
         }
     }
 }
@@ -158,7 +158,12 @@ impl Garden {
         return Garden::from_str(str).expect("");
     }
 
-    fn get_reached(&self, start: &Step, max_steps: usize, get_neighbors: & dyn Fn(&Self, &Step) -> Vec<Option<Step>>) -> usize {
+    fn get_reached(
+        &self,
+        start: &Step,
+        max_steps: usize,
+        get_neighbors: &dyn Fn(&Self, &Step) -> Vec<Option<Step>>,
+    ) -> usize {
         let mut queue = VecDeque::new();
         queue.push_back(start.clone());
 
