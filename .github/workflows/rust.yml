@@ -21,7 +21,10 @@ jobs:
           numbers=()
           for year in 2023 2024; do
               for i in {1..25}; do
-                  numbers+=($(printf "\"$year/day%02d\"" "$i"))
+                  dir=$(printf "$year/day%02d" "$i")
+                  if [ -d "$dir" ]; then
+                      numbers+=($(printf "\"$year/day%02d\"" "$i"))
+                  fi
               done
           done
           echo "$(IFS=','; echo "value=[${numbers[*]}]")" >> $GITHUB_OUTPUT
