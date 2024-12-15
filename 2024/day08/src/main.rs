@@ -51,7 +51,7 @@ impl Grid {
         let mut antinodes = HashSet::new();
 
         // For each frequency
-        for (_freq, positions) in &self.antennas {
+        for positions in self.antennas.values() {
             // For each pair of antennas with the same frequency
             for i in 0..positions.len() - 1 {
                 for j in (i + 1)..positions.len() {
