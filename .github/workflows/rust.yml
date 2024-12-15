@@ -18,24 +18,11 @@ jobs:
       - uses: actions/checkout@v4.1.1
       - id: matrix
         run: |
-          paths=()
-          
-          # Loop through each year directory
-          for year in 202[34]; do
-            if [ -d "$year" ]; then
-              # Loop through days 1-25 for each year
-              for i in {1..25}; do
-                day_path="$year/day$(printf "%02d" "$i")"
-                if [ -f "$day_path/Cargo.toml" ]; then
-                  paths+=("$day_path")
-                fi
-              done
-            fi
+          numbers=()
+          for i in {1..25}; do
+              numbers+=($(printf "\"2023/day%02d\"" "$i"))
           done
-          
-          # Create JSON array string
-          json_array=$(printf '%s\n' "${paths[@]}" | jq -R . | jq -s .)
-          echo "value=$json_array" >> $GITHUB_OUTPUT
+          echo "$(IFS=','; echo "value=[${numbers[*]}]")" >> $GITHUB_OUTPUT>> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
   
