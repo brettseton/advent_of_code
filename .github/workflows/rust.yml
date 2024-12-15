@@ -19,10 +19,12 @@ jobs:
       - id: matrix
         run: |
           numbers=()
-          for i in {1..25}; do
-              numbers+=($(printf "\"2023/day%02d\"" "$i"))
+          for year in 2023 2024; do
+              for i in {1..25}; do
+                  numbers+=($(printf "\"$year/day%02d\"" "$i"))
+              done
           done
-          echo "$(IFS=','; echo "value=[${numbers[*]}]")" >> $GITHUB_OUTPUT>> $GITHUB_OUTPUT
+          echo "$(IFS=','; echo "value=[${numbers[*]}]")" >> $GITHUB_OUTPUT
       - run: |
           echo "${{ steps.matrix.outputs.value }}"
   
