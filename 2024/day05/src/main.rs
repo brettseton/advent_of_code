@@ -175,6 +175,6 @@ mod tests {
     fn test2_part2() {
         let test_input =
             fs::read_to_string("input/test2.txt").expect("Should have been able to read the file");
-        assert_eq!(part2(&test_input), 0);
+        assert_eq!(part2(&test_input), 7380);
     }
 }
