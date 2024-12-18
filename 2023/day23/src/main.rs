@@ -151,12 +151,8 @@ impl HikingTrail {
     pub fn get_next(&self, previous: &Step, traveling: Direction) -> Option<Step> {
         let (dx, dy) = traveling.get_delta();
 
-        let Some(new_x) = previous.x.checked_add_signed(dx) else {
-            return None;
-        };
-        let Some(new_y) = previous.y.checked_add_signed(dy) else {
-            return None;
-        };
+        let new_x = previous.x.checked_add_signed(dx)?;
+        let new_y = previous.y.checked_add_signed(dy)?;
 
         if previous.history.contains(&(new_x, new_y)) {
             return None;
@@ -214,12 +210,8 @@ impl HikingTrail {
     pub fn get_next_snow_boots(&self, previous: &Step, traveling: Direction) -> Option<Step> {
         let (dx, dy) = traveling.get_delta();
 
-        let Some(new_x) = previous.x.checked_add_signed(dx) else {
-            return None;
-        };
-        let Some(new_y) = previous.y.checked_add_signed(dy) else {
-            return None;
-        };
+        let new_x = previous.x.checked_add_signed(dx)?;
+        let new_y = previous.y.checked_add_signed(dy)?;
 
         if new_x >= self.width || new_y >= self.height || self.grid[new_y][new_x] == '#' {
             return None;
@@ -269,15 +261,12 @@ impl HikingTrail {
                         count: 0,
                         history: HashSet::new(),
                     };
-                    for neighbor in self.get_connected_snow_boots(&current).iter() {
-                        match neighbor {
-                            Some(n) => e.push(Point3D {
-                                x: n.x,
-                                y: n.y,
-                                z: 1,
-                            }),
-                            None => (),
-                        }
+                    for n in self.get_connected_snow_boots(&current).iter().flatten() {
+                        e.push(Point3D {
+                            x: n.x,
+                            y: n.y,
+                            z: 1,
+                        });
                     }
                 }
             }

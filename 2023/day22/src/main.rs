@@ -2,7 +2,6 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     fs,
     str::FromStr,
-    usize,
 };
 
 fn main() {

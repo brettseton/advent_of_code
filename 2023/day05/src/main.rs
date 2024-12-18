@@ -1,5 +1,5 @@
+use std::fs;
 use std::str::FromStr;
-use std::{fs, usize};
 
 fn main() {
     let ans = part1("input/test1.txt");

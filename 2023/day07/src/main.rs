@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::{fmt, fs, usize};
+use std::{fmt, fs};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -204,9 +204,6 @@ impl FromStr for JHand {
         }
     }
 }
-
-#[derive(Debug)]
-struct JHandParseError;
 
 impl JHand {
     pub fn cmp(&self, other: &JHand) -> Ordering {

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
+use std::fs;
 use std::str::FromStr;
-use std::{fs, usize};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -59,8 +59,8 @@ impl Network {
             };
 
             current = match next_direction {
-                'L' => &left,
-                'R' => &right,
+                'L' => left,
+                'R' => right,
                 _ => panic!("path must continue"),
             };
             path.push(current.to_string());
@@ -91,8 +91,8 @@ impl Network {
                 };
 
                 current = match next_direction {
-                    'L' => &left,
-                    'R' => &right,
+                    'L' => left,
+                    'R' => right,
                     _ => panic!("path must continue"),
                 };
                 step_count += 1;

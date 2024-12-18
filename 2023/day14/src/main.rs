@@ -1,4 +1,4 @@
-use std::{fs, str::FromStr};
+use std::{fmt::Display, fs, str::FromStr};
 
 fn main() {
     let ans = part1("input/test1.txt");
@@ -179,13 +179,17 @@ impl FromStr for Platform {
     }
 }
 
-impl ToString for Platform {
-    fn to_string(&self) -> String {
-        self.map
-            .iter()
-            .map(|row| row.iter().collect::<String>())
-            .collect::<Vec<_>>()
-            .join("\n")
+impl Display for Platform {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            self.map
+                .iter()
+                .map(|row| row.iter().collect::<String>())
+                .collect::<Vec<_>>()
+                .join("\n")
+        )
     }
 }
 

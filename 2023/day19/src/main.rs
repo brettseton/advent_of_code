@@ -1,4 +1,4 @@
-use std::{fs, str::FromStr, usize};
+use std::{fs, str::FromStr};
 
 fn main() {
     let ans = part1("input/test1.txt");

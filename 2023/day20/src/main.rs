@@ -2,7 +2,6 @@ use std::{
     collections::{HashMap, VecDeque},
     fs,
     str::FromStr,
-    usize,
 };
 
 fn main() {
@@ -31,6 +30,7 @@ fn part2(file_path: &str) -> usize {
     return machine.get_output_lcm();
 }
 
+#[allow(dead_code)]
 trait IModule {
     fn send_messages(&self);
     fn receive_message(&mut self, signal: Signal) -> Vec<Signal>;

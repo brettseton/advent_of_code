@@ -130,7 +130,6 @@ impl FromStr for Schematic {
 /// # Examples
 ///
 /// ```rust
-
 /// // Create sample input data
 /// let line = "12*34";
 /// let line_number = 0;

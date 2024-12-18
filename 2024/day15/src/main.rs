@@ -30,7 +30,7 @@ impl Display for Cell {
 struct Warehouse {
     grid: Vec<Vec<Cell>>,
     robot_pos: Position,
-    wide_boxes: bool,
+    //wide_boxes: bool,
 }
 
 struct Position {
@@ -38,6 +38,7 @@ struct Position {
     y: usize,
 }
 
+#[allow(dead_code)]
 impl Warehouse {
     fn new(input: &str, wide_boxes: bool) -> Self {
         let mut grid = Vec::new();
@@ -95,7 +96,7 @@ impl Warehouse {
         Warehouse {
             grid,
             robot_pos,
-            wide_boxes,
+            //wide_boxes,
         }
     }
 

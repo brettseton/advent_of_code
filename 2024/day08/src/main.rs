@@ -15,7 +15,6 @@ impl Point {
 
 #[derive(Debug)]
 struct Grid {
-    cells: Vec<Vec<char>>,
     antennas: HashMap<char, Vec<Point>>,
     width: i32,
     height: i32,
@@ -40,7 +39,6 @@ impl Grid {
         }
 
         Grid {
-            cells,
             antennas,
             width,
             height,
