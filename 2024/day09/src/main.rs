@@ -45,107 +45,124 @@ fn parse_disk_map(input: &str) -> Vec<DiskBlock> {
     blocks
 }
 
-fn compact_disk(blocks: &[DiskBlock]) -> Vec<DiskBlock> {
-    let mut result = Vec::new();
-    //iterate through the blocks with a left and right pointer
-    let mut left = 0;
-    let mut right = blocks.len() - 1;
-    let mut remaining_blanks_left = 0;
-    let mut remaining_length_right = blocks[right].length;
-
-    while right > left {
-        while !blocks[left].is_blank {
-            result.push(blocks[left]);
-            left += 1;
-            remaining_blanks_left = blocks[left].length;
-        }
-
-        match remaining_blanks_left.cmp(&remaining_length_right) {
-            std::cmp::Ordering::Greater => {
-                result.push(DiskBlock {
-                    file_id: blocks[right].file_id,
-                    length: remaining_length_right,
-                    is_blank: false,
-                });
-                remaining_blanks_left -= remaining_length_right;
-                right -= 1;
-                while blocks[right].is_blank {
-                    right -= 1;
-                }
-                remaining_length_right = blocks[right].length;
-            }
-            std::cmp::Ordering::Less => {
-                result.push(DiskBlock {
-                    file_id: blocks[right].file_id,
-                    length: remaining_blanks_left,
-                    is_blank: false,
-                });
-                remaining_length_right -= remaining_blanks_left;
-                left += 1;
-            }
-            std::cmp::Ordering::Equal => {
-                result.push(DiskBlock {
-                    file_id: blocks[right].file_id,
-                    length: remaining_blanks_left,
-                    is_blank: false,
-                });
-                left += 1;
-                right -= 1;
-                while blocks[right].is_blank {
-                    right -= 1;
-                }
-                remaining_length_right = blocks[right].length;
-            }
-        }
-    }
-
-    if remaining_blanks_left > 0 && left == right {
-        result.push(DiskBlock {
-            file_id: blocks[right].file_id,
-            length: remaining_length_right,
-            is_blank: false,
-        });
-    }
-
-    result
+trait CompactionStrategy {
+    fn compact(&self, blocks: &[DiskBlock]) -> Vec<DiskBlock>;
 }
 
-fn compact_disk_part2(blocks: &mut Vec<DiskBlock>) {
-    // iterate through the blocks in reverse
-    // for each block try to insert it into the first position where it fits
-    let mut i = blocks.len() - 1;
-    while i > 0 {
-        let x = blocks.as_slice();
-        while blocks[i].is_blank {
-            i -= 1;
-        }
-        let end_file = blocks[i];
-        for j in 0..i {
-            if blocks[j].is_blank && blocks[j].length >= end_file.length {
-                let blank_file = blocks[j];
-                if blank_file.length == end_file.length {
-                    blocks[j] = end_file;
-                    blocks[i] = blank_file;
-                } else {
-                    // split the block into two parts
-                    blocks[j] = end_file;
-                    blocks[i] = blank_file;
+struct LeftRightCompactionStrategy;
+struct InsertionCompactionStrategy;
 
-                    blocks[i].length = end_file.length;
-                    blocks.insert(
-                        j + 1,
-                        DiskBlock {
-                            file_id: blank_file.file_id,
-                            length: blank_file.length - end_file.length,
-                            is_blank: true,
-                        },
-                    );
-                    i += 1;
+impl CompactionStrategy for LeftRightCompactionStrategy {
+    fn compact(&self, blocks: &[DiskBlock]) -> Vec<DiskBlock> {
+        let mut result = Vec::new();
+        if blocks.is_empty() {
+            return result;
+        }
+
+        let mut left = 0;
+        let mut right = blocks.len() - 1;
+        let mut remaining_blanks_left = 0;
+        let mut remaining_length_right = blocks[right].length;
+
+        while blocks[right].is_blank {
+            right -= 1;
+            remaining_length_right = blocks[right].length;
+        }
+
+        while right > left {
+            while !blocks[left].is_blank {
+                result.push(blocks[left]);
+                left += 1;
+                remaining_blanks_left = blocks[left].length;
+            }
+
+            match remaining_blanks_left.cmp(&remaining_length_right) {
+                std::cmp::Ordering::Greater => {
+                    result.push(DiskBlock {
+                        file_id: blocks[right].file_id,
+                        length: remaining_length_right,
+                        is_blank: false,
+                    });
+                    remaining_blanks_left -= remaining_length_right;
+                    right -= 1;
+                    while blocks[right].is_blank {
+                        right -= 1;
+                    }
+                    remaining_length_right = blocks[right].length;
                 }
-                break;
+                std::cmp::Ordering::Less => {
+                    result.push(DiskBlock {
+                        file_id: blocks[right].file_id,
+                        length: remaining_blanks_left,
+                        is_blank: false,
+                    });
+                    remaining_length_right -= remaining_blanks_left;
+                    left += 1;
+                }
+                std::cmp::Ordering::Equal => {
+                    result.push(DiskBlock {
+                        file_id: blocks[right].file_id,
+                        length: remaining_blanks_left,
+                        is_blank: false,
+                    });
+                    left += 1;
+                    right -= 1;
+                    while blocks[right].is_blank {
+                        right -= 1;
+                    }
+                    remaining_length_right = blocks[right].length;
+                }
             }
         }
-        i -= 1;
+
+        if remaining_blanks_left > 0 && left == right {
+            result.push(DiskBlock {
+                file_id: blocks[right].file_id,
+                length: remaining_length_right,
+                is_blank: false,
+            });
+        }
+
+        result
+    }
+}
+
+impl CompactionStrategy for InsertionCompactionStrategy {
+    fn compact(&self, blocks: &[DiskBlock]) -> Vec<DiskBlock> {
+        let mut blocks = blocks.to_vec();
+        let mut i = blocks.len() - 1;
+
+        while i > 0 {
+            while i > 0 && blocks[i].is_blank {
+                i -= 1;
+            }
+            let end_file = blocks[i];
+            for j in 0..i {
+                if blocks[j].is_blank && blocks[j].length >= end_file.length {
+                    let blank_file = blocks[j];
+                    if blank_file.length == end_file.length {
+                        blocks[j] = end_file;
+                        blocks[i] = blank_file;
+                    } else {
+                        blocks[j] = end_file;
+                        blocks[i] = blank_file;
+                        blocks[i].length = end_file.length;
+                        blocks.insert(
+                            j + 1,
+                            DiskBlock {
+                                file_id: blank_file.file_id,
+                                length: blank_file.length - end_file.length,
+                                is_blank: true,
+                            },
+                        );
+                        i += 1;
+                    }
+                    break;
+                }
+            }
+            i -= 1;
+        }
+        blocks
     }
 }
 
@@ -167,16 +184,33 @@ fn calculate_checksum(disk: &[DiskBlock]) -> usize {
         .sum()
 }
 
+trait DiskCompaction {
+    fn left_right_compact(&self) -> Vec<DiskBlock>;
+    fn insertion_compact(&self) -> Vec<DiskBlock>;
+}
+
+impl DiskCompaction for Vec<DiskBlock> {
+    fn left_right_compact(&self) -> Vec<DiskBlock> {
+        let strategy = LeftRightCompactionStrategy;
+        strategy.compact(self)
+    }
+
+    fn insertion_compact(&self) -> Vec<DiskBlock> {
+        let strategy = InsertionCompactionStrategy;
+        strategy.compact(self)
+    }
+}
+
 fn part1(input: &str) -> usize {
     let blocks = parse_disk_map(input);
-    let compacted = compact_disk(&blocks);
+    let compacted = blocks.left_right_compact();
     calculate_checksum(&compacted)
 }
 
 fn part2(input: &str) -> usize {
-    let mut blocks = parse_disk_map(input);
-    compact_disk_part2(&mut blocks);
-    calculate_checksum(&blocks)
+    let blocks = parse_disk_map(input);
+    let compacted = blocks.insertion_compact();
+    calculate_checksum(&compacted)
 }
 
 fn main() {
