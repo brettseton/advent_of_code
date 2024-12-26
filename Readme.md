@@ -98,9 +98,9 @@ cargo test
 | [Day 18: RAM Run](https://adventofcode.com/2024/day/18) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day18/src/main.rs) |
 | [Day 19: Linen Layout](https://adventofcode.com/2024/day/19) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day19/src/main.rs) |
 | [Day 20: Race Condition](https://adventofcode.com/2024/day/20) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day20/src/main.rs) |
-| [Day 21: ???](https://adventofcode.com/2024/day/21) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day21/src/main.rs) |
-| [Day 22: ???](https://adventofcode.com/2024/day/22) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day22/src/main.rs) |
-| [Day 23: ???](https://adventofcode.com/2024/day/23) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day23/src/main.rs) |
-| [Day 24: ???](https://adventofcode.com/2024/day/24) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day24/src/main.rs) |
-| [Day 25: ???](https://adventofcode.com/2024/day/25) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day25/src/main.rs) |
+| [Day 21: Keypad Conundrum](https://adventofcode.com/2024/day/21) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day21/src/main.rs) |
+| [Day 22: Monkey Market](https://adventofcode.com/2024/day/22) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day22/src/main.rs) |
+| [Day 23: LAN Party](https://adventofcode.com/2024/day/23) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day23/src/main.rs) |
+| [Day 24: Crossed Wires](https://adventofcode.com/2024/day/24) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day24/src/main.rs) |
+| [Day 25: Code Chronicle](https://adventofcode.com/2024/day/25) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2024/day25/src/main.rs) |
 
