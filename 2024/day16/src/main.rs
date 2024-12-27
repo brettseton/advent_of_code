@@ -2,6 +2,10 @@ use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::fs;
 
+type Grid = Vec<Vec<char>>;
+type Position = (i32, i32);
+type ParseResult = (Grid, Position, Position);
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Ord, PartialOrd)]
 enum Direction {
     North,
@@ -78,8 +82,8 @@ impl PartialOrd for QueueItem {
     }
 }
 
-fn parse_input(input: &str) -> (Vec<Vec<char>>, (i32, i32), (i32, i32)) {
-    let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+fn parse_input(input: &str) -> ParseResult {
+    let grid: Grid = input.lines().map(|line| line.chars().collect()).collect();
     let mut start = (0, 0);
     let mut end = (0, 0);
 
