@@ -1,52 +1,37 @@
 use std::fs;
 
 fn parse_input(input: &str) -> Computer {
-    let register_a = input
-        .lines()
-        .nth(0)
-        .unwrap()
-        .split(" ")
-        .nth(2)
-        .unwrap()
-        .parse()
-        .unwrap();
+    let mut lines = input.lines();
 
-    let register_b = input
-        .lines()
-        .nth(1)
-        .unwrap()
-        .split(" ")
-        .nth(2)
-        .unwrap()
-        .parse()
-        .unwrap();
+    let parse_register = |line: Option<&str>| -> Result<u64, &'static str> {
+        line.and_then(|l| l.split_whitespace().nth(2))
+            .and_then(|n| n.parse().ok())
+            .ok_or("Failed to parse register value")
+    };
 
-    let register_c = input
-        .lines()
-        .nth(2)
-        .unwrap()
-        .split(" ")
-        .nth(2)
-        .unwrap()
-        .parse()
-        .unwrap();
+    let register_a = parse_register(lines.next()).expect("Missing register A");
+    let register_b = parse_register(lines.next()).expect("Missing register B");
+    let register_c = parse_register(lines.next()).expect("Missing register C");
 
-    let program = input
-        .lines()
-        .nth(4)
-        .unwrap()
-        .split(" ")
-        .nth(1)
-        .unwrap()
-        .split(",")
-        .map(|s| s.parse().unwrap())
-        .collect();
+    // Skip the empty line
+    lines.next();
+
+    let program = lines
+        .next()
+        .and_then(|l| l.split_whitespace().nth(1))
+        .ok_or("Missing program line")
+        .and_then(|nums| {
+            nums.split(',')
+                .map(|n| n.parse().map_err(|_| "Invalid program number"))
+                .collect::<Result<Vec<u64>, _>>()
+        })
+        .expect("Failed to parse program");
 
     Computer {
         register_a,
         register_b,
         register_c,
-        program: program,
+        program,
     }
 }
 
@@ -78,50 +63,50 @@ impl Computer {
                 0 => {
                     // adv
                     let denominator = 2_u64.pow(combo_operand as u32);
-                    self.register_a /= denominator; // A
+                    self.register_a /= denominator;
                     instruction_pointer += 2;
                 }
                 1 => {
                     // bxl
-                    self.register_b ^= literal_operand; // B
+                    self.register_b ^= literal_operand;
                     instruction_pointer += 2;
                 }
                 2 => {
                     // bst
-                    self.register_b = combo_operand % 8; // B
+                    self.register_b = combo_operand % 8;
                     instruction_pointer += 2;
                 }
                 3 => {
                     // jnz
                     if self.register_a != 0 {
-                        instruction_pointer = literal_operand; // Jump
+                        instruction_pointer = literal_operand;
                     } else {
                         instruction_pointer += 2;
                     }
                 }
                 4 => {
                     // bxc
-                    self.register_b ^= self.register_c; // B
+                    self.register_b ^= self.register_c;
                     instruction_pointer += 2;
                 }
                 5 => {
                     // out
-                    output.push(combo_operand % 8); // Output
+                    output.push(combo_operand % 8);
                     instruction_pointer += 2;
                 }
                 6 => {
                     // bdv
                     let denominator = 2_u64.pow(combo_operand as u32);
-                    self.register_b = self.register_a / denominator; // B
+                    self.register_b = self.register_a / denominator;
                     instruction_pointer += 2;
                 }
                 7 => {
                     // cdv
                     let denominator = 2_u64.pow(combo_operand as u32);
-                    self.register_c = self.register_a / denominator; // C
+                    self.register_c = self.register_a / denominator;
                     instruction_pointer += 2;
                 }
-                _ => panic!("Invalid opcode: {}", opcode), // Halt on invalid opcode
+                _ => panic!("Invalid opcode: {}", opcode),
             }
         }
 
@@ -156,7 +141,6 @@ fn part2(input: &str) -> u64 {
         altered_computer.register_a = x;
 
         let out = altered_computer.run_program();
-        // Check if all the elements of the output is the same as the computer.program
         if out.len() == new_a.len()
             && out[0] == computer.program[computer.program.len() - out.len()]
         {
@@ -179,7 +163,6 @@ fn part2(input: &str) -> u64 {
         altered_computer.register_a = x;
 
         let out = altered_computer.run_program();
-        // Check if all the elements of the output is the same as the computer.program
         if computer.program.len() == out.len()
             && out
                 .iter()
@@ -190,7 +173,7 @@ fn part2(input: &str) -> u64 {
         }
     }
 
-    return 0;
+    0
 }
 
 fn main() {
@@ -207,8 +190,8 @@ fn main() {
 
     println!("Part 1 test 1: {}", part1(&input1));
     println!("Part 1 test 2: {}", part1(&input2));
-    println!("Part 1 test 2: {}", part1(&input3));
-    println!("Part 1 test 2: {}", part1(&input4));
+    println!("Part 1 test 3: {}", part1(&input3));
+    println!("Part 1 test 4: {}", part1(&input4));
 
     println!("Part 2 test 5: {}", part2(&input5));
     println!("Part 2 test 2: {}", part2(&input2));
