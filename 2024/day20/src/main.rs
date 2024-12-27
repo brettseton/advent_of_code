@@ -115,7 +115,7 @@ fn part2(input: &str, time_limit: i32, distance: i32) -> i32 {
 
     // Check for possible cheats
     let mut distinct_cheats = HashSet::new();
-    for (_idx, step) in shortest_path.iter().rev().enumerate() {
+    for step in shortest_path.iter().rev() {
         for cheat_x in -distance..=distance {
             for cheat_y in (-distance + cheat_x.abs())..=(distance - cheat_x.abs()) {
                 let new_x = step.x as i32 + cheat_x;
