@@ -18,7 +18,7 @@ fn transform_single_stone(stone: i64) -> Vec<i64> {
     if stone == 0 {
         // Rule 1: 0 becomes 1
         vec![1]
-    } else if stone.to_string().len() % 2 == 0 {
+    } else if stone.to_string().len().is_multiple_of(2) {
         // Rule 2: Even number of digits splits into two stones
         let num_digits = (stone as f64).log10().floor() as i32 + 1;
         let divisor = 10_i64.pow((num_digits / 2) as u32);
@@ -66,7 +66,7 @@ fn count_stones(
 
     let stones = if stone == 0 {
         count_stones(1, depth + 1, max, memo)
-    } else if stone.to_string().len() % 2 == 0 {
+    } else if stone.to_string().len().is_multiple_of(2) {
         let num_digits = (stone as f64).log10().floor() as u32 + 1;
         let divisor = 10_i64.pow(num_digits / 2);
         let right_num = stone % divisor;

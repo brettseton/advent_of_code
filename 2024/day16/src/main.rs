@@ -131,7 +131,7 @@ fn find_shortest_path(grid: &[Vec<char>], start: (i32, i32), end: (i32, i32)) ->
 
         let state_key = (position, direction);
         let existing_cost = costs.get(&state_key);
-        if existing_cost.map_or(false, |&c| cost >= c) {
+        if existing_cost.is_some_and(|&c| cost >= c) {
             continue;
         }
         costs.insert(state_key, cost);
@@ -168,12 +168,12 @@ fn find_shortest_path(grid: &[Vec<char>], start: (i32, i32), end: (i32, i32)) ->
 
 #[allow(dead_code)]
 fn print_grid_with_path(grid: &[Vec<char>], optimal_tiles: &HashSet<(i32, i32)>) {
-    for i in 0..grid.len() {
-        for j in 0..grid[0].len() {
+    for (i, row) in grid.iter().enumerate() {
+        for (j, cell) in row.iter().enumerate() {
             if optimal_tiles.contains(&(i as i32, j as i32)) {
                 print!("O");
             } else {
-                print!("{}", grid[i][j]);
+                print!("{}", cell);
             }
         }
         println!();
@@ -227,7 +227,7 @@ fn find_optimal_path_tiles(
 
         let state_key = (position, direction);
         let existing_cost = costs.get(&state_key);
-        if existing_cost.map_or(false, |&c| cost > c) {
+        if existing_cost.is_some_and(|&c| cost > c) {
             continue;
         }
         costs.insert(state_key, cost);

@@ -31,6 +31,8 @@ fn find_mul_instructions_with_state(input: &str) -> Vec<(u32, u32)> {
     let mut enabled = true; // Start with multiplications enabled
     let mut pos = 0;
 
+    let re = Regex::new(r"^mul\((\d{1,3}),(\d{1,3})\)").unwrap();
+
     while pos < input.len() {
         let remaining = &input[pos..];
 
@@ -47,7 +49,6 @@ fn find_mul_instructions_with_state(input: &str) -> Vec<(u32, u32)> {
         }
 
         if enabled && remaining.starts_with("mul") {
-            let re = Regex::new(r"^mul\((\d{1,3}),(\d{1,3})\)").unwrap();
             if let Some(cap) = re.find(remaining) {
                 if let Some(captures) = re.captures(cap.as_str()) {
                     let x = captures[1].parse::<u32>().unwrap();

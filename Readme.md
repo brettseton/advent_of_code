@@ -130,7 +130,7 @@ cargo test
 ### Contents
 | Puzzle|Code (Part 1 and 2)|
 |-------|----|
-| [Day 01: TBD](https://adventofcode.com/2025/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day01/src/main.rs) |
+| [Day 01: Secret Entrance](https://adventofcode.com/2025/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day01/src/main.rs) |
 | [Day 02: TBD](https://adventofcode.com/2025/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day02/src/main.rs) |
 | [Day 03: TBD](https://adventofcode.com/2025/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day03/src/main.rs) |
 | [Day 04: TBD](https://adventofcode.com/2025/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day04/src/main.rs) |

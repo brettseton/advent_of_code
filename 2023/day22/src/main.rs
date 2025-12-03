@@ -21,13 +21,13 @@ fn main() {
 fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let brick_stack = BrickStack::new(&input);
-    return brick_stack.get_disintegration_count_and_fallen_sum().0;
+    brick_stack.get_disintegration_count_and_fallen_sum().0
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let brick_stack = BrickStack::new(&input);
-    return brick_stack.get_disintegration_count_and_fallen_sum().1;
+    brick_stack.get_disintegration_count_and_fallen_sum().1
 }
 
 #[derive(Debug, Clone)]
@@ -55,18 +55,16 @@ impl Brick {
                         //println!("collided with {} resting of {:?} at height: {}", id, self, z+1);
                         self.resting_on.insert(id);
                         // Find any other blocks this is resting on
-                        for y in min_y..=max_y {
-                            for x in min_x..=max_x {
-                                if let Some(id) = occupancy_grid[z][y][x] {
-                                    self.resting_on.insert(id);
-                                }
+                        for row in &occupancy_grid[z][min_y..=max_y] {
+                            for id in row[min_x..=max_x].iter().flatten() {
+                                self.resting_on.insert(*id);
                             }
                         }
                         // Fill the occupancy grid for the other blocks to use
                         for dz in 1..=block_height {
-                            for y in min_y..=max_y {
-                                for x in min_x..=max_x {
-                                    occupancy_grid[z + dz][y][x] = Some(self.id);
+                            for row in &mut occupancy_grid[z + dz][min_y..=max_y] {
+                                for cell in &mut row[min_x..=max_x] {
+                                    *cell = Some(self.id);
                                 }
                             }
                         }
@@ -85,7 +83,6 @@ impl Brick {
                 }
             }
         }
-        return;
     }
 }
 
@@ -123,7 +120,7 @@ struct BrickStack {
 
 impl BrickStack {
     pub fn new(str: &str) -> BrickStack {
-        return BrickStack::from_str(str).expect("");
+        BrickStack::from_str(str).expect("")
     }
 
     pub fn get_disintegration_count_and_fallen_sum(&self) -> (usize, usize) {
@@ -201,7 +198,7 @@ impl BrickStack {
             fallen_sum += have_fallen.len() - 1;
         }
 
-        return (disintegrate.len(), fallen_sum);
+        (disintegrate.len(), fallen_sum)
     }
 }
 
@@ -221,16 +218,16 @@ impl FromStr for BrickStack {
                 else {
                     panic!()
                 };
-                return Brick {
+                Brick {
                     id: i,
                     start_point: start_str.parse::<Point3D>().expect(""),
                     end_point: end_str.parse::<Point3D>().expect(""),
                     resting_on: HashSet::new(),
-                };
+                }
             })
             .collect();
 
-        return Ok(BrickStack { bricks });
+        Ok(BrickStack { bricks })
     }
 }
 
