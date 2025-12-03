@@ -77,8 +77,8 @@
         "2025/day25/Cargo.toml"
     ],
     "editor.formatOnSave": true,
-    "rust-analyzer.checkOnSave.command": "clippy",
-    "rust-analyzer.checkOnSave.extraArgs": [
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.check.extraArgs": [
         "--",
         "-A",
         "clippy::needless_return",
