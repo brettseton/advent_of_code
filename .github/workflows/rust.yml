@@ -19,7 +19,7 @@ jobs:
       - id: matrix
         run: |
           numbers=()
-          for year in 2023 2024 2025; do
+          for year in 20[1-2][0-9]; do
               for i in {1..25}; do
                   dir=$(printf "$year/day%02d" "$i")
                   if [ -d "$dir" ]; then

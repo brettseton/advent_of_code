@@ -1,9 +1,62 @@
 [![Build and Test](https://github.com/brettseton/advent_of_code/actions/workflows/rust.yml/badge.svg)](https://github.com/brettseton/advent_of_code/actions/workflows/rust.yml)
 
 # Quick Links
+- [2022](#advent-of-code-2022)
 - [2023](#advent-of-code-2023)
 - [2024](#advent-of-code-2024)
 - [2025](#advent-of-code-2025)
+
+# [Advent of Code 2022](https://adventofcode.com/2022)
+
+### Run
+To run navigate to the folder and run:
+ ```
+ cargo run
+ ```
+
+eg
+```
+cd 2022/day01
+cargo run
+```
+
+### Test
+You can also check tests by running:
+```
+cargo test
+```
+
+### Contents
+| Puzzle|Code (Part 1 and 2)|
+|-------|----|
+| [Day 01: TBD](https://adventofcode.com/2022/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day01/src/main.rs) |
+| [Day 02: TBD](https://adventofcode.com/2022/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day02/src/main.rs) |
+| [Day 03: TBD](https://adventofcode.com/2022/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day03/src/main.rs) |
+| [Day 04: TBD](https://adventofcode.com/2022/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day04/src/main.rs) |
+| [Day 05: TBD](https://adventofcode.com/2022/day/5) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day05/src/main.rs) |
+| [Day 06: TBD](https://adventofcode.com/2022/day/6) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day06/src/main.rs) |
+| [Day 07: TBD](https://adventofcode.com/2022/day/7) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day07/src/main.rs) |
+| [Day 08: TBD](https://adventofcode.com/2022/day/8) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day08/src/main.rs) |
+| [Day 09: TBD](https://adventofcode.com/2022/day/9) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day09/src/main.rs) |
+| [Day 10: TBD](https://adventofcode.com/2022/day/10) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day10/src/main.rs) |
+| [Day 11: TBD](https://adventofcode.com/2022/day/11) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day11/src/main.rs) |
+| [Day 12: TBD](https://adventofcode.com/2022/day/12) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day12/src/main.rs) |
+| [Day 13: TBD](https://adventofcode.com/2022/day/13) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day13/src/main.rs) |
+| [Day 14: TBD](https://adventofcode.com/2022/day/14) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day14/src/main.rs) |
+| [Day 15: TBD](https://adventofcode.com/2022/day/15) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day15/src/main.rs) |
+| [Day 16: TBD](https://adventofcode.com/2022/day/16) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day16/src/main.rs) |
+| [Day 17: TBD](https://adventofcode.com/2022/day/17) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day17/src/main.rs) |
+| [Day 18: TBD](https://adventofcode.com/2022/day/18) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day18/src/main.rs) |
+| [Day 19: TBD](https://adventofcode.com/2022/day/19) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day19/src/main.rs) |
+| [Day 20: TBD](https://adventofcode.com/2022/day/20) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day20/src/main.rs) |
+| [Day 21: TBD](https://adventofcode.com/2022/day/21) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day21/src/main.rs) |
+| [Day 22: TBD](https://adventofcode.com/2022/day/22) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day22/src/main.rs) |
+| [Day 23: TBD](https://adventofcode.com/2022/day/23) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day23/src/main.rs) |
+| [Day 24: TBD](https://adventofcode.com/2022/day/24) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day24/src/main.rs) |
+| [Day 25: TBD](https://adventofcode.com/2022/day/25) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2022/day25/src/main.rs) |
+
+
+<br><br>
 
 # [Advent of Code 2023](https://adventofcode.com/2023)
 
