@@ -132,9 +132,9 @@ cargo test
 |-------|----|
 | [Day 01: Secret Entrance](https://adventofcode.com/2025/day/1) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day01/src/main.rs) |
 | [Day 02: Gift Shop](https://adventofcode.com/2025/day/2) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day02/src/main.rs) |
-| [Day 03: TBD](https://adventofcode.com/2025/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day03/src/main.rs) |
-| [Day 04: TBD](https://adventofcode.com/2025/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day04/src/main.rs) |
-| [Day 05: TBD](https://adventofcode.com/2025/day/5) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day05/src/main.rs) |
+| [Day 03: Lobby](https://adventofcode.com/2025/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day03/src/main.rs) |
+| [Day 04: Printing Department](https://adventofcode.com/2025/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day04/src/main.rs) |
+| [Day 05: Cafeteria](https://adventofcode.com/2025/day/5) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day05/src/main.rs) |
 | [Day 06: TBD](https://adventofcode.com/2025/day/6) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day06/src/main.rs) |
 | [Day 07: TBD](https://adventofcode.com/2025/day/7) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day07/src/main.rs) |
 | [Day 08: TBD](https://adventofcode.com/2025/day/8) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day08/src/main.rs) |
