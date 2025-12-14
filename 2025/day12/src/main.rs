@@ -4,6 +4,9 @@ const TEST_INPUT_2: &str = include_str!("../input/test2.txt");
 const SHAPE_WIDTH: usize = 3;
 const SHAPE_HEIGHT: usize = 3;
 const MAX_PRESENTS_TOLERANCE: usize = 2;
+const REGION_DELIMITER: char = 'x';
+const SHAPE_HEADER_SUFFIX: char = ':';
+const TILE_CHAR: char = '#';
 
 struct Shape {
     tile_count: usize,
@@ -20,28 +23,39 @@ struct PuzzleInput {
     regions: Vec<Region>,
 }
 
+impl PuzzleInput {
+    fn count_fitting_regions(&self) -> usize {
+        self.regions
+            .iter()
+            .filter(|region| RegionValidator::can_fit(region, &self.shapes))
+            .count()
+    }
+}
+
 impl Shape {
     fn parse_from_lines(lines: &[&str], index: &mut usize) -> Option<Self> {
-        let mut grid = Vec::new();
-        *index += 1;
-
-        while *index < lines.len() {
-            let shape_line = lines[*index].trim();
-            if shape_line.is_empty() || shape_line.ends_with(':') || shape_line.contains('x') {
-                break;
-            }
-            grid.push(shape_line);
-            *index += 1;
-        }
+        let grid: Vec<&str> = lines
+            .iter()
+            .skip(*index + 1)
+            .map(|s| s.trim())
+            .take_while(|line| {
+                !line.is_empty()
+                    && !line.ends_with(SHAPE_HEADER_SUFFIX)
+                    && !line.contains(REGION_DELIMITER)
+            })
+            .collect();
 
         if grid.len() != SHAPE_HEIGHT || !grid.iter().all(|row| row.len() == SHAPE_WIDTH) {
+            *index += grid.len() + 1;
             return None;
         }
+
+        *index += grid.len() + 1;
 
         let tile_count = grid
             .iter()
             .flat_map(|row| row.chars())
-            .filter(|&ch| ch == '#')
+            .filter(|&ch| ch == TILE_CHAR)
             .count();
 
         Some(Shape { tile_count })
@@ -50,15 +64,11 @@ impl Shape {
 
 impl Region {
     fn parse_from_line(line: &str) -> Option<Self> {
-        if !line.contains('x') {
+        if !line.contains(REGION_DELIMITER) {
             return None;
         }
 
-        let numbers: Vec<usize> = line
-            .split(|c: char| !c.is_ascii_digit())
-            .filter_map(|s| s.parse().ok())
-            .collect();
-
+        let numbers = Self::extract_numbers(line);
         if numbers.len() < 2 {
             return None;
         }
@@ -68,6 +78,12 @@ impl Region {
             height: numbers[1],
             shape_quantities: numbers[2..].to_vec(),
         })
+    }
+
+    fn extract_numbers(line: &str) -> Vec<usize> {
+        line.split(|c: char| !c.is_ascii_digit())
+            .filter_map(|s| s.parse().ok())
+            .collect()
     }
 
     fn total_presents(&self) -> usize {
@@ -81,47 +97,52 @@ impl Region {
     fn max_presents_lower_bound(&self) -> usize {
         (self.width / SHAPE_WIDTH) * (self.height / SHAPE_HEIGHT)
     }
+
+    fn total_tile_count(&self, shapes: &[Shape]) -> usize {
+        shapes
+            .iter()
+            .zip(self.shape_quantities.iter())
+            .map(|(shape, &quantity)| shape.tile_count * quantity)
+            .sum()
+    }
 }
 
-struct PuzzleParser;
+struct ShapeParser;
 
-impl PuzzleParser {
-    fn parse(input: &str) -> PuzzleInput {
-        let lines: Vec<&str> = input.lines().collect();
-        let shapes = Self::parse_shapes(&lines);
-        let regions = Self::parse_regions(&lines);
-
-        PuzzleInput { shapes, regions }
-    }
-
-    fn parse_shapes(lines: &[&str]) -> Vec<Shape> {
+impl ShapeParser {
+    fn parse_all(lines: &[&str]) -> Vec<Shape> {
         let mut shapes = Vec::new();
-        let mut i = 0;
+        let mut index = 0;
 
-        while i < lines.len() {
-            let line = lines[i].trim();
+        while index < lines.len() {
+            let line = lines[index].trim();
+
             if line.is_empty() {
-                i += 1;
+                index += 1;
                 continue;
             }
 
-            if line.contains('x') {
+            if line.contains(REGION_DELIMITER) {
                 break;
             }
 
-            if line.ends_with(':') {
-                if let Some(shape) = Shape::parse_from_lines(lines, &mut i) {
+            if line.ends_with(SHAPE_HEADER_SUFFIX) {
+                if let Some(shape) = Shape::parse_from_lines(lines, &mut index) {
                     shapes.push(shape);
                 }
             } else {
-                i += 1;
+                index += 1;
             }
         }
 
         shapes
     }
+}
 
-    fn parse_regions(lines: &[&str]) -> Vec<Region> {
+struct RegionParser;
+
+impl RegionParser {
+    fn parse_all(lines: &[&str]) -> Vec<Region> {
         lines
             .iter()
             .filter_map(|line| Region::parse_from_line(line.trim()))
@@ -129,10 +150,26 @@ impl PuzzleParser {
     }
 }
 
+struct PuzzleParser;
+
+impl PuzzleParser {
+    fn parse(input: &str) -> PuzzleInput {
+        let lines: Vec<&str> = input.lines().collect();
+        let shapes = ShapeParser::parse_all(&lines);
+        let regions = RegionParser::parse_all(&lines);
+
+        PuzzleInput { shapes, regions }
+    }
+}
+
 struct RegionValidator;
 
 impl RegionValidator {
     fn can_fit(region: &Region, shapes: &[Shape]) -> bool {
+        Self::check_all_conditions(region, shapes)
+    }
+
+    fn check_all_conditions(region: &Region, shapes: &[Shape]) -> bool {
         if Self::fits_by_presents_bound(region) {
             return true;
         }
@@ -149,13 +186,7 @@ impl RegionValidator {
     }
 
     fn fits_by_tile_count(region: &Region, shapes: &[Shape]) -> bool {
-        let total_tiles: usize = shapes
-            .iter()
-            .zip(region.shape_quantities.iter())
-            .map(|(shape, &quantity)| shape.tile_count * quantity)
-            .sum();
-
-        total_tiles <= region.area()
+        region.total_tile_count(shapes) <= region.area()
     }
 
     fn fits_by_presents_tolerance(region: &Region) -> bool {
@@ -164,13 +195,7 @@ impl RegionValidator {
 }
 
 fn part1(input: &str) -> i32 {
-    let puzzle = PuzzleParser::parse(input);
-
-    puzzle
-        .regions
-        .iter()
-        .filter(|region| RegionValidator::can_fit(region, &puzzle.shapes))
-        .count() as i32
+    PuzzleParser::parse(input).count_fitting_regions() as i32
 }
 
 fn main() {
