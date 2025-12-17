@@ -124,9 +124,11 @@ impl AreaCalculator for DefaultAreaCalculator {
 
         for y in 0..mapper.height {
             for x in 0..mapper.width {
-                let cell_area = green[y][x]
-                    .then(|| self.cell_area(mapper, x, y))
-                    .unwrap_or(0);
+                let cell_area = if green[y][x] {
+                    self.cell_area(mapper, x, y)
+                } else {
+                    0
+                };
                 prefix_sums[y + 1][x + 1] =
                     prefix_sums[y][x + 1] + prefix_sums[y + 1][x] - prefix_sums[y][x] + cell_area;
             }
