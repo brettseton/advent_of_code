@@ -133,10 +133,10 @@ impl HikingTrail {
         return current_max;
     }
 
-    fn dfs(&self, start: &Step) -> usize {
+    fn dfs(&self, _start: &Step) -> usize {
         let graph = self.get_graph();
 
-        return graph.get_longest(start);
+        return graph.get_longest();
     }
 
     pub fn get_connected(&self, step: &Step) -> Vec<Option<Step>> {
@@ -304,10 +304,33 @@ impl HikingTrail {
             }
         }
 
+        let nodes: Vec<Point2D> = graph.keys().cloned().collect();
+        let mut node_to_idx = HashMap::new();
+        for (i, node) in nodes.iter().enumerate() {
+            node_to_idx.insert(*node, i);
+        }
+
+        let (sx, sy) = self.get_start();
+        let (ex, ey) = self.get_end();
+        let start_pos = Point2D { x: sx, y: sy };
+        let end_pos = Point2D { x: ex, y: ey };
+
+        let start_idx = *node_to_idx.get(&start_pos).expect("Start node missing");
+        let end_idx = *node_to_idx.get(&end_pos).expect("End node missing");
+
+        let mut adj = vec![Vec::new(); nodes.len()];
+        for (node, neighbors) in graph {
+            let u = node_to_idx[&node];
+            for n in neighbors {
+                let v = node_to_idx[&n.as_point2d()];
+                adj[u].push((v, n.z));
+            }
+        }
+
         return Graph {
-            graph,
-            width: self.width,
-            height: self.height,
+            adj,
+            start_idx,
+            end_idx,
         };
     }
 }
@@ -355,52 +378,38 @@ impl FromStr for HikingTrail {
 }
 
 struct Graph {
-    graph: HashMap<Point2D, Vec<Point3D>>,
-    width: usize,
-    height: usize,
+    adj: Vec<Vec<(usize, usize)>>,
+    start_idx: usize,
+    end_idx: usize,
 }
 
 impl Graph {
-    pub fn get_longest(&self, start: &Step) -> usize {
+    pub fn get_longest(&self) -> usize {
         let mut max_length = 0;
-        let mut visited = vec![vec![false; self.width]; self.height];
+        assert!(self.adj.len() <= 64, "Graph too large for u64 bitmask");
 
-        self.dfs_recursive(
-            &Point2D {
-                x: start.x,
-                y: start.y,
-            },
-            &mut visited,
-            &mut max_length,
-            0,
-        );
+        self.dfs_recursive(self.start_idx, 0, 0, &mut max_length);
 
         return max_length;
     }
 
-    fn dfs_recursive(
-        &self,
-        start: &Point2D,
-        visited: &mut Vec<Vec<bool>>,
-        max_length: &mut usize,
-        length: usize,
-    ) {
-        visited[start.y][start.x] = true;
-        *max_length = (*max_length).max(length);
+    fn dfs_recursive(&self, current: usize, visited: u64, length: usize, max_length: &mut usize) {
+        if current == self.end_idx {
+            *max_length = (*max_length).max(length);
+            return;
+        }
 
-        if let Some(neighbors) = self.graph.get(start) {
-            for neighbor in neighbors {
-                if !visited[neighbor.y][neighbor.x] {
-                    self.dfs_recursive(
-                        &neighbor.as_point2d(),
-                        visited,
-                        max_length,
-                        length + neighbor.z,
-                    );
-                }
+        let mask = 1 << current;
+        if visited & mask != 0 {
+            return;
+        }
+        let new_visited = visited | mask;
+
+        for &(next, dist) in &self.adj[current] {
+            if new_visited & (1 << next) == 0 {
+                self.dfs_recursive(next, new_visited, length + dist, max_length);
             }
         }
-        visited[start.y][start.x] = false; // Backtrack
     }
 }
 
