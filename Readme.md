@@ -188,11 +188,11 @@ cargo test
 | [Day 03: Lobby](https://adventofcode.com/2025/day/3) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day03/src/main.rs) |
 | [Day 04: Printing Department](https://adventofcode.com/2025/day/4) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day04/src/main.rs) |
 | [Day 05: Cafeteria](https://adventofcode.com/2025/day/5) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day05/src/main.rs) |
-| [Day 06: TBD](https://adventofcode.com/2025/day/6) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day06/src/main.rs) |
-| [Day 07: TBD](https://adventofcode.com/2025/day/7) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day07/src/main.rs) |
-| [Day 08: TBD](https://adventofcode.com/2025/day/8) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day08/src/main.rs) |
-| [Day 09: TBD](https://adventofcode.com/2025/day/9) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day09/src/main.rs) |
-| [Day 10: TBD](https://adventofcode.com/2025/day/10) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day10/src/main.rs) |
-| [Day 11: TBD](https://adventofcode.com/2025/day/11) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day11/src/main.rs) |
-| [Day 12: TBD](https://adventofcode.com/2025/day/12) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day12/src/main.rs) |
+| [Day 06: Trash Compactor](https://adventofcode.com/2025/day/6) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day06/src/main.rs) |
+| [Day 07: Laboratories](https://adventofcode.com/2025/day/7) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day07/src/main.rs) |
+| [Day 08: Playground](https://adventofcode.com/2025/day/8) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day08/src/main.rs) |
+| [Day 09: Movie Theater](https://adventofcode.com/2025/day/9) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day09/src/main.rs) |
+| [Day 10: Factory](https://adventofcode.com/2025/day/10) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day10/src/main.rs) |
+| [Day 11: Reactor](https://adventofcode.com/2025/day/11) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day11/src/main.rs) |
+| [Day 12: Christmas Tree Farm](https://adventofcode.com/2025/day/12) | [🦀](https://github.com/brettseton/advent_of_code/blob/master/2025/day12/src/main.rs) |
 
