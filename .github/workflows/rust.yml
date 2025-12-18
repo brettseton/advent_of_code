@@ -40,6 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
       - name: Build
-        run: cargo build --verbose --manifest-path ${{ matrix.value }}/Cargo.toml
+        run: cargo build --verbose --release --manifest-path ${{ matrix.value }}/Cargo.toml
       - name: Run tests
-        run: cargo test --verbose --manifest-path ${{ matrix.value }}/Cargo.toml
+        run: cargo test --verbose --release --manifest-path ${{ matrix.value }}/Cargo.toml

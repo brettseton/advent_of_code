@@ -27,6 +27,15 @@ impl Direction {
             Direction::Left => (-1, 0),
         }
     }
+
+    fn to_index(self) -> usize {
+        match self {
+            Direction::Up => 0,
+            Direction::Right => 1,
+            Direction::Down => 2,
+            Direction::Left => 3,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -48,7 +57,6 @@ impl Grid {
         let cols = cells[0].len();
         let rows = cells.len();
 
-        // Find starting position and direction
         let mut start_pos = Position { x: 0, y: 0 };
         let mut start_dir = Direction::Up;
 
@@ -88,20 +96,6 @@ impl Grid {
         }
         None
     }
-
-    fn clone_with_obstacle(&self, pos: Position) -> Self {
-        let mut new_cells = self.cells.clone();
-        new_cells[pos.y][pos.x] = '#';
-        Grid {
-            cells: new_cells,
-            rows: self.rows,
-            cols: self.cols,
-        }
-    }
-
-    fn is_empty(&self, pos: Position) -> bool {
-        self.cells[pos.y][pos.x] == '.'
-    }
 }
 
 fn simulate_guard_movement(
@@ -131,31 +125,48 @@ fn simulate_guard_movement(
     visited
 }
 
-fn detect_loop(grid: &Grid, start_pos: Position, start_dir: Direction) -> bool {
-    let mut visited = HashSet::new();
+fn check_loop(
+    grid: &Grid,
+    start_pos: Position,
+    start_dir: Direction,
+    obstacle_pos: Position,
+    visited_states: &mut [u8],
+) -> bool {
+    visited_states.fill(0);
+
     let mut current_pos = start_pos;
     let mut current_dir = start_dir;
-    let mut position_states = HashSet::new();
+    let cols = grid.cols;
+    let rows = grid.rows;
 
-    while let Some(next_pos) = grid.next_pos(current_pos, current_dir) {
-        let state = (current_pos, current_dir);
-        if position_states.contains(&state) {
+    loop {
+        let idx = current_pos.y * cols + current_pos.x;
+        let dir_mask = 1 << current_dir.to_index();
+
+        if visited_states[idx] & dir_mask != 0 {
             return true;
         }
-        position_states.insert(state);
+        visited_states[idx] |= dir_mask;
 
-        if grid.is_obstacle(next_pos) {
+        let (dx, dy) = current_dir.delta();
+        let nx = current_pos.x as i32 + dx;
+        let ny = current_pos.y as i32 + dy;
+
+        if nx < 0 || ny < 0 || nx >= cols as i32 || ny >= rows as i32 {
+            return false;
+        }
+
+        let next_pos = Position {
+            x: nx as usize,
+            y: ny as usize,
+        };
+
+        if next_pos == obstacle_pos || grid.cells[next_pos.y][next_pos.x] == '#' {
             current_dir = current_dir.turn_right();
         } else {
             current_pos = next_pos;
-            visited.insert(current_pos);
-        }
-
-        if visited.len() > grid.rows * grid.cols * 4 {
-            return false;
         }
     }
-    false
 }
 
 fn part1(input: &str) -> i32 {
@@ -168,14 +179,33 @@ fn part2(input: &str) -> i32 {
     let (grid, start_pos, start_dir) = Grid::new(input);
     let mut loop_positions = 0;
 
-    let visited = simulate_guard_movement(&grid, start_pos, start_dir);
+    let mut visited_buffer = vec![0u8; grid.rows * grid.cols];
 
-    for pos in visited {
-        if pos != start_pos && grid.is_empty(pos) {
-            let modified_grid = grid.clone_with_obstacle(pos);
-            if detect_loop(&modified_grid, start_pos, start_dir) {
+    let mut visited_main = vec![false; grid.rows * grid.cols];
+    visited_main[start_pos.y * grid.cols + start_pos.x] = true;
+
+    let mut current_pos = start_pos;
+    let mut current_dir = start_dir;
+
+    while let Some(next_pos) = grid.next_pos(current_pos, current_dir) {
+        if grid.is_obstacle(next_pos) {
+            current_dir = current_dir.turn_right();
+        } else {
+            let idx = next_pos.y * grid.cols + next_pos.x;
+            if !visited_main[idx]
+                && check_loop(
+                    &grid,
+                    current_pos,
+                    current_dir.turn_right(),
+                    next_pos,
+                    &mut visited_buffer,
+                )
+            {
                 loop_positions += 1;
             }
+
+            visited_main[idx] = true;
+            current_pos = next_pos;
         }
     }
 
