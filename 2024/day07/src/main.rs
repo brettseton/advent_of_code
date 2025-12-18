@@ -18,107 +18,62 @@ fn parse_line(line: &str) -> Expression {
     }
 }
 
-fn concatenate(a: i64, b: i64) -> i64 {
-    let b_str = b.to_string();
-    let result = format!("{}{}", a, b_str);
-    result.parse().unwrap()
-}
-
-fn evaluate(nums: &[i64], ops: &[char]) -> i64 {
-    let mut result = nums[0];
-    for i in 0..ops.len() {
-        match ops[i] {
-            '+' => result += nums[i + 1],
-            '*' => result *= nums[i + 1],
-            '|' => result = concatenate(result, nums[i + 1]),
-            _ => panic!("Invalid operator"),
-        }
-    }
-    result
-}
-
 fn can_make_target_part1(expr: &Expression) -> bool {
-    let num_ops = expr.numbers.len() - 1;
-    let total_combinations = 1 << num_ops; // 2^num_ops combinations
-
-    // Try all possible combinations of operators
-    for i in 0..total_combinations {
-        let mut ops = Vec::new();
-        for j in 0..num_ops {
-            // Use bit j of i to determine operator
-            if (i & (1 << j)) == 0 {
-                ops.push('+');
-            } else {
-                ops.push('*');
-            }
+    fn recurse(target: i64, nums: &[i64]) -> bool {
+        if nums.len() == 1 {
+            return nums[0] == target;
         }
-        if evaluate(&expr.numbers, &ops) == expr.target {
+
+        let last = nums[nums.len() - 1];
+        let remaining = &nums[..nums.len() - 1];
+
+        if target % last == 0 && recurse(target / last, remaining) {
             return true;
         }
+
+        if target > last && recurse(target - last, remaining) {
+            return true;
+        }
+
+        false
     }
-    false
+    recurse(expr.target, &expr.numbers)
 }
 
 fn can_make_target_part2(expr: &Expression) -> bool {
-    let num_ops = expr.numbers.len() - 1;
-    let total_combinations = 3_i32.pow(num_ops as u32); // 3^num_ops combinations for 3 operators
-
-    // Pre-calculate powers of 3 to avoid repeated division
-    let mut powers = vec![1; num_ops];
-    for i in 1..num_ops {
-        powers[i] = powers[i - 1] * 3;
-    }
-
-    // Try all possible combinations of operators
-    for i in 0..total_combinations {
-        let mut current_result = expr.numbers[0];
-
-        // Try operators one at a time and check if result exceeds target
-        let mut valid = true;
-        for (j, power) in powers.iter().enumerate().take(num_ops) {
-            let op = match (i / power) % 3 {
-                0 => '+',
-                1 => '*',
-                2 => '|',
-                _ => unreachable!(),
-            };
-
-            let next_num = expr.numbers[j + 1];
-
-            current_result = match op {
-                '+' => {
-                    let result = current_result + next_num;
-                    if result > expr.target {
-                        valid = false;
-                        break;
-                    }
-                    result
-                }
-                '*' => {
-                    let result = current_result * next_num;
-                    if result > expr.target {
-                        valid = false;
-                        break;
-                    }
-                    result
-                }
-                '|' => {
-                    let result = concatenate(current_result, next_num);
-                    if result > expr.target {
-                        valid = false;
-                        break;
-                    }
-                    result
-                }
-                _ => unreachable!(),
-            };
+    fn recurse(target: i64, nums: &[i64]) -> bool {
+        if nums.len() == 1 {
+            return nums[0] == target;
         }
 
-        if valid && current_result == expr.target {
+        let last = nums[nums.len() - 1];
+        let remaining = &nums[..nums.len() - 1];
+
+        if target % last == 0 && recurse(target / last, remaining) {
             return true;
         }
+
+        let mut divisor = 1i64;
+        let mut temp = last;
+        loop {
+            divisor *= 10;
+            temp /= 10;
+            if temp == 0 {
+                break;
+            }
+        }
+
+        if target > last && (target - last) % divisor == 0 && recurse(target / divisor, remaining) {
+            return true;
+        }
+
+        if target > last && recurse(target - last, remaining) {
+            return true;
+        }
+
+        false
     }
-    false
+    recurse(expr.target, &expr.numbers)
 }
 
 fn part1(input: &str) -> i64 {
