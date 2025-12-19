@@ -4,6 +4,7 @@ use std::fs;
 
 type Grid = Vec<Vec<char>>;
 type Position = (i32, i32);
+type StateKey = (Position, Direction);
 type ParseResult = (Grid, Position, Position);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Ord, PartialOrd)]
@@ -57,26 +58,6 @@ impl Ord for State {
 }
 
 impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Eq, PartialEq)]
-struct QueueItem {
-    cost: i32,
-    position: (i32, i32),
-    direction: Direction,
-    path: HashSet<(i32, i32)>,
-}
-
-impl Ord for QueueItem {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.cost.cmp(&self.cost)
-    }
-}
-
-impl PartialOrd for QueueItem {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -188,72 +169,93 @@ fn find_optimal_path_tiles(
 ) -> HashSet<(i32, i32)> {
     let mut heap = BinaryHeap::new();
     let mut costs = HashMap::new();
-    let mut optimal_tiles = HashSet::new();
-    let mut min_cost = i32::MAX;
+    let mut predecessors: HashMap<StateKey, Vec<StateKey>> = HashMap::new();
 
-    // Pre-calculate grid dimensions to avoid repeated conversions
-    let height = grid.len() as i32;
-    let width = grid[0].len() as i32;
-
-    // First pass: Find the minimum cost
-    heap.push(QueueItem {
+    // Start facing East
+    let start_state: StateKey = (start, Direction::East);
+    costs.insert(start_state, 0);
+    heap.push(State {
         cost: 0,
         position: start,
         direction: Direction::East,
-        path: HashSet::from([start]),
     });
 
-    // Use a capacity hint for HashMaps based on grid size
-    costs.reserve(height as usize * width as usize * 4);
-    optimal_tiles.reserve(height as usize * width as usize);
+    let mut min_end_cost = i32::MAX;
 
-    while let Some(QueueItem {
+    while let Some(State {
         cost,
         position,
         direction,
-        path,
     }) = heap.pop()
     {
-        if cost > min_cost {
-            break;
-        }
-
-        if position == end && cost <= min_cost {
-            min_cost = min_cost.min(cost);
-
-            optimal_tiles.extend(path);
+        if cost > *costs.get(&(position, direction)).unwrap_or(&i32::MAX) {
             continue;
         }
 
-        let state_key = (position, direction);
-        let existing_cost = costs.get(&state_key);
-        if existing_cost.is_some_and(|&c| cost > c) {
+        if position == end {
+            min_end_cost = min_end_cost.min(cost);
             continue;
         }
-        costs.insert(state_key, cost);
 
-        // Try moving forward first (most common case)
-        let next_pos = direction.move_in_direction(position);
-        if is_valid_position(next_pos, grid) {
-            let mut new_path = path.clone();
-            new_path.insert(next_pos);
-            heap.push(QueueItem {
-                cost: cost + 1,
-                position: next_pos,
-                direction,
-                path: new_path,
-            });
+        // Neighbors: move forward, turn left, turn right
+        let next_moves = [
+            (cost + 1, direction.move_in_direction(position), direction),
+            (cost + 1000, position, direction.turn_left()),
+            (cost + 1000, position, direction.turn_right()),
+        ];
+
+        for (next_cost, next_pos, next_dir) in next_moves {
+            if !is_valid_position(next_pos, grid) {
+                continue;
+            }
+
+            let next_state = (next_pos, next_dir);
+            let current_best = *costs.get(&next_state).unwrap_or(&i32::MAX);
+
+            if next_cost < current_best {
+                costs.insert(next_state, next_cost);
+                predecessors.insert(next_state, vec![(position, direction)]);
+                heap.push(State {
+                    cost: next_cost,
+                    position: next_pos,
+                    direction: next_dir,
+                });
+            } else if next_cost == current_best {
+                predecessors
+                    .entry(next_state)
+                    .or_default()
+                    .push((position, direction));
+            }
         }
+    }
 
-        for new_dir in [direction.turn_left(), direction.turn_right()] {
-            let mut new_path = path.clone();
-            new_path.insert(position);
-            heap.push(QueueItem {
-                cost: cost + 1000,
-                position,
-                direction: new_dir,
-                path: new_path,
-            });
+    // Backtrack to find all tiles on any optimal path
+    let mut optimal_tiles = HashSet::new();
+    let mut queue = Vec::new();
+    let mut visited_states = HashSet::new();
+
+    for &dir in &[
+        Direction::North,
+        Direction::South,
+        Direction::East,
+        Direction::West,
+    ] {
+        if let Some(&cost) = costs.get(&(end, dir)) {
+            if cost == min_end_cost {
+                queue.push((end, dir));
+                visited_states.insert((end, dir));
+            }
+        }
+    }
+
+    while let Some(state) = queue.pop() {
+        optimal_tiles.insert(state.0);
+        if let Some(preds) = predecessors.get(&state) {
+            for &pred in preds {
+                if visited_states.insert(pred) {
+                    queue.push(pred);
+                }
+            }
         }
     }
 
