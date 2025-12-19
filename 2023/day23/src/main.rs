@@ -36,15 +36,7 @@ fn part1(file_path: &str) -> usize {
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let hiking_trail = HikingTrail::new(&input);
-    let (start_x, start_y) = hiking_trail.get_start();
-    let start_step = Step {
-        count: 0,
-        x: start_x,
-        y: start_y,
-        history: HashSet::new(),
-    };
-
-    return hiking_trail.dfs(&start_step);
+    return hiking_trail.dfs();
 }
 
 #[derive(PartialEq, Eq, Clone)]
@@ -133,7 +125,7 @@ impl HikingTrail {
         return current_max;
     }
 
-    fn dfs(&self, _start: &Step) -> usize {
+    fn dfs(&self) -> usize {
         let graph = self.get_graph();
 
         return graph.get_longest();
@@ -198,38 +190,6 @@ impl HikingTrail {
         });
     }
 
-    pub fn get_connected_snow_boots(&self, step: &Step) -> Vec<Option<Step>> {
-        return vec![
-            self.get_next_snow_boots(step, Direction::North),
-            self.get_next_snow_boots(step, Direction::South),
-            self.get_next_snow_boots(step, Direction::East),
-            self.get_next_snow_boots(step, Direction::West),
-        ];
-    }
-
-    pub fn get_next_snow_boots(&self, previous: &Step, traveling: Direction) -> Option<Step> {
-        let (dx, dy) = traveling.get_delta();
-
-        let new_x = previous.x.checked_add_signed(dx)?;
-        let new_y = previous.y.checked_add_signed(dy)?;
-
-        if new_x >= self.width || new_y >= self.height || self.grid[new_y][new_x] == '#' {
-            return None;
-        }
-
-        if previous.history.contains(&(new_x, new_y)) {
-            return None;
-        }
-        let mut history = previous.history.clone();
-        history.insert((new_x, new_y));
-        return Some(Step {
-            x: new_x,
-            y: new_y,
-            count: previous.count + 1,
-            history,
-        });
-    }
-
     pub fn get_start(&self) -> (usize, usize) {
         for x in 0..self.width {
             if self.grid[0][x] == '.' {
@@ -249,86 +209,91 @@ impl HikingTrail {
     }
 
     pub fn get_graph(&self) -> Graph {
-        let mut graph: HashMap<Point2D, Vec<Point3D>> = HashMap::new();
-
-        for y in 0..self.height {
-            for x in 0..self.width {
-                if self.grid[y][x] != '#' {
-                    let e = graph.entry(Point2D { x, y }).or_default();
-                    let current = Step {
-                        x,
-                        y,
-                        count: 0,
-                        history: HashSet::new(),
-                    };
-                    for n in self.get_connected_snow_boots(&current).iter().flatten() {
-                        e.push(Point3D {
-                            x: n.x,
-                            y: n.y,
-                            z: 1,
-                        });
-                    }
-                }
-            }
-        }
-
-        // remove all corridors
-        let corridors = graph
-            .iter()
-            .filter(|(_k, v)| v.len() == 2)
-            .map(|(&k, _)| k)
-            .collect::<Vec<_>>();
-
-        for point in corridors {
-            let neighbors = graph.remove(&point).unwrap();
-            let n0 = &neighbors[0];
-            let n1 = &neighbors[1];
-
-            let node1 = graph.get_mut(&n0.as_point2d()).unwrap();
-
-            if let Some(i) = node1.iter().position(|p| (p.x, p.y) == (point.x, point.y)) {
-                node1[i] = Point3D {
-                    x: n1.x,
-                    y: n1.y,
-                    z: n0.z + n1.z,
-                };
-            }
-
-            let node2 = graph.get_mut(&n1.as_point2d()).unwrap();
-            if let Some(i) = node2.iter().position(|p| (p.x, p.y) == (point.x, point.y)) {
-                node2[i] = Point3D {
-                    x: n0.x,
-                    y: n0.y,
-                    z: n0.z + n1.z,
-                };
-            }
-        }
-
-        let nodes: Vec<Point2D> = graph.keys().cloned().collect();
-        let mut node_to_idx = HashMap::new();
-        for (i, node) in nodes.iter().enumerate() {
-            node_to_idx.insert(*node, i);
-        }
-
         let (sx, sy) = self.get_start();
         let (ex, ey) = self.get_end();
         let start_pos = Point2D { x: sx, y: sy };
         let end_pos = Point2D { x: ex, y: ey };
 
-        let start_idx = *node_to_idx.get(&start_pos).expect("Start node missing");
-        let end_idx = *node_to_idx.get(&end_pos).expect("End node missing");
+        let mut junctions = vec![start_pos, end_pos];
+        for y in 0..self.height {
+            for x in 0..self.width {
+                if self.grid[y][x] == '#' {
+                    continue;
+                }
+                let p = Point2D { x, y };
+                if p == start_pos || p == end_pos {
+                    continue;
+                }
 
-        let mut adj = vec![Vec::new(); nodes.len()];
-        for (node, neighbors) in graph {
-            let u = node_to_idx[&node];
-            for n in neighbors {
-                let v = node_to_idx[&n.as_point2d()];
-                adj[u].push((v, n.z));
+                let mut neighbors = 0;
+                for (dx, dy) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                    let nx = x as isize + dx;
+                    let ny = y as isize + dy;
+                    if nx >= 0
+                        && nx < self.width as isize
+                        && ny >= 0
+                        && ny < self.height as isize
+                        && self.grid[ny as usize][nx as usize] != '#'
+                    {
+                        neighbors += 1;
+                    }
+                }
+                if neighbors > 2 {
+                    junctions.push(p);
+                }
             }
         }
 
+        let node_to_idx: HashMap<Point2D, usize> =
+            junctions.iter().enumerate().map(|(i, &p)| (p, i)).collect();
+
+        let mut adj = vec![Vec::new(); junctions.len()];
+        let mut adj_masks = vec![0u128; junctions.len()];
+
+        for (i, &start_p) in junctions.iter().enumerate() {
+            let mut stack = vec![(start_p, 0)];
+            let mut visited = HashSet::new();
+            visited.insert(start_p);
+
+            while let Some((curr_p, dist)) = stack.pop() {
+                if dist > 0 && node_to_idx.contains_key(&curr_p) {
+                    let j_idx = node_to_idx[&curr_p];
+                    adj[i].push((j_idx, dist));
+                    adj_masks[i] |= 1u128 << j_idx;
+                    continue;
+                }
+
+                for (dx, dy) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                    let nx = curr_p.x as isize + dx;
+                    let ny = curr_p.y as isize + dy;
+                    if nx >= 0 && nx < self.width as isize && ny >= 0 && ny < self.height as isize {
+                        let np = Point2D {
+                            x: nx as usize,
+                            y: ny as usize,
+                        };
+                        if self.grid[np.y][np.x] != '#' && !visited.contains(&np) {
+                            visited.insert(np);
+                            stack.push((np, dist + 1));
+                        }
+                    }
+                }
+            }
+            // Sort neighbors by weight descending to find longer paths sooner
+            adj[i].sort_by(|a, b| b.1.cmp(&a.1));
+        }
+
+        let max_edge_weights = adj
+            .iter()
+            .map(|neighbors| neighbors.iter().map(|&(_, w)| w).max().unwrap_or(0))
+            .collect();
+
+        let start_idx = node_to_idx[&start_pos];
+        let end_idx = node_to_idx[&end_pos];
+
         return Graph {
             adj,
+            adj_masks,
+            max_edge_weights,
             start_idx,
             end_idx,
         };
@@ -339,21 +304,6 @@ impl HikingTrail {
 struct Point2D {
     x: usize,
     y: usize,
-}
-
-struct Point3D {
-    x: usize,
-    y: usize,
-    z: usize,
-}
-
-impl Point3D {
-    pub fn as_point2d(&self) -> Point2D {
-        return Point2D {
-            x: self.x,
-            y: self.y,
-        };
-    }
 }
 
 #[derive(Debug)]
@@ -379,6 +329,8 @@ impl FromStr for HikingTrail {
 
 struct Graph {
     adj: Vec<Vec<(usize, usize)>>,
+    adj_masks: Vec<u128>,
+    max_edge_weights: Vec<usize>,
     start_idx: usize,
     end_idx: usize,
 }
@@ -386,28 +338,96 @@ struct Graph {
 impl Graph {
     pub fn get_longest(&self) -> usize {
         let mut max_length = 0;
-        assert!(self.adj.len() <= 64, "Graph too large for u64 bitmask");
+        assert!(self.adj.len() <= 128, "Graph too large for u128 bitmask");
 
-        self.dfs_recursive(self.start_idx, 0, 0, &mut max_length);
+        // Precompute total potential to avoid redundant calculations
+        let total_potential: usize = self.max_edge_weights.iter().sum();
+
+        self.dfs_recursive(self.start_idx, 0, 0, total_potential, &mut max_length);
 
         return max_length;
     }
 
-    fn dfs_recursive(&self, current: usize, visited: u64, length: usize, max_length: &mut usize) {
+    fn get_reachable_potential(&self, current: usize, visited: u128) -> (bool, usize) {
+        let target = 1u128 << self.end_idx;
+        let mut seen = visited | (1u128 << current);
+        let mut queue = self.adj_masks[current] & !seen;
+
+        let mut potential = self.max_edge_weights[current];
+        let mut reached_target = (self.adj_masks[current] & !visited) & target != 0;
+
+        seen |= queue;
+        let mut all_reachable = queue;
+        while queue != 0 {
+            let u = queue.trailing_zeros() as usize;
+            queue &= !(1u128 << u);
+
+            let neighbors = self.adj_masks[u] & !seen;
+            if neighbors & target != 0 {
+                reached_target = true;
+            }
+            queue |= neighbors;
+            seen |= neighbors;
+            all_reachable |= neighbors;
+        }
+
+        // Sum weights of all nodes in the reachable component
+        let mut temp = all_reachable;
+        while temp != 0 {
+            let u = temp.trailing_zeros() as usize;
+            temp &= !(1u128 << u);
+            potential += self.max_edge_weights[u];
+        }
+
+        (reached_target, potential)
+    }
+
+    fn dfs_recursive(
+        &self,
+        current: usize,
+        visited: u128,
+        length: usize,
+        remaining_potential: usize,
+        max_length: &mut usize,
+    ) {
         if current == self.end_idx {
             *max_length = (*max_length).max(length);
             return;
         }
 
-        let mask = 1 << current;
-        if visited & mask != 0 {
+        // Pruning: if current length + theoretical max remaining < current max, stop
+        if length + remaining_potential <= *max_length {
             return;
         }
+
+        let mut available_neighbors: u128 = 0;
+        let mut num_neighbors = 0;
+        for &(next, _) in &self.adj[current] {
+            if (visited & (1u128 << next)) == 0 {
+                available_neighbors |= 1u128 << next;
+                num_neighbors += 1;
+            }
+        }
+
+        if num_neighbors == 0 {
+            return;
+        }
+
+        // Reachability and potential pruning - only if we have choices or to check dead ends
+        if num_neighbors > 1 {
+            let (reachable, potential) = self.get_reachable_potential(current, visited);
+            if !reachable || length + potential <= *max_length {
+                return;
+            }
+        }
+
+        let mask = 1u128 << current;
         let new_visited = visited | mask;
+        let next_potential = remaining_potential - self.max_edge_weights[current];
 
         for &(next, dist) in &self.adj[current] {
-            if new_visited & (1 << next) == 0 {
-                self.dfs_recursive(next, new_visited, length + dist, max_length);
+            if (available_neighbors & (1u128 << next)) != 0 {
+                self.dfs_recursive(next, new_visited, length + dist, next_potential, max_length);
             }
         }
     }
