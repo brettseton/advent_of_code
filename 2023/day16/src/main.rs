@@ -30,6 +30,7 @@ fn part2(file_path: &str) -> usize {
     return contraption.get_max_energized();
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Direction {
     North,
     East,
@@ -38,12 +39,12 @@ enum Direction {
 }
 
 impl Direction {
-    pub fn to_usize(&self) -> usize {
+    pub fn to_bit(&self) -> u8 {
         match self {
-            Self::North => 0,
-            Self::East => 1,
-            Self::South => 2,
-            Self::West => 3,
+            Self::North => 1,
+            Self::East => 2,
+            Self::South => 4,
+            Self::West => 8,
         }
     }
 }
@@ -54,6 +55,7 @@ struct Contraption {
     height: usize,
 }
 
+#[derive(Clone, Copy)]
 struct Beam {
     x: usize,
     y: usize,
@@ -66,161 +68,122 @@ impl Contraption {
     }
 
     fn get_max_energized(&self) -> usize {
-        let max_down = (0..self.width)
-            .map(|x| {
-                self.get_num_energized(Beam {
-                    x,
-                    y: 0,
-                    traveling: Direction::South,
-                })
-            })
-            .max()
-            .unwrap();
-        let max_up = (0..self.width)
-            .map(|x| {
-                self.get_num_energized(Beam {
-                    x,
-                    y: self.height - 1,
-                    traveling: Direction::North,
-                })
-            })
-            .max()
-            .unwrap();
-        let max_right = (0..self.height)
-            .map(|y| {
-                self.get_num_energized(Beam {
-                    x: 0,
-                    y: y,
-                    traveling: Direction::East,
-                })
-            })
-            .max()
-            .unwrap();
-        let max_left = (0..self.height)
-            .map(|y| {
-                self.get_num_energized(Beam {
-                    x: self.width - 1,
-                    y: y,
-                    traveling: Direction::West,
-                })
-            })
-            .max()
-            .unwrap();
+        let mut starts = Vec::with_capacity(2 * (self.width + self.height));
 
-        let max = *[max_down, max_up, max_right, max_left]
-            .iter()
+        for x in 0..self.width {
+            starts.push(Beam {
+                x,
+                y: 0,
+                traveling: Direction::South,
+            });
+            starts.push(Beam {
+                x,
+                y: self.height - 1,
+                traveling: Direction::North,
+            });
+        }
+        for y in 0..self.height {
+            starts.push(Beam {
+                x: 0,
+                y,
+                traveling: Direction::East,
+            });
+            starts.push(Beam {
+                x: self.width - 1,
+                y,
+                traveling: Direction::West,
+            });
+        }
+
+        starts
+            .into_iter()
+            .map(|beam| self.get_num_energized(beam))
             .max()
-            .unwrap();
-        return max;
+            .unwrap_or(0)
     }
 
     fn get_num_energized(&self, start_beam: Beam) -> usize {
         let mut queue = vec![start_beam];
-        let mut visited_map: Vec<Vec<Vec<bool>>> =
-            vec![vec![vec![false; 4]; self.width]; self.height];
+        let mut visited = vec![0u8; self.width * self.height];
 
         while let Some(beam) = queue.pop() {
-            if visited_map[beam.y][beam.x][beam.traveling.to_usize()] {
+            let idx = beam.y * self.width + beam.x;
+            let bit = beam.traveling.to_bit();
+
+            if visited[idx] & bit != 0 {
                 continue;
-            } else {
-                visited_map[beam.y][beam.x][beam.traveling.to_usize()] = true;
             }
+            visited[idx] |= bit;
 
-            let beams = self.get_connected_beams(&beam);
-
-            for beam in beams.into_iter().flatten() {
-                queue.push(beam)
-            }
+            self.push_next_beams(&beam, &mut queue);
         }
 
-        let energized: usize = visited_map
-            .iter()
-            .map(|x| x.iter().filter(|y| y.iter().any(|&v| v)).count())
-            .sum();
-        return energized;
+        visited.iter().filter(|&&v| v != 0).count()
     }
 
-    pub fn get_connected_beams(&self, beam: &Beam) -> Vec<Option<Beam>> {
-        match self.grid[beam.y][beam.x] {
-            '.' => {
-                return match beam.traveling {
-                    Direction::North => {
-                        vec![self.get_beam(beam.x, 0, beam.y, -1, Direction::North)]
-                    }
-                    Direction::South => vec![self.get_beam(beam.x, 0, beam.y, 1, Direction::South)],
-                    Direction::East => vec![self.get_beam(beam.x, 1, beam.y, 0, Direction::East)],
-                    Direction::West => vec![self.get_beam(beam.x, -1, beam.y, 0, Direction::West)],
-                };
-            }
-            '\\' => {
-                return match beam.traveling {
-                    Direction::North => vec![self.get_beam(beam.x, -1, beam.y, 0, Direction::West)],
-                    Direction::South => vec![self.get_beam(beam.x, 1, beam.y, 0, Direction::East)],
-                    Direction::East => vec![self.get_beam(beam.x, 0, beam.y, 1, Direction::South)],
-                    Direction::West => vec![self.get_beam(beam.x, 0, beam.y, -1, Direction::North)],
-                };
-            }
-            '/' => {
-                return match beam.traveling {
-                    Direction::North => vec![self.get_beam(beam.x, 1, beam.y, 0, Direction::East)],
-                    Direction::South => vec![self.get_beam(beam.x, -1, beam.y, 0, Direction::West)],
-                    Direction::East => vec![self.get_beam(beam.x, 0, beam.y, -1, Direction::North)],
-                    Direction::West => vec![self.get_beam(beam.x, 0, beam.y, 1, Direction::South)],
-                };
-            }
-            '|' => {
-                return match beam.traveling {
-                    Direction::North => {
-                        vec![self.get_beam(beam.x, 0, beam.y, -1, Direction::North)]
-                    }
-                    Direction::South => vec![self.get_beam(beam.x, 0, beam.y, 1, Direction::South)],
-                    Direction::East => vec![
-                        self.get_beam(beam.x, 0, beam.y, -1, Direction::North),
-                        self.get_beam(beam.x, 0, beam.y, 1, Direction::South),
-                    ],
-                    Direction::West => vec![
-                        self.get_beam(beam.x, 0, beam.y, -1, Direction::North),
-                        self.get_beam(beam.x, 0, beam.y, 1, Direction::South),
-                    ],
-                };
-            }
-            '-' => {
-                return match beam.traveling {
-                    Direction::North => vec![
-                        self.get_beam(beam.x, 1, beam.y, 0, Direction::East),
-                        self.get_beam(beam.x, -1, beam.y, 0, Direction::West),
-                    ],
-                    Direction::South => vec![
-                        self.get_beam(beam.x, 1, beam.y, 0, Direction::East),
-                        self.get_beam(beam.x, -1, beam.y, 0, Direction::West),
-                    ],
-                    Direction::East => vec![self.get_beam(beam.x, 1, beam.y, 0, Direction::East)],
-                    Direction::West => vec![self.get_beam(beam.x, -1, beam.y, 0, Direction::West)],
-                };
-            }
+    fn push_next_beams(&self, beam: &Beam, queue: &mut Vec<Beam>) {
+        let x = beam.x;
+        let y = beam.y;
+
+        match self.grid[y][x] {
+            '.' => match beam.traveling {
+                Direction::North => self.push_beam(x, 0, y, -1, Direction::North, queue),
+                Direction::South => self.push_beam(x, 0, y, 1, Direction::South, queue),
+                Direction::East => self.push_beam(x, 1, y, 0, Direction::East, queue),
+                Direction::West => self.push_beam(x, -1, y, 0, Direction::West, queue),
+            },
+            '\\' => match beam.traveling {
+                Direction::North => self.push_beam(x, -1, y, 0, Direction::West, queue),
+                Direction::South => self.push_beam(x, 1, y, 0, Direction::East, queue),
+                Direction::East => self.push_beam(x, 0, y, 1, Direction::South, queue),
+                Direction::West => self.push_beam(x, 0, y, -1, Direction::North, queue),
+            },
+            '/' => match beam.traveling {
+                Direction::North => self.push_beam(x, 1, y, 0, Direction::East, queue),
+                Direction::South => self.push_beam(x, -1, y, 0, Direction::West, queue),
+                Direction::East => self.push_beam(x, 0, y, -1, Direction::North, queue),
+                Direction::West => self.push_beam(x, 0, y, 1, Direction::South, queue),
+            },
+            '|' => match beam.traveling {
+                Direction::North => self.push_beam(x, 0, y, -1, Direction::North, queue),
+                Direction::South => self.push_beam(x, 0, y, 1, Direction::South, queue),
+                Direction::East | Direction::West => {
+                    self.push_beam(x, 0, y, -1, Direction::North, queue);
+                    self.push_beam(x, 0, y, 1, Direction::South, queue);
+                }
+            },
+            '-' => match beam.traveling {
+                Direction::East => self.push_beam(x, 1, y, 0, Direction::East, queue),
+                Direction::West => self.push_beam(x, -1, y, 0, Direction::West, queue),
+                Direction::North | Direction::South => {
+                    self.push_beam(x, 1, y, 0, Direction::East, queue);
+                    self.push_beam(x, -1, y, 0, Direction::West, queue);
+                }
+            },
             _ => panic!("unexpected character"),
         }
     }
 
-    pub fn get_beam(
+    fn push_beam(
         &self,
         x: usize,
         dx: isize,
         y: usize,
         dy: isize,
         traveling: Direction,
-    ) -> Option<Beam> {
-        let new_x = x.checked_add_signed(dx);
-        let new_y = y.checked_add_signed(dy);
-        if new_x.is_some_and(|x| x < self.width) && new_y.is_some_and(|y| y < self.height) {
-            return Some(Beam {
-                x: new_x.unwrap(),
-                y: new_y.unwrap(),
-                traveling,
-            });
+        queue: &mut Vec<Beam>,
+    ) {
+        if let Some(new_x) = x.checked_add_signed(dx) {
+            if let Some(new_y) = y.checked_add_signed(dy) {
+                if new_x < self.width && new_y < self.height {
+                    queue.push(Beam {
+                        x: new_x,
+                        y: new_y,
+                        traveling,
+                    });
+                }
+            }
         }
-
-        return None;
     }
 }
 
