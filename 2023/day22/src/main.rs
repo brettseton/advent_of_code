@@ -148,8 +148,8 @@ impl BrickStack {
         }
 
         let mut can_disintegrate_count = 0;
-        for i in 0..bricks.len() {
-            if supports[i]
+        for support in supports.iter().take(bricks.len()) {
+            if support
                 .iter()
                 .all(|&supported_idx| supported_by[supported_idx].len() > 1)
             {

@@ -39,7 +39,7 @@ enum Direction {
 }
 
 impl Direction {
-    pub fn to_bit(&self) -> u8 {
+    pub fn to_bit(self) -> u8 {
         match self {
             Self::North => 1,
             Self::East => 2,

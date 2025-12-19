@@ -55,7 +55,6 @@ enum ModuleType {
 #[derive(Clone)]
 struct Module {
     id: ModuleId,
-    label: String,
     module_type: ModuleType,
     destinations: Vec<ModuleId>,
 }
@@ -246,7 +245,7 @@ impl FromStr for Machine {
         }
 
         let mut modules_map: HashMap<ModuleId, Module> = HashMap::new();
-        for (id, label, prefix, dest_str) in raw_lines {
+        for (id, _, prefix, dest_str) in raw_lines {
             let mut destinations = Vec::new();
             for d in dest_str.split(", ") {
                 let next_id = ModuleId(label_to_id.len());
@@ -266,7 +265,6 @@ impl FromStr for Machine {
                 id,
                 Module {
                     id,
-                    label,
                     module_type,
                     destinations,
                 },
@@ -279,14 +277,8 @@ impl FromStr for Machine {
             if let Some(m) = modules_map.remove(&id) {
                 modules.push(m);
             } else {
-                let label = label_to_id
-                    .iter()
-                    .find(|&(_, &v)| v == id)
-                    .map(|(k, _)| k.clone())
-                    .unwrap();
                 modules.push(Module {
                     id,
-                    label,
                     module_type: ModuleType::Sink,
                     destinations: vec![],
                 });
