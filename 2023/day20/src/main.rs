@@ -21,139 +21,198 @@ fn main() {
 fn part1(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let mut machine = Machine::new(&input);
-    return machine.get_output();
+    machine.get_output()
 }
 
 fn part2(file_path: &str) -> usize {
     let input = fs::read_to_string(file_path).expect("file input");
     let mut machine = Machine::new(&input);
-    return machine.get_output_lcm();
+    machine.get_output_lcm()
 }
 
-#[allow(dead_code)]
-trait IModule {
-    fn send_messages(&self);
-    fn receive_message(&mut self, signal: Signal) -> Vec<Signal>;
-    fn get_destinations(&self) -> Vec<String>;
-    fn get_label(&self) -> String;
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+struct ModuleId(usize);
+
+#[derive(Clone, Debug)]
+struct Signal {
+    to: ModuleId,
+    from: ModuleId,
+    state: bool,
+}
+
+#[derive(Clone)]
+enum ModuleType {
+    Broadcaster,
+    FlipFlop {
+        state: bool,
+    },
+    Conjunction {
+        remembered_pulses: HashMap<ModuleId, bool>,
+    },
+    Sink,
+}
+
+#[derive(Clone)]
+struct Module {
+    id: ModuleId,
+    label: String,
+    module_type: ModuleType,
+    destinations: Vec<ModuleId>,
 }
 
 struct Machine {
-    modules: Vec<IModuleType>,
+    modules: Vec<Module>,
+    label_to_id: HashMap<String, ModuleId>,
+    broadcaster_id: ModuleId,
 }
 
 impl Machine {
     pub fn new(str: &str) -> Machine {
-        return Machine::from_str(str).expect("");
+        Machine::from_str(str).expect("Failed to parse machine")
     }
 
     pub fn get_output(&mut self) -> usize {
-        let mut broadcaster = self
-            .modules
-            .iter()
-            .filter(|x| x.get_label() == "broadcaster")
-            .nth(0)
-            .expect("broadcaster is required")
-            .clone();
         let mut high = 0;
         let mut low = 0;
-        for _i in 1..=1000 {
-            let mut queue: VecDeque<Signal> = broadcaster
-                .receive_message(Signal {
-                    to: "broadcaster".to_string(),
-                    from: "main".to_string(),
-                    state: false,
-                })
-                .into();
+        let mut queue: VecDeque<Signal> = VecDeque::with_capacity(1024);
+        let button_id = ModuleId(usize::MAX);
+
+        for _ in 0..1000 {
             low += 1;
-            while let Some(s) = queue.pop_front() {
-                if s.state {
-                    high += 1;
-                } else {
-                    low += 1;
+            queue.push_back(Signal {
+                to: self.broadcaster_id,
+                from: button_id,
+                state: false,
+            });
+
+            while let Some(signal) = queue.pop_front() {
+                if signal.to.0 >= self.modules.len() {
+                    continue;
                 }
 
-                let module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
-                    Some(m) => m,
-                    None => {
-                        continue;
+                let module = &mut self.modules[signal.to.0];
+                let next_state = match &mut module.module_type {
+                    ModuleType::Broadcaster => Some(signal.state),
+                    ModuleType::FlipFlop { state } => {
+                        if signal.state {
+                            None
+                        } else {
+                            *state = !*state;
+                            Some(*state)
+                        }
                     }
+                    ModuleType::Conjunction { remembered_pulses } => {
+                        remembered_pulses.insert(signal.from, signal.state);
+                        Some(!remembered_pulses.values().all(|&v| v))
+                    }
+                    ModuleType::Sink => None,
                 };
 
-                let signals = module.receive_message(s);
-                for signal in signals.iter() {
-                    queue.push_back(signal.clone());
+                if let Some(state) = next_state {
+                    for &dest in &module.destinations {
+                        if state {
+                            high += 1;
+                        } else {
+                            low += 1;
+                        }
+                        queue.push_back(Signal {
+                            to: dest,
+                            from: module.id,
+                            state,
+                        });
+                    }
                 }
             }
         }
 
-        return high * low;
+        high * low
     }
 
     pub fn get_output_lcm(&mut self) -> usize {
-        let mut broadcaster = self
-            .modules
-            .iter()
-            .filter(|x| x.get_label() == "broadcaster")
-            .nth(0)
-            .expect("broadcaster is required")
-            .clone();
+        let rx_id = match self.label_to_id.get("rx") {
+            Some(&id) => id,
+            None => return 0,
+        };
 
-        let Some(rx_parent) = self
+        let rx_parent_idx = self
             .modules
             .iter()
-            .filter(|x| x.get_destinations().iter().any(|x| x == "rx"))
-            .nth(0)
-        else {
+            .position(|m| m.destinations.contains(&rx_id));
+        let rx_parent_id = match rx_parent_idx {
+            Some(idx) => ModuleId(idx),
+            None => return 0,
+        };
+
+        let mut visited: HashMap<ModuleId, usize> = HashMap::new();
+        if let ModuleType::Conjunction { remembered_pulses } =
+            &self.modules[rx_parent_id.0].module_type
+        {
+            for &input_id in remembered_pulses.keys() {
+                visited.insert(input_id, 0);
+            }
+        } else {
             return 0;
-        };
+        }
 
-        let Some(rx_conjunction) = rx_parent.as_conjunction() else {
-            panic!("")
-        };
-        let mut visited: HashMap<String, usize> = rx_conjunction
-            .remembered_pulses
-            .keys()
-            .map(|k| (k.clone(), 0))
-            .collect();
+        let mut queue: VecDeque<Signal> = VecDeque::with_capacity(1024);
+        let button_id = ModuleId(usize::MAX);
+
         for i in 1..=usize::MAX {
-            let mut queue: VecDeque<Signal> = broadcaster
-                .receive_message(Signal {
-                    to: "broadcaster".to_string(),
-                    from: "main".to_string(),
-                    state: false,
-                })
-                .into();
-            while let Some(s) = queue.pop_front() {
-                if s.to == rx_conjunction.label && s.state {
-                    if let Some(val) = visited.get_mut(&s.from) {
-                        *val = i;
+            queue.push_back(Signal {
+                to: self.broadcaster_id,
+                from: button_id,
+                state: false,
+            });
+
+            while let Some(signal) = queue.pop_front() {
+                if signal.to == rx_parent_id && signal.state {
+                    if let Some(val) = visited.get_mut(&signal.from) {
+                        if *val == 0 {
+                            *val = i;
+                        }
+                    }
+
+                    if visited.values().all(|&v| v != 0) {
+                        return visited
+                            .values()
+                            .fold(1, |acc, &v| num::integer::lcm(acc, v));
                     }
                 }
 
-                if visited.iter().all(|(_k, &v)| v != 0) {
-                    let mut lcm = 1;
-                    for v in visited {
-                        lcm = num::integer::lcm(lcm, v.1);
-                    }
-                    return lcm;
+                if signal.to.0 >= self.modules.len() {
+                    continue;
                 }
 
-                let module = match self.modules.iter_mut().find(|x| x.get_label() == s.to) {
-                    Some(m) => m,
-                    None => {
-                        continue;
+                let module = &mut self.modules[signal.to.0];
+                let next_state = match &mut module.module_type {
+                    ModuleType::Broadcaster => Some(signal.state),
+                    ModuleType::FlipFlop { state } => {
+                        if signal.state {
+                            None
+                        } else {
+                            *state = !*state;
+                            Some(*state)
+                        }
                     }
+                    ModuleType::Conjunction { remembered_pulses } => {
+                        remembered_pulses.insert(signal.from, signal.state);
+                        Some(!remembered_pulses.values().all(|&v| v))
+                    }
+                    ModuleType::Sink => None,
                 };
 
-                let signals = module.receive_message(s);
-                for signal in signals.iter() {
-                    queue.push_back(signal.clone());
+                if let Some(state) = next_state {
+                    for &dest in &module.destinations {
+                        queue.push_back(Signal {
+                            to: dest,
+                            from: module.id,
+                            state,
+                        });
+                    }
                 }
             }
         }
-
-        return 0;
+        0
     }
 }
 
@@ -164,228 +223,100 @@ impl FromStr for Machine {
     type Err = MachineError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut modules: Vec<IModuleType> = s.lines().map(IModuleFactory::new_module).collect();
+        let mut label_to_id = HashMap::new();
+        let mut raw_lines = Vec::new();
 
-        let module_lookup = modules.clone();
+        for line in s.lines() {
+            if line.is_empty() {
+                continue;
+            }
+            let parts: Vec<&str> = line.split(" -> ").collect();
+            let mut label = parts[0];
+            let prefix = if label.starts_with(['%', '&']) {
+                let p = label.chars().next().unwrap();
+                label = &label[1..];
+                Some(p)
+            } else {
+                None
+            };
 
-        for module in modules.iter_mut() {
-            match module {
-                IModuleType::Broadcaster(_) => (),
-                IModuleType::FlipFlop(_) => (),
-                IModuleType::Conjunction(c) => {
-                    let labels: Vec<String> = module_lookup
-                        .iter()
-                        .filter(|&x| x.get_destinations().iter().any(|d| d.eq(&c.label)))
-                        .map(|x| x.get_label())
-                        .collect();
-                    for label in labels {
-                        c.remembered_pulses.insert(label, false);
-                    }
+            let next_id = ModuleId(label_to_id.len());
+            let id = *label_to_id.entry(label.to_string()).or_insert(next_id);
+            raw_lines.push((id, label.to_string(), prefix, parts[1]));
+        }
+
+        let mut modules_map: HashMap<ModuleId, Module> = HashMap::new();
+        for (id, label, prefix, dest_str) in raw_lines {
+            let mut destinations = Vec::new();
+            for d in dest_str.split(", ") {
+                let next_id = ModuleId(label_to_id.len());
+                let did = *label_to_id.entry(d.to_string()).or_insert(next_id);
+                destinations.push(did);
+            }
+
+            let module_type = match prefix {
+                Some('%') => ModuleType::FlipFlop { state: false },
+                Some('&') => ModuleType::Conjunction {
+                    remembered_pulses: HashMap::new(),
+                },
+                _ => ModuleType::Broadcaster,
+            };
+
+            modules_map.insert(
+                id,
+                Module {
+                    id,
+                    label,
+                    module_type,
+                    destinations,
+                },
+            );
+        }
+
+        let mut modules = Vec::with_capacity(label_to_id.len());
+        for i in 0..label_to_id.len() {
+            let id = ModuleId(i);
+            if let Some(m) = modules_map.remove(&id) {
+                modules.push(m);
+            } else {
+                let label = label_to_id
+                    .iter()
+                    .find(|&(_, &v)| v == id)
+                    .map(|(k, _)| k.clone())
+                    .unwrap();
+                modules.push(Module {
+                    id,
+                    label,
+                    module_type: ModuleType::Sink,
+                    destinations: vec![],
+                });
+            }
+        }
+
+        let module_count = modules.len();
+        for i in 0..module_count {
+            let mut inputs = Vec::new();
+            let current_id = modules[i].id;
+            for sender in &modules {
+                if sender.destinations.contains(&current_id) {
+                    inputs.push(sender.id);
+                }
+            }
+
+            if let ModuleType::Conjunction { remembered_pulses } = &mut modules[i].module_type {
+                for input_id in inputs {
+                    remembered_pulses.insert(input_id, false);
                 }
             }
         }
 
-        return Ok(Machine { modules });
-    }
-}
+        let broadcaster_id = *label_to_id.get("broadcaster").ok_or(MachineError)?;
 
-#[derive(Clone)]
-enum IModuleType {
-    Broadcaster(Broadcaster),
-    FlipFlop(FlipFlop),
-    Conjunction(Conjunction),
-}
-
-impl IModuleType {
-    pub fn as_conjunction(&self) -> Option<Conjunction> {
-        return match self {
-            IModuleType::Broadcaster(_b) => None,
-            IModuleType::FlipFlop(_f) => None,
-            IModuleType::Conjunction(c) => Some(c.clone()),
-        };
-    }
-}
-
-#[derive(Clone)]
-struct Signal {
-    to: String,
-    from: String,
-    state: bool,
-}
-
-#[derive(Clone)]
-struct FlipFlop {
-    label: String,
-    state: bool,
-    destinations: Vec<String>,
-}
-
-impl IModule for IModuleType {
-    fn send_messages(&self) {
-        match self {
-            IModuleType::Broadcaster(b) => b.send_messages(),
-            IModuleType::FlipFlop(f) => f.send_messages(),
-            IModuleType::Conjunction(c) => c.send_messages(),
-        }
-    }
-
-    fn receive_message(&mut self, signal: Signal) -> Vec<Signal> {
-        return match self {
-            IModuleType::Broadcaster(b) => b.receive_message(signal),
-            IModuleType::FlipFlop(f) => f.receive_message(signal),
-            IModuleType::Conjunction(c) => c.receive_message(signal),
-        };
-    }
-
-    fn get_destinations(&self) -> Vec<String> {
-        return match self {
-            IModuleType::Broadcaster(b) => b.get_destinations(),
-            IModuleType::FlipFlop(f) => f.get_destinations(),
-            IModuleType::Conjunction(c) => c.get_destinations(),
-        };
-    }
-
-    fn get_label(&self) -> String {
-        return match self {
-            IModuleType::Broadcaster(b) => b.get_label(),
-            IModuleType::FlipFlop(f) => f.get_label(),
-            IModuleType::Conjunction(c) => c.get_label(),
-        };
-    }
-}
-
-impl IModule for FlipFlop {
-    fn send_messages(&self) {
-        println!("I am Flip Flop {}", self.label);
-    }
-
-    fn receive_message(&mut self, signal: Signal) -> Vec<Signal> {
-        if signal.state {
-            return vec![];
-        }
-
-        self.state = !self.state;
-        return self
-            .destinations
-            .iter()
-            .map(|x| Signal {
-                to: x.to_string(),
-                from: self.label.to_string(),
-                state: self.state,
-            })
-            .collect();
-    }
-
-    fn get_destinations(&self) -> Vec<String> {
-        return self.destinations.clone();
-    }
-
-    fn get_label(&self) -> String {
-        return self.label.clone();
-    }
-}
-
-#[derive(Clone)]
-struct Broadcaster {
-    label: String,
-    destinations: Vec<String>,
-}
-
-impl IModule for Broadcaster {
-    fn send_messages(&self) {
-        println!("I am Broadcaster {}", self.label);
-    }
-
-    fn receive_message(&mut self, signal: Signal) -> Vec<Signal> {
-        return self
-            .destinations
-            .iter()
-            .map(|x| Signal {
-                to: x.to_string(),
-                from: self.label.to_string(),
-                state: signal.state,
-            })
-            .collect();
-    }
-
-    fn get_destinations(&self) -> Vec<String> {
-        return self.destinations.clone();
-    }
-
-    fn get_label(&self) -> String {
-        return self.label.clone();
-    }
-}
-
-#[derive(Clone)]
-struct Conjunction {
-    label: String,
-    destinations: Vec<String>,
-    remembered_pulses: HashMap<String, bool>,
-}
-
-impl IModule for Conjunction {
-    fn send_messages(&self) {
-        println!("I am Conjunction {}", self.label);
-    }
-
-    fn receive_message(&mut self, signal: Signal) -> Vec<Signal> {
-        // set state
-        if let Some(val) = self.remembered_pulses.get_mut(&signal.from) {
-            *val = signal.state;
-        }
-
-        let state = !self.remembered_pulses.iter().all(|(_k, &v)| v);
-
-        return self
-            .destinations
-            .iter()
-            .map(|x| Signal {
-                to: x.to_string(),
-                from: self.label.to_string(),
-                state,
-            })
-            .collect();
-    }
-
-    fn get_destinations(&self) -> Vec<String> {
-        return self.destinations.clone();
-    }
-
-    fn get_label(&self) -> String {
-        return self.label.clone();
-    }
-}
-
-struct IModuleFactory {}
-
-impl IModuleFactory {
-    pub fn new_module(str: &str) -> IModuleType {
-        let [label, destinations] =
-            &str.split(" -> ").map(String::from).collect::<Vec<String>>()[..]
-        else {
-            panic!()
-        };
-
-        let module: IModuleType = match str.chars().nth(0) {
-            Some('b') => IModuleType::Broadcaster(Broadcaster {
-                label: label[..].to_string(),
-                destinations: destinations.split(", ").map(String::from).collect(),
-            }),
-            Some('%') => IModuleType::FlipFlop(FlipFlop {
-                label: label[1..].to_string(),
-                state: false,
-                destinations: destinations.split(", ").map(String::from).collect(),
-            }),
-            Some('&') => IModuleType::Conjunction(Conjunction {
-                label: label[1..].to_string(),
-                destinations: destinations.split(", ").map(String::from).collect(),
-                remembered_pulses: HashMap::new(),
-            }),
-            _ => panic!("not a valid type"),
-        };
-
-        return module;
+        Ok(Machine {
+            modules,
+            label_to_id,
+            broadcaster_id,
+        })
     }
 }
 
