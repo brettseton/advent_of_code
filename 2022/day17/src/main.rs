@@ -1,10 +1,14 @@
 use std::{
     collections::{HashMap, HashSet},
-    str::FromStr,
+    ops::Add,
 };
 
 const TEST_INPUT_1: &str = include_str!("../input/test1.txt");
 const TEST_INPUT_2: &str = include_str!("../input/test2.txt");
+
+const CHAMBER_WIDTH: i64 = 7;
+const INITIAL_X_OFFSET: i64 = 2;
+const INITIAL_Y_OFFSET: i64 = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Point {
@@ -13,8 +17,16 @@ struct Point {
 }
 
 impl Point {
-    fn new(x: i64, y: i64) -> Self {
+    const fn new(x: i64, y: i64) -> Self {
         Point { x, y }
+    }
+}
+
+impl Add for Point {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self::new(self.x + other.x, self.y + other.y)
     }
 }
 
@@ -24,14 +36,14 @@ enum Direction {
     Right,
 }
 
-impl FromStr for Direction {
-    type Err = String;
+impl TryFrom<char> for Direction {
+    type Error = String;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "<" => Ok(Direction::Left),
-            ">" => Ok(Direction::Right),
-            _ => Err(format!("Invalid direction: {}", s)),
+    fn try_from(c: char) -> Result<Self, Self::Error> {
+        match c {
+            '<' => Ok(Direction::Left),
+            '>' => Ok(Direction::Right),
+            _ => Err(format!("Invalid direction: {}", c)),
         }
     }
 }
@@ -96,7 +108,7 @@ impl RockType {
 struct State {
     rock_type: RockType,
     jet_idx: usize,
-    relative_heights: [i64; 7],
+    relative_heights: [i64; CHAMBER_WIDTH as usize],
 }
 
 struct Chamber {
@@ -118,6 +130,13 @@ impl Chamber {
         }
     }
 
+    fn is_colliding(&self, pos: Point, rock_coords: &[Point]) -> bool {
+        rock_coords.iter().any(|&delta| {
+            let p = pos + delta;
+            !(0..CHAMBER_WIDTH).contains(&p.x) || p.y <= 0 || self.stopped_rocks.contains(&p)
+        })
+    }
+
     fn simulate(&mut self, jets: &[Direction], num_rocks: i64) -> i64 {
         let mut i = 0;
         while i < num_rocks {
@@ -125,7 +144,7 @@ impl Chamber {
             let rock_coords = rock_type.coords();
 
             if self.extra_height == 0 {
-                let mut rel_h = [0i64; 7];
+                let mut rel_h = [0i64; CHAMBER_WIDTH as usize];
                 for (x, h) in rel_h.iter_mut().enumerate() {
                     let mut depth = 0;
                     while depth < 100 {
@@ -149,8 +168,7 @@ impl Chamber {
                 if let Some(&(old_i, old_h)) = self.history.get(&state) {
                     let cycle_len = i - old_i;
                     let cycle_h = self.max_height - old_h;
-                    let remaining_rocks = num_rocks - i;
-                    let num_cycles = remaining_rocks / cycle_len;
+                    let num_cycles = (num_rocks - i) / cycle_len;
 
                     self.extra_height = num_cycles * cycle_h;
                     i += num_cycles * cycle_len;
@@ -163,7 +181,7 @@ impl Chamber {
                 break;
             }
 
-            let mut curr_pos = Point::new(2, self.max_height + 4);
+            let mut curr_pos = Point::new(INITIAL_X_OFFSET, self.max_height + INITIAL_Y_OFFSET);
 
             loop {
                 let jet = jets[self.jet_idx];
@@ -174,45 +192,20 @@ impl Chamber {
                     Direction::Right => curr_pos.x + 1,
                 };
 
-                let mut can_move_x = true;
-                for delta in rock_coords {
-                    let x = next_x + delta.x;
-                    let y = curr_pos.y + delta.y;
-                    if !(0..7).contains(&x) || self.stopped_rocks.contains(&Point::new(x, y)) {
-                        can_move_x = false;
-                        break;
-                    }
-                }
-                if can_move_x {
+                if !self.is_colliding(Point::new(next_x, curr_pos.y), rock_coords) {
                     curr_pos.x = next_x;
                 }
 
                 let next_y = curr_pos.y - 1;
-                let mut can_fall = true;
-                if next_y <= 0 {
-                    can_fall = false;
-                } else {
-                    for delta in rock_coords {
-                        let x = curr_pos.x + delta.x;
-                        let y = next_y + delta.y;
-                        if self.stopped_rocks.contains(&Point::new(x, y)) {
-                            can_fall = false;
-                            break;
-                        }
-                    }
-                }
-
-                if can_fall {
-                    curr_pos.y = next_y;
-                } else {
-                    for delta in rock_coords {
-                        let p = Point::new(curr_pos.x + delta.x, curr_pos.y + delta.y);
+                if self.is_colliding(Point::new(curr_pos.x, next_y), rock_coords) {
+                    for &delta in rock_coords {
+                        let p = curr_pos + delta;
                         self.stopped_rocks.insert(p);
-                        if p.y > self.max_height {
-                            self.max_height = p.y;
-                        }
+                        self.max_height = self.max_height.max(p.y);
                     }
                     break;
+                } else {
+                    curr_pos.y = next_y;
                 }
             }
             i += 1;
@@ -226,7 +219,7 @@ fn parse_input(input: &str) -> Vec<Direction> {
     input
         .trim()
         .chars()
-        .filter_map(|c| Direction::from_str(&c.to_string()).ok())
+        .filter_map(|c| Direction::try_from(c).ok())
         .collect()
 }
 
@@ -237,7 +230,7 @@ fn part1(input: &str) -> i64 {
 
 fn part2(input: &str) -> i64 {
     let jets = parse_input(input);
-    Chamber::new().simulate(&jets, 1000000000000)
+    Chamber::new().simulate(&jets, 1_000_000_000_000)
 }
 
 fn main() {
